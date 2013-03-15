@@ -1,0 +1,46 @@
+{
+	"codeformatter_php_options":
+	{
+		"indent_size": 1, // Indent size
+		"indent_with_tabs": true, // Indent with tabs or spaces
+		"indent_style": "k&r", // Indent the code in k&r, allman, gnu or whitesmiths style
+		// Add new lines after o before specific contents The settings are 'before' and 'after'. As value, use a comma separated list of contents or tokens:
+		"new_line_before": "switch,while,for,foreach,try,case,do,goto,namespace,T_INTERFACE,return,continue,endfor,endforeach,endif,endswitch,endwhile,break,throw",
+		"new_line_after": "",
+		"format_array_nested": true, // Indent the array structures Ex.
+		"pear": true, // Format the code to make it compatible with PEAR Coding Standards
+		"pear_add_header": "", // Add one of the standard PEAR comment header (php, bsd, apache, lgpl, pear) or any file as licence header.
+		// Two extra options allows to break the spec about newline before braces on function and classes:
+		"pear_newline_class": true,
+		"pear_newline_function": true,
+		"lowercase": true, // Lowercase all control structures. Such as TRUE, FALSE, SWITCH and more
+		"fluent": false, // Create fluent style for multi-level object access.
+		"list_class_function": false, // Create a list of functions and classes in the script By default, this Filter puts the list at the beggining of the script.
+		"equals_align": false, // Align the equals symbols in contiguous lines.
+		"phpbb": false // Format the code to make it compatible with phpBB Coding Standards
+	},
+	"codeformatter_js_options":
+	{
+		"indent_size": 1, // indentation size
+		"indent_with_tabs": true, // Indent with tabs or spaces
+		"preserve_newlines": true, // whether existing line breaks should be preserved,
+		"max_preserve_newlines": 2, // maximum number of line breaks to be preserved in one chunk
+		"jslint_happy": false, // if true, then jslint-stricter mode is enforced. Example function () vs function()
+		"brace_style": "collapse", // "collapse" | "expand" | "end-expand". put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
+		"keep_array_indentation": false // keep array identation.
+	},
+	"codeformatter_html_options":
+	{
+		"indent_size": 1, // indentation size
+		"indent_with_tabs": true, // Indent with tabs or spaces
+		"max_char": 80, // maximum amount of characters per line,
+		"brace_style": "collapse", // "collapse" | "expand" | "end-expand". put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
+		"unformatted": ["a"] // list of tags, that shouldn't be reformatted. Example["a", "sub", "sup", "b", "i", "u"]
+	},
+	"codeformatter_css_options":
+	{
+		"indent_with_tab": true, // Indent with tabs or spaces
+		"openbrace": "end-of-line" // "end-of-line" | "expand". put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style).
+	}
+
+}
