@@ -28,6 +28,7 @@ mods_load_order = [
     '.jsformatter',
     '.htmlformatter',
     '.cssformatter',
+    '.pyformatter',
     '.formatter'
 ]
 

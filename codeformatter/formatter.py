@@ -12,6 +12,7 @@ try:
 	from .jsformatter import JsFormatter
 	from .htmlformatter import HtmlFormatter
 	from .cssformatter import CssFormatter
+	from .pyformatter import PyFormatter
 
 except (ValueError):
 	# Python 2
@@ -19,6 +20,7 @@ except (ValueError):
 	from jsformatter import JsFormatter
 	from htmlformatter import HtmlFormatter
 	from cssformatter import CssFormatter
+	from pyformatter import PyFormatter
 
 
 class Formatter:
@@ -29,7 +31,8 @@ class Formatter:
 			'javascript': JsFormatter,
 			'json': JsFormatter,
 			'html': HtmlFormatter,
-			'css': CssFormatter
+			'css': CssFormatter,
+			'python': PyFormatter
 		}
 
 
@@ -57,10 +60,9 @@ class Formatter:
 
 
 	def exists(self):
-		try:
-			found = self.classmap[self.syntax]
+		if self.syntax in self.classmap:
 			return True
-		except Exception as e:
+		else:
 			return False
 
 	def getSyntax(self):
