@@ -14,6 +14,7 @@ CodeFormatter has support for the following languages:
 * Python - By PythonTidy (only ST2)
 
 
+
 Installing
 ----------
 **With the Package Control plugin:** The easiest way to install CodeFormatter is through Package Control, which can be found at this site: http://wbond.net/sublime_packages/package_control
