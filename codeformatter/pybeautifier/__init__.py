@@ -3,8 +3,10 @@
 # @link 			http://long.ge
 # @license 		GNU General Public License version 2 or later;
 
-
-from StringIO import StringIO
+try:
+	from io import StringIO	
+except:
+	from StringIO import StringIO
 from PythonTidy.config import version, summary
 from PythonTidy import PythonTidy
 from PythonTidy import PythonTidyWrapper
