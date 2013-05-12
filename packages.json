@@ -6,12 +6,12 @@
 			"description": "CodeFormatter is a Sublime Text 2/3 plugin, that supports format (beautify) source code.",
 			"author": "Avtandil Kikabidze",
 			"homepage": "https://github.com/akalongman/sublimetext-codeformatter",
-			"last_modified": "2013-04-30 14:51",
+			"last_modified": "2013-05-12 23:49",
 			"platforms": {
 				"*": [
 					{
-						"version": "1.3",
-						"url": "https://nodeload.github.com/akalongman/sublimetext-codeformatter/zip/1.3"
+						"version": "1.4",
+						"url": "https://nodeload.github.com/akalongman/sublimetext-codeformatter/zip/1.4"
 					}
 				]
 			}

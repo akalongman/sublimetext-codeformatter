@@ -284,7 +284,10 @@ VERSION = '1.21'  # 2010 Sep 03
 import sys
 import os
 import codecs
-import StringIO
+try:
+	from io import StringIO
+except ImportError:
+	from StringIO import StringIO
 import re
 import textwrap  # 2007 May 25
 if DEBUG:

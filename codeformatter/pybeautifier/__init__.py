@@ -4,8 +4,8 @@
 # @license 		GNU General Public License version 2 or later;
 
 try:
-	from io import StringIO	
-except:
+	from io import StringIO
+except ImportError:
 	from StringIO import StringIO
 from PythonTidy.config import version, summary
 from PythonTidy import PythonTidy
