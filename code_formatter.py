@@ -64,7 +64,6 @@ class CodeFormatterCommand(sublime_plugin.TextCommand):
 		else:
 			show_error("Format error:\n"+stderr)
 
-
 	def run2(self):
 
 		if self.view.is_scratch():
@@ -105,7 +104,6 @@ def console_write(text, prefix=False):
 	        string = text.encode('UTF-8')
     if prefix:
         sys.stdout.write('CodeFormatter: ')
-    print(text)
 
 
 def show_error(text):

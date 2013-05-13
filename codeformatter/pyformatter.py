@@ -9,13 +9,16 @@ import sys
 import re
 import sublime
 
-try:
-	# Python 3
-	from .pybeautifier import Beautifier
-except (ValueError):
-	# Python 2
-	from pybeautifier import Beautifier
 
+st_version = 2
+if sublime.version() == '' or int(sublime.version()) > 3000:
+	st_version = 3
+
+if (st_version == 2):
+	from pybeautifier import Beautifier
+else:
+	#from .pybeautifier import Beautifier
+	print('CodeFormatter: formatting python files on ST3 not supported.')
 
 
 class PyFormatter:
@@ -25,6 +28,11 @@ class PyFormatter:
 
 
 	def format(self, text):
+		if (self.formatter.st_version == 3):
+			stdout = ""
+			stderr = "formatting python files on ST3 not supported!"
+			return stdout, stderr
+
 		opts = self.formatter.settings.get('codeformatter_python_options')
 
 

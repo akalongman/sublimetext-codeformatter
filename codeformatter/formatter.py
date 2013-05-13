@@ -34,7 +34,9 @@ class Formatter:
 			'css': CssFormatter,
 			'python': PyFormatter
 		}
-
+		self.st_version = 2
+		if sublime.version() == '' or int(sublime.version()) > 3000:
+			self.st_version = 3
 
 		self.syntax_file = view.settings().get('syntax')
 		self.syntax = self.getSyntax()
@@ -43,6 +45,7 @@ class Formatter:
 		self.packages_path = sublime.packages_path()
 
 	def format(self, text):
+
 		try:
 			formatter = self.classmap[self.syntax](self)
 		except Exception as e:
@@ -76,4 +79,8 @@ class Formatter:
 		return found.lower()
 
 	def clean(self, string):
-		return re.sub(r'\r\n|\r', '\n', string.decode('utf-8'))
+		if (self.st_version == 2):
+			mstr = string.decode('utf-8')
+		else:
+			mstr = string
+		return re.sub(r'\r\n|\r', '\n', mstr)
