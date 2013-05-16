@@ -79,8 +79,7 @@ class Formatter:
 		return found.lower()
 
 	def clean(self, string):
-		if (self.st_version == 2):
-			mstr = string.decode('utf-8')
-		else:
-			mstr = string
-		return re.sub(r'\r\n|\r', '\n', mstr)
+		if hasattr(string, 'decode'):
+			string = string.decode('UTF-8')
+
+		return re.sub(r'\r\n|\r', '\n', string)
