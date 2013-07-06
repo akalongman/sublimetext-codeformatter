@@ -58,7 +58,7 @@ Getting and installing the PEAR package manager - http://pear.php.net/manual/en/
 After install PEAR Php_beautifier
 
 Language specific options:
-```json
+```js
     "codeformatter_php_options":
 	{
 		"indent_size": 1, // Indent size
@@ -89,7 +89,7 @@ Javascript/JSON/JSONP - used [JSBeautifier] (http://jsbeautifier.org/) by Einar 
 First of all, you must install [node.js](http://nodejs.org/#download) in order to run the javascript as command line.
 
 Language specific options:
-```json
+```js
     "codeformatter_js_options":
 	{
 		"indent_size": 1, // indentation size
@@ -108,7 +108,7 @@ HTML - used [JSBeautifier] (http://jsbeautifier.org/) by Einar Lielmanis and Sty
 you must install node.js (see above)
 
 Language specific options:
-```json
+```js
     "codeformatter_html_options":
 	{
 		"indent_size": 1, // indentation size
@@ -125,7 +125,7 @@ CSS - used [JSBeautifier] (http://jsbeautifier.org/) by Einar Lielmanis and Styl
 you must install node.js (see above)
 
 Language specific options:
-```json
+```js
     "codeformatter_css_options":
 	{
 		"indent_with_tab": true, // Indent with tabs or spaces
@@ -136,7 +136,7 @@ Language specific options:
 CSS - used [PythonTidy] (https://pypi.python.org/pypi/PythonTidy/) by Chuck Rhode
 
 Language specific options:
-```json
+```js
 	"codeformatter_python_options":
 	{
 		"indent_size": 1, // indentation size
