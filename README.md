@@ -211,4 +211,4 @@ Add other languages support:
 
 Troubleshooting
 ---------------
-If you like living on the edge, please report any bugs you find on the [CodeFormatter issues](https://github.com/skalongman/sublimetext-codeformatter/issues) page.
+If you like living on the edge, please report any bugs you find on the [CodeFormatter issues](https://github.com/akalongman/sublimetext-codeformatter/issues) page.
