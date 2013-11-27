@@ -99,11 +99,15 @@ def plugin_loaded():
 
 
 def console_write(text, prefix=False):
-    if int(sublime.version()) < 3000:
-	    if isinstance(text, unicode):
-	        string = text.encode('UTF-8')
-    if prefix:
-        sys.stdout.write('CodeFormatter: ')
+	#if (st_version == 2):
+	#	if isinstance(text, unicode):
+	#		text = text.encode('UTF-8')
+	#elif (st_version == 3):
+	#	if isinstance(text, str):
+	#		text = text.encode('UTF-8')
+	if prefix:
+		sys.stdout.write('CodeFormatter: ')
+	sys.stdout.write(text+"\n")
 
 
 def show_error(text):
