@@ -62,7 +62,10 @@ class JsFormatter:
 		else:
 			options.append("keep_array_indentation:false")
 
-
+		if (opts["break_chained_methods"]):
+			options.append("break_chained_methods:true")
+		else:
+			options.append("break_chained_methods:false")
 
 
 
