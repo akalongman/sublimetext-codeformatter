@@ -24,6 +24,7 @@
 	{
 		"indent_size": 1, // indentation size
 		"indent_with_tabs": true, // Indent with tabs or spaces
+		"break_chained_methods": true, // break lines on chained methods
 		"preserve_newlines": true, // whether existing line breaks should be preserved,
 		"max_preserve_newlines": 2, // maximum number of line breaks to be preserved in one chunk
 		"jslint_happy": false, // if true, then jslint-stricter mode is enforced. Example function () vs function()
