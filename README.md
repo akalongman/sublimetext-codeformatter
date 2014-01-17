@@ -198,7 +198,7 @@ Language specific options:
 
 Usage
 -----
-Tools -> Command Palette (`Cmd+Shift+P` or `Ctrl+Shift+P`) and type `CodeFormat: Format`.
+Tools -> Command Palette (`Cmd+Shift+P` or `Ctrl+Shift+P`) and type `Format`.
 
 You can set up your own key combo for this, by going to Preferences -> Key Bindings - User, and adding a command in that huge array: `{ "keys": ["ctrl+alt+f"], "command": "code_formatter" },`. Default keybinding is `ctrl+alt+f`. You can use any other key you want, thought most of them are already taken.
 
