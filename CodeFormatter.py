@@ -31,6 +31,11 @@ except (ValueError):
 	from codeformatter import reloader
 	from codeformatter.formatter import Formatter
 
+# fix for ST2
+cprint = globals()["__builtins__"]["print"]
+
+if st_version == 2:
+	plugin_loaded()
 
 
 class CodeFormatterCommand(sublime_plugin.TextCommand):
@@ -95,8 +100,7 @@ class CodeFormatterCommand(sublime_plugin.TextCommand):
 
 
 def plugin_loaded():
-	console_write('Plugin loaded.', True)
-
+	cprint('CodeFormatter: Plugin Initialized')
 
 def console_write(text, prefix=False):
 	#if (st_version == 2):
