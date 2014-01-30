@@ -12,7 +12,13 @@ class Beautifier:
 	def beautify(self, text, options):
 		exec_path = self.formatter.packages_path + "/CodeFormatter/codeformatter/jsbeautifier/exec.js"
 
-		cmd = ["node", exec_path, options]
+		node_path = self.formatter.settings.get('codeformatter_node_path', '');
+		if (node_path == "") :
+			node_path = "node"
+		else:
+			node_path = node_path+"/node"
+
+		cmd = [node_path, exec_path, options]
 		stderr = ""
 		stdout = ""
 		try:

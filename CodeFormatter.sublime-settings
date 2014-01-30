@@ -1,4 +1,7 @@
 {
+	// Path for PHP installation, e.g. "C:/Program Files/PHP". If empty, uses command "php" from system environments
+	"codeformatter_php_path": "",
+
 	"codeformatter_php_options":
 	{
 		"indent_size": 1, // Indent size
@@ -19,6 +22,9 @@
 		"equals_align": false, // Align the equals symbols in contiguous lines.
 		"phpbb": false // Format the code to make it compatible with phpBB Coding Standards
 	},
+
+	// Path for nodejs installation, e.g. "C:/Program Files/nodejs". If empty, uses command "node" from system environments
+	"codeformatter_node_path": "",
 
 	"codeformatter_js_options":
 	{

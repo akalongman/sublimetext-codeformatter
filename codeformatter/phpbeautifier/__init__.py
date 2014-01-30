@@ -12,12 +12,20 @@ class Beautifier:
 	def beautify(self, text, indent, filters):
 		stderr = ""
 		stdout = ""
+
+		php_path = self.formatter.settings.get('codeformatter_php_path', '');
 		try:
 			if (self.formatter.platform == "windows"):
-				cmd = "php_beautifier.bat"
+				if (php_path == ""):
+					cmd = 'php_beautifier.bat'
+				else:
+					cmd = php_path+'/php_beautifier.bat'
 				p = subprocess.Popen([cmd, indent, "-l", filters, "-f", "-", "-o", "-"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, creationflags=subprocess.SW_HIDE)
 			else:
-				cmd = "php_beautifier"
+				if (php_path == ""):
+					cmd = 'php_beautifier'
+				else:
+					cmd = php_path+'/php_beautifier'
 				p = subprocess.Popen([cmd, indent, "-l", filters, "-f", "-", "-o", "-"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			stdout, stderr = p.communicate(text)
 		except Exception as e:
