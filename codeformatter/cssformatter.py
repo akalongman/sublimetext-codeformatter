@@ -10,11 +10,11 @@ import sublime
 import subprocess
 
 try:
-	# Python 3
-	from .cssbeautifier import Beautifier
+ 	# Python 3
+	from .lib import cssbeautifier
 except (ValueError):
-	# Python 2
-	from cssbeautifier import Beautifier
+ 	# Python 2
+	from lib import cssbeautifier
 
 
 class CssFormatter:
@@ -23,27 +23,44 @@ class CssFormatter:
 
 
 	def format(self, text):
+		text = text.decode("utf-8")
 		opts = self.formatter.settings.get('codeformatter_css_options')
 
 
-		options = []
+		stderr = ""
+		stdout = ""
+		options = cssbeautifier.default_options()
 
-		if (opts["indent_with_tab"]):
-			options.append("indent:	")
+		if (opts["indent_size"]):
+			options.indent_size = opts["indent_size"]
 		else:
-			options.append("indent: ")
+			options.indent_size = 4
 
-
-		if (opts["openbrace"]):
-			options.append("openbrace:"+str(opts["openbrace"]))
+		if (opts["indent_char"]):
+			options.indent_char = opts["indent_char"]
 		else:
-			options.append("openbrace:end-of-line")
+			options.indent_char = ' '
+
+		if (opts["selector_separator_newline"]):
+			options.selector_separator_newline = True
+		else:
+			options.selector_separator_newline = False
+
+		if (opts["end_with_newline"]):
+			options.end_with_newline = True
+		else:
+			options.end_with_newline = False
 
 
-		options = ";".join(options)
 
-		beautifier = Beautifier(self.formatter)
-		stdout, stderr = beautifier.beautify(text, options);
+
+		try:
+ 		 	stdout = cssbeautifier.beautify(text, options)
+		except Exception as e:
+		 	stderr = str(e)
+
+		if (not stderr and not stdout):
+			stderr = "Formatting error!"
 
 		return stdout, stderr
 

@@ -10,11 +10,11 @@ import sublime
 import subprocess
 
 try:
-	# Python 3
-	from .jsbeautifier import Beautifier
+ 	# Python 3
+	from .lib import jsbeautifier
 except (ValueError):
-	# Python 2
-	from jsbeautifier import Beautifier
+ 	# Python 2
+	from lib import jsbeautifier
 
 
 class JsFormatter:
@@ -23,53 +23,104 @@ class JsFormatter:
 
 
 	def format(self, text):
+		text = text.decode("utf-8")
 		opts = self.formatter.settings.get('codeformatter_js_options')
 
+		stderr = ""
+		stdout = ""
+		options = jsbeautifier.default_options()
 
-		options = []
 		if (opts["indent_size"]):
-			options.append("indent_size:"+str(opts["indent_size"]))
+			options.indent_size = opts["indent_size"]
 		else:
-			options.append("indent_size:1")
+			options.indent_size = 4
+
+
+		if (opts["indent_char"]):
+			options.indent_char = str(opts["indent_char"])
+		else:
+			options.indent_char = "	"
 
 		if (opts["indent_with_tabs"]):
-			options.append("indent_char:	")
+			options.indent_with_tabs = True
 		else:
-			options.append("indent_char: ")
+			options.indent_with_tabs = False
 
 		if (opts["preserve_newlines"]):
-			options.append("preserve_newlines:true")
+			options.preserve_newlines = True
 		else:
-			options.append("preserve_newlines:false")
+			options.preserve_newlines = False
 
 		if (opts["max_preserve_newlines"]):
-			options.append("max_preserve_newlines:"+str(opts["max_preserve_newlines"]))
+			options.max_preserve_newlines = opts["max_preserve_newlines"]
 		else:
-			options.append("max_preserve_newlines:10")
+			options.max_preserve_newlines = 10
+
+		if (opts["space_in_paren"]):
+			options.space_in_paren = True
+		else:
+			options.space_in_paren = False
+
+		if (opts["e4x"]):
+			options.e4x = True
+		else:
+			options.e4x = False
 
 		if (opts["jslint_happy"]):
-			options.append("jslint_happy:true")
+			options.jslint_happy = True
 		else:
-			options.append("jslint_happy:false")
+			options.jslint_happy = False
+
 
 		if (opts["brace_style"]):
-			options.append("brace_style:"+str(opts["brace_style"]))
+			options.brace_style = opts["brace_style"]
 		else:
-			options.append("brace_style:collapse")
+			options.brace_style = 'collapse'
+
 
 		if (opts["keep_array_indentation"]):
-			options.append("keep_array_indentation:true")
+			options.keep_array_indentation = True
 		else:
-			options.append("keep_array_indentation:false")
+			options.keep_array_indentation = False
 
 
+		if (opts["keep_function_indentation"]):
+			options.keep_function_indentation = True
+		else:
+			options.keep_function_indentation = False
 
 
+		if (opts["eval_code"]):
+			options.eval_code = True
+		else:
+			options.eval_code = False
 
-		options = ";".join(options)
 
-		beautifier = Beautifier(self.formatter)
-		stdout, stderr = beautifier.beautify(text, options);
+		if (opts["unescape_strings"]):
+			options.unescape_strings = True
+		else:
+			options.unescape_strings = False
+
+
+		if (opts["wrap_line_length"]):
+			options.wrap_line_length = opts["wrap_line_length"]
+		else:
+			options.wrap_line_length = 0
+
+
+		if (opts["break_chained_methods"]):
+			options.break_chained_methods = True
+		else:
+			options.break_chained_methods = False
+
+
+		try:
+ 		 	stdout = jsbeautifier.beautify(text, options)
+		except Exception as e:
+		 	stderr = str(e)
+
+		if (not stderr and not stdout):
+			stderr = "Formatting error!"
 
 		return stdout, stderr
 
