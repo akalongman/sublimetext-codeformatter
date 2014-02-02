@@ -41,6 +41,12 @@ class CssFormatter:
 		else:
 			options.indent_char = ' '
 
+		if (opts["indent_with_tabs"]):
+			options.indent_with_tabs = True
+		else:
+			options.indent_with_tabs = False
+
+
 		if (opts["selector_separator_newline"]):
 			options.selector_separator_newline = True
 		else:

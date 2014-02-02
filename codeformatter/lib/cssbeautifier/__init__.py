@@ -1,7 +1,12 @@
 from __future__ import print_function
 import sys
 import re
-from .__version__ import __version__
+try:
+ 	# Python 3
+	from .__version__ import __version__
+except (ValueError):
+ 	# Python 2
+	from __version__ import __version__
 
 #
 # The MIT License (MIT)
@@ -148,6 +153,9 @@ class Beautifier:
         self.opts = opts
         self.indentSize = opts.indent_size
         self.indentChar = opts.indent_char
+        if opts.indent_with_tabs:
+            self.indentChar = "\t"
+            self.indentSize = 1
         self.pos = -1
         self.ch = None
 

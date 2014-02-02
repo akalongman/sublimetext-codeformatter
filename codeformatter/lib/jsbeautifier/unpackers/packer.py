@@ -14,7 +14,14 @@
 
 import re
 import string
-from . import UnpackingError
+try:
+ 	# Python 3
+	from . import UnpackingError
+except (ValueError):
+ 	# Python 2
+	from UnpackingError import UnpackingError
+
+
 
 PRIORITY = 1
 

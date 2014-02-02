@@ -1,309 +1,186 @@
 from __future__ import print_function
 import sys
 import re
-from .__version__ import __version__
-
-#
-# The MIT License (MIT)
-
-# Copyright (c) 2013 Einar Lielmanis and contributors.
-
-# Permission is hereby granted, free of charge, to any person
-# obtaining a copy of this software and associated documentation files
-# (the "Software"), to deal in the Software without restriction,
-# including without limitation the rights to use, copy, modify, merge,
-# publish, distribute, sublicense, and/or sell copies of the Software,
-# and to permit persons to whom the Software is furnished to do so,
-# subject to the following conditions:
-
-# The above copyright notice and this permission notice shall be
-# included in all copies or substantial portions of the Software.
-
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS
-# BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
-# ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
-# CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
-
+try:
+ 	# Python 3
+	from .__version__ import __version__
+except (ValueError):
+ 	# Python 2
+	from __version__ import __version__
 
 class BeautifierOptions:
-    def __init__(self):
-        self.indent_size = 4
-        self.indent_char = ' '
-        self.selector_separator_newline = True
-        self.end_with_newline = False
+	def __init__(self):
+		self.indent_size = 4
+		self.indent_char = ' '
+		self.indent_with_tabs = False
+		self.preserve_newlines = False
+		self.max_preserve_newlines = 10
+		self.indent_tags = 'html|head|body|div|nav|ul|ol|dl|li|table|thead|tbody|tr|th|td|blockquote|select|form|option|optgroup|fieldset|legend|label|header|section|aside|footer|figure|video'
 
-    def __repr__(self):
-        return \
+	def __repr__(self):
+		return \
 """indent_size = %d
 indent_char = [%s]
-separate_selectors_newline = [%s]
-end_with_newline = [%s]
-""" % (self.indent_size, self.indent_char,
-       self.separate_selectors, self.end_with_newline)
+indent_with_tabs = [%s]
+preserve_newlines = [%s]
+max_preserve_newlines = [%d]
+indent_tags = [%d]
+""" % (self.indent_size, self.indent_char, self.indent_with_tabs, self.preserve_newlines, self.max_preserve_newlines, self.indent_tags)
 
 
 def default_options():
-    return BeautifierOptions()
+	return BeautifierOptions()
 
 
 def beautify(string, opts=default_options()):
-    b = Beautifier(string, opts)
-    return b.beautify()
+	b = Beautifier(string, opts)
+	return b.beautify()
 
 
 def beautify_file(file_name, opts=default_options()):
-    if file_name == '-':  # stdin
-        stream = sys.stdin
-    else:
-        stream = open(file_name)
-    content = ''.join(stream.readlines())
-    b = Beautifier(content, opts)
-    return b.beautify()
+	if file_name == '-':  # stdin
+		stream = sys.stdin
+	else:
+		stream = open(file_name)
+	content = ''.join(stream.readlines())
+	b = Beautifier(content, opts)
+	return b.beautify()
 
 
 def usage(stream=sys.stdout):
 
-    print("htmlbeautifier.py@" + __version__ + """
+	print("htmlbeautifier.py@" + __version__ + """
 
 HTML beautifier (http://jsbeautifier.org/)
 
 """, file=stream)
-    if stream == sys.stderr:
-        return 1
-    else:
-        return 0
+	if stream == sys.stderr:
+		return 1
+	else:
+		return 0
 
-WHITE_RE = re.compile("^\s+$")
-WORD_RE = re.compile("[\w$\-_]")
-
-
-class Printer:
-
-    def __init__(self, indent_char, indent_size, default_indent=""):
-        self.indentSize = indent_size
-        self.singleIndent = (indent_size) * indent_char
-        self.indentString = default_indent
-        self.output = [default_indent]
-
-    def __lastCharWhitespace(self):
-        return WHITE_RE.search(self.output[len(self.output) - 1]) is not None
-
-    def indent(self):
-        self.indentString += self.singleIndent
-
-    def outdent(self):
-        self.indentString = self.indentString[:-(self.indentSize + 1)]
-
-    def push(self, string):
-        self.output.append(string)
-
-    def openBracket(self):
-        self.singleSpace()
-        self.output.append("{")
-        self.newLine()
-
-    def closeBracket(self):
-        self.newLine()
-        self.output.append("}")
-        self.newLine()
-
-    def colon(self):
-        self.output.append(":")
-        self.singleSpace()
-
-    def semicolon(self):
-        self.output.append(";")
-        self.newLine()
-
-    def comment(self, comment):
-        self.output.append(comment)
-
-    def newLine(self, keepWhitespace=False):
-        if not keepWhitespace:
-            while self.__lastCharWhitespace():
-                self.output.pop()
-
-        if len(self.output) > 0:
-            self.output.append("\n")
-
-        if len(self.indentString) > 0:
-            self.output.append(self.indentString)
-
-    def singleSpace(self):
-        if len(self.output) > 0 and not self.__lastCharWhitespace():
-            self.output.append(" ")
-
-    def result(self):
-        return "".join(self.output)
 
 
 class Beautifier:
 
-    def __init__(self, source_text, opts=default_options()):
-        self.source_text = source_text
-        self.opts = opts
-        self.indentSize = opts.indent_size
-        self.indentChar = opts.indent_char
-        self.pos = -1
-        self.ch = None
+	def __init__(self, source_text, opts=default_options()):
+		self.source_text = source_text
+		self.opts = opts
+		self.indentSize = opts.indent_size
+		self.indentChar = opts.indent_char
+		if opts.indent_with_tabs:
+			self.indentChar = "\t"
+			self.indentSize = 1
+		self.preserveNewlines = opts.preserve_newlines
+		self.maxPreserveNewlines = opts.max_preserve_newlines
+		self.indentTags = opts.indent_tags
 
-    def next(self):
-        self.pos = self.pos + 1
-        if self.pos < len(self.source_text):
-            self.ch = self.source_text[self.pos]
-        else:
-            self.ch = None
-        return self.ch
 
-    def peek(self):
-        if self.pos + 1 < len(self.source_text):
-            return self.source_text[self.pos + 1]
-        else:
-            return ""
+	def beautify(self):
 
-    def eatString(self, endChar):
-        start = self.pos
-        while self.next():
-            if self.ch == "\\":
-                self.next()
-                self.next()
-            elif self.ch == endChar:
-                break
-            elif self.ch == "\n":
-                break
-        return self.source_text[start:self.pos] + endChar
+			ignored_tag_opening = "<script|<style|<!--|{\\*|<\\?php"
+			ignored_tag_closing = "</script|</style|-->|\\*}|\\?>"
 
-    def eatWhitespace(self):
-        start = self.pos
-        while WHITE_RE.search(self.peek()) is not None:
-            self.pos = self.pos + 1
-        return self.pos != start
+			tag_indent = "<"+self.indentTags.replace('|', '|<')
+			tag_unindent = "</"+self.indentTags.replace('|', '|</')
 
-    def skipWhitespace(self):
-        start = self.pos
-        while self.next() and WHITE_RE.search(self.ch) is not None:
-            pass
-        return self.pos != start + 1
+			tag_pos_inline = "<link.*/>|<link.*\">|<meta.*/>|<script.*</script>|<div.*</div>|<li.*</li>|<dt.*</dt>|<dd.*</dd>|<th.*</th>|<td.*</td>|<legend.*</legend>|<label.*</label>|<option.*</option>|<input.*/>|<input.*\">|<!--.*-->"
 
-    def eatComment(self, singleLine):
-        start = self.pos
-        self.next()
-        while self.next():
-            if self.ch == "*" and self.peek() == "/":
-                self.pos = self.pos + 1
-                break
-            elif singleLine and self.ch == "\n":
-                break
-        return self.source_text[start:self.pos + 1]
+			tag_raw_flat_opening = "<pre"
+			tag_raw_flat_closing = "</pre"
 
-    def lookBack(self, string):
-        past = self.source_text[self.pos - len(string):self.pos]
-        return past.lower() == string
+			rawcode = self.source_text
 
-    def isCommentOnLine(self):
-        endOfLine = self.source_text.find('\n', self.pos)
-        if endOfLine == -1:
-            return False;
-        restOfLine = self.source_text[self.pos:endOfLine]
-        return restOfLine.find('//') != -1
 
-    def beautify(self):
-        m = re.search("^[\r\n]*[\t ]*", self.source_text)
-        indentString = m.group(0)
-        printer = Printer(self.indentChar, self.indentSize, indentString)
+			rawcode = rawcode.strip()
 
-        insideRule = False
-        while True:
-            isAfterSpace = self.skipWhitespace()
+			rawcode_list = re.split('\n', rawcode)
 
-            if not self.ch:
-                break
-            elif self.ch == '/' and self.peek() == '*':
-                comment = self.eatComment(False)
-                printer.comment(comment)
-                header = self.lookBack("")
-                if header:
-                    printer.push("\n\n")
-            elif self.ch == '/' and self.peek() == '/':
-                printer.comment(self.eatComment(True)[0:-1])
-                printer.newLine()
-            elif self.ch == '{':
-                self.eatWhitespace()
-                if self.peek() == '}':
-                    self.next()
-                    printer.push(" {}")
-                else:
-                    printer.indent()
-                    printer.openBracket()
-            elif self.ch == '}':
-                printer.outdent()
-                printer.closeBracket()
-                insideRule = False
-            elif self.ch == ":":
-                self.eatWhitespace()
-                printer.colon()
-                insideRule = True
-            elif self.ch == '"' or self.ch == '\'':
-                printer.push(self.eatString(self.ch))
-            elif self.ch == ';':
-                if self.isCommentOnLine():
-                    beforeComment = self.eatString('/')
-                    comment = self.eatComment(True)
-                    printer.push(beforeComment)
-                    printer.push(comment[1:-1])
-                    printer.newLine()
-                else:
-                    printer.semicolon()
-            elif self.ch == '(':
-                # may be a url
-                if self.lookBack("url"):
-                    printer.push(self.ch)
-                    self.eatWhitespace()
-                    if self.next():
-                        if self.ch is not ')' and self.ch is not '"' \
-                        and self.ch is not '\'':
-                            printer.push(self.eatString(')'))
-                        else:
-                            self.pos = self.pos - 1
-                else:
-                    if isAfterSpace:
-                        printer.singleSpace()
-                    printer.push(self.ch)
-                    self.eatWhitespace()
-            elif self.ch == ')':
-                printer.push(self.ch)
-            elif self.ch == ',':
-                self.eatWhitespace()
-                printer.push(self.ch)
-                if not insideRule and self.opts.selector_separator_newline:
-                    printer.newLine()
-                else:
-                    printer.singleSpace()
-            elif self.ch == ']':
-                printer.push(self.ch)
-            elif self.ch == '[' or self.ch == '=':
-                # no whitespace before or after
-                self.eatWhitespace()
-                printer.push(self.ch)
-            else:
-                if isAfterSpace:
-                    printer.singleSpace()
+			rawcode_flat = ""
+			is_block_ignored = False
+			is_block_raw = False
 
-                printer.push(self.ch)
+			indent_char = self.indentSize * self.indentChar
+			preserved_new_lines = 0;
+			for item in rawcode_list:
 
-        sweet_code = printer.result()
+				if item == "":
+					if self.preserveNewlines == False:
+						continue
+					else:
+						preserved_new_lines += 1
+						if preserved_new_lines >= self.maxPreserveNewlines:
+							preserved_new_lines = 0
+							continue
 
-        # establish end_with_newline
-        should = self.opts.end_with_newline
-        actually = sweet_code.endswith("\n")
-        if should and not actually:
-            sweet_code = sweet_code + "\n"
-        elif not should and actually:
-            sweet_code = sweet_code[:-1]
 
-        return sweet_code
 
+
+				# ignore raw code
+				if re.search(tag_raw_flat_closing, item, re.IGNORECASE):
+					tmp = item.strip()
+					is_block_raw = False
+				elif re.search(tag_raw_flat_opening, item, re.IGNORECASE):
+					tmp = item.strip()
+					is_block_raw = True
+
+				if re.search(ignored_tag_closing, item, re.IGNORECASE):
+					tmp = item.strip()
+					is_block_ignored = False
+				elif re.search(ignored_tag_opening, item, re.IGNORECASE):
+
+					ignored_block_tab_count = item.count('\t')
+					tmp = item.strip()
+					is_block_ignored = True
+
+				else:
+					if is_block_raw == True:
+						# remove tabs from raw_flat content
+						tmp = re.sub('\t', '', item)
+					elif is_block_ignored == True:
+						tab_count = item.count(indent_char) - ignored_block_tab_count
+						tmp = indent_char * tab_count + item.strip()
+					else:
+						tmp = item.strip()
+
+				rawcode_flat = rawcode_flat + tmp + '\n'
+
+			rawcode_flat_list = re.split('\n', rawcode_flat)
+
+			beautified_code = ""
+
+			indent_level = 0
+			is_block_ignored = False
+			is_block_raw = False
+
+			for item in rawcode_flat_list:
+
+				if re.search(tag_pos_inline, item, re.IGNORECASE):
+					tmp = (indent_char * indent_level) + item
+
+				elif re.search(tag_unindent, item, re.IGNORECASE):
+					indent_level = indent_level - 1
+					tmp = (indent_char * indent_level) + item
+
+				elif re.search(tag_indent, item, re.IGNORECASE):
+					tmp = (indent_char * indent_level) + item
+					indent_level = indent_level + 1
+
+				elif re.search(tag_raw_flat_opening, item, re.IGNORECASE):
+					tmp = item
+					is_block_raw = True
+				elif re.search(tag_raw_flat_closing, item, re.IGNORECASE):
+					tmp = item
+					is_block_raw = False
+				else:
+					if is_block_raw == True or item == "":
+						tmp = item
+
+					else:
+						tmp = (indent_char * indent_level) + item
+
+				beautified_code = beautified_code + tmp + '\n'
+
+			beautified_code = beautified_code.strip()
+
+			return beautified_code

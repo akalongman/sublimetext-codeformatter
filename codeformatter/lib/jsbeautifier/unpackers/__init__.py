@@ -7,7 +7,12 @@
 
 import pkgutil
 import re
-from . import evalbased
+try:
+ 	# Python 3
+	from . import evalbased
+except (ValueError):
+ 	# Python 2
+	from evalbased import evalbased
 
 # NOTE: AT THE MOMENT, IT IS DEACTIVATED FOR YOUR SECURITY: it runs js!
 BLACKLIST = ['evalbased']
