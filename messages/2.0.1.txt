@@ -1,0 +1,23 @@
+Sublime CodeFormatter 2.0.1 Changelog:
+
+If you have old version of CodeFormatter in folder Installed Packages, you must manually remove first. Example, you must remove:
+
+	ST2: %APPDATA%/Sublime Text 2/Installed Packages/CodeFormatter.sublime-package
+	ST3: %APPDATA%/Sublime Text 3/Installed Packages/CodeFormatter.sublime-package
+
+
+Please report me any bugs and proposals on akalongman@gmail.com or GitHub (https://github.com/akalongman/sublimetext-codeformatter/issues)
+
+
+New Features
+------------
+- Removed nodejs dependency
+- Added path for php installation
+- Added more options for js and css beautifier
+- Started work for removing pear package dependency in php beautifier
+
+Caution
+------------
+- HTML beautifier is in early beta and use it with caution
+
+
