@@ -49,16 +49,14 @@ The "Packages" directory is located at:
 ## Formatter-specific notes
 Following are notes specific to individual formatters that you should be aware of:
 ### PHP
-PHP - Used PEAR [Php_beautifier] (http://pear.php.net/package/PHP_Beautifier) package by Claudio Bustos and Jesús Espino. I recommend my fork of [Php_beautifier] (https://github.com/akalongman/pear-PHP_Beautifier) here added some fixes and modifications.
+PHP - Used custom fork (which works withoit pear) of [Php_beautifier] (http://pear.php.net/package/PHP_Beautifier) package by Claudio Bustos and Jesús Espino.
 
 Getting and installing PHP - http://www.php.net/manual/en/install.general.php
 
-Getting and installing the PEAR package manager - http://pear.php.net/manual/en/installation.getting.php
-
-After install PEAR Php_beautifier
-
 Language specific options:
 ```js
+    // Path for PHP executable, e.g. "C:/Program Files/PHP/php.exe". If empty, uses command "php" from system environments
+    "codeformatter_php_path": "",
     "codeformatter_php_options":
 	{
 		"indent_size": 1, // Indent size

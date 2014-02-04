@@ -1,5 +1,5 @@
 {
-	// Path for PHP installation, e.g. "C:/Program Files/PHP". If empty, uses command "php" from system environments
+	// Path for PHP executable, e.g. "C:/Program Files/PHP/php.exe". If empty, uses command "php" from system environments
 	"codeformatter_php_path": "",
 
 	"codeformatter_php_options":

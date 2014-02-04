@@ -59,7 +59,6 @@ class PhpFormatter:
 			new_lines += "NewLines(after="+new_line_after+")"
 		filters.append(new_lines)
 
-
 		# Array Nested
 		if (opts["format_array_nested"]):
 			filters.append("ArrayNested()")

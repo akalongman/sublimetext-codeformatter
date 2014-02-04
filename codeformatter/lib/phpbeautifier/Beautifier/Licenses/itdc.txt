@@ -1,0 +1,6 @@
+/**
+ * @package 			ITDCMS.Backend
+ * @subpackage 		Libraries
+ * @copyright 		Copyright (C) 2001 - 2013 ITDC, JSC. All rights reserved.
+ * @license 			Commercial license
+ */
