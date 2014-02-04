@@ -1,4 +1,4 @@
-Sublime CodeFormatter 2.1.1 Changelog:
+Sublime CodeFormatter 2.1.2 Changelog:
 
 If you have old version of CodeFormatter in folder Installed Packages, you must manually remove first. Example, you must remove:
 
