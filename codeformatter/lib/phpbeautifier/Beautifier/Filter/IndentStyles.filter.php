@@ -127,9 +127,9 @@ class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
      */
     public function __call($sMethod, $aArgs)
     {
-        if (strtolower($this->getSetting('style')) == 'k&r') {
-            return PHP_Beautifier_Filter::BYPASS;
-        }
+        // if (strtolower($this->getSetting('style')) == 'k&r') {
+        //     return PHP_Beautifier_Filter::BYPASS;
+        // }
         $sNewMethod = $this->_getFunctionForStyle($sMethod);
         if (method_exists($this, $sNewMethod)) {
             call_user_func_array(
@@ -141,6 +141,40 @@ class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
             );
         } else {
             return PHP_Beautifier_Filter::BYPASS;
+        }
+    }
+    /**
+     * t_open_brace_kr: Open braces in K&R style
+     *
+     * @param mixed $sTag The tag to be processed (})
+     *
+     * @access public
+     * @return void
+     */
+    function t_open_brace_kr($sTag)
+    {
+        $this->oBeaut->add($sTag);
+        $this->oBeaut->incIndent();
+        $this->oBeaut->addNewLineIndent();
+    }
+    /**
+     * t_close_brace_kr: Close braces in K&R style
+     *
+     * @param mixed $sTag The tag to be processed ({)
+     *
+     * @access public
+     * @return void
+     */
+    function t_close_brace_kr($sTag)
+    {
+        if ($this->oBeaut->getMode('string_index') or $this->oBeaut->getMode('double_quote')) {
+            $this->oBeaut->add($sTag);
+        } else {
+            $this->oBeaut->removeWhitespace();
+            $this->oBeaut->decIndent();
+            $this->oBeaut->addNewLineIndent();
+            $this->oBeaut->add($sTag);
+            $this->oBeaut->addNewLineIndent();
         }
     }
     /**
@@ -266,11 +300,11 @@ class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
         if ($this->oBeaut->getPreviousTokenContent() == '}') {
             $this->oBeaut->removeWhitespace();
             $this->oBeaut->add(' ');
-            //$this->oBeaut->addNewLineIndent();
+            $this->oBeaut->addNewLineIndent();
             $this->oBeaut->add(trim($sTag));
-            if (!$this->oBeaut->isNextTokenContent('{')) {
+            // if (!$this->oBeaut->isNextTokenContent('{')) {
                     $this->oBeaut->add(' ');
-            }
+            // }
         } else {
             return PHP_Beautifier_Filter::BYPASS;
         }
