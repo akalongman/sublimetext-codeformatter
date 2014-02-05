@@ -1,3 +1,4 @@
+#!/usr/bin/php -Cq
 <?php
     /**
     * Console script to use PHP_Beautifier from the command line

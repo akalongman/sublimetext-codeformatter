@@ -1,0 +1,18 @@
+Sublime CodeFormatter 2.1.2 Changelog:
+
+If you have old version of CodeFormatter in folder Installed Packages, you must manually remove first. Example, you must remove:
+
+	ST2: %APPDATA%/Sublime Text 2/Installed Packages/CodeFormatter.sublime-package
+	ST3: %APPDATA%/Sublime Text 3/Installed Packages/CodeFormatter.sublime-package
+
+
+Please report me any bugs and proposals at akalongman@gmail.com or GitHub (https://github.com/akalongman/sublimetext-codeformatter/issues)
+
+
+Bug Fixes
+------------
+- Fixed php beautifier bug for Linux/OSX
+
+
+
+

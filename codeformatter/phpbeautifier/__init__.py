@@ -22,8 +22,8 @@ class Beautifier:
 				cmd = sublime.packages_path()+"\CodeFormatter\codeformatter\lib\phpbeautifier\php_beautifier.bat"
 				p = subprocess.Popen([str(cmd), str(php_path), str(beautifier_exe), indent, "-l", filters, "-f", "-", "-o", "-"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True, creationflags=subprocess.SW_HIDE)
 			else:
-				nix_exe = sublime.packages_path()+"\CodeFormatter\codeformatter\lib\phpbeautifier\php_beautifier"
-				p = subprocess.Popen([cmd, indent, "-l", filters, "-f", "-", "-o", "-"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				cmd = sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/php_beautifier"
+				p = subprocess.Popen([str(cmd), indent, "-l", filters, "-f", "-", "-o", "-"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 			stdout, stderr = p.communicate(text)
 		except Exception as e:
 			stderr = str(e)
