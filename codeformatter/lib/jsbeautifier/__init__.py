@@ -5,12 +5,7 @@ import getopt
 import re
 import string
 import errno
-try:
- 	# Python 3
-	from .__version__ import __version__
-except (ValueError):
- 	# Python 2
-	from __version__ import __version__
+from jsbeautifier.__version__ import __version__
 
 #
 # The MIT License (MIT)
@@ -350,16 +345,7 @@ class Beautifier:
         return sweet_code
 
     def unpack(self, source, evalcode=False):
-        try:
-            # Python 3
-            from . import unpackers as unpackers
-        except (ValueError):
-            # Python 2
-            from unpackers import unpackers as unpackers
-
-
-
-        #import jsbeautifier.unpackers as unpackers
+        import jsbeautifier.unpackers as unpackers
         try:
             return unpackers.run(source, evalcode)
         except unpackers.UnpackingError as error:

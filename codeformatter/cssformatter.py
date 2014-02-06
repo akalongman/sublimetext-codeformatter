@@ -9,13 +9,7 @@ import re
 import sublime
 import subprocess
 
-try:
- 	# Python 3
-	from .lib import cssbeautifier
-except (ValueError):
- 	# Python 2
-	from lib import cssbeautifier
-
+import cssbeautifier
 
 class CssFormatter:
 	def __init__(self, formatter):
@@ -31,28 +25,28 @@ class CssFormatter:
 		stdout = ""
 		options = cssbeautifier.default_options()
 
-		if (opts["indent_size"]):
+		if ("indent_size" in opts and opts["indent_size"]):
 			options.indent_size = opts["indent_size"]
 		else:
 			options.indent_size = 4
 
-		if (opts["indent_char"]):
+		if ("indent_char" in opts and opts["indent_char"]):
 			options.indent_char = opts["indent_char"]
 		else:
 			options.indent_char = ' '
 
-		if (opts["indent_with_tabs"]):
+		if ("indent_with_tabs" in opts and opts["indent_with_tabs"]):
 			options.indent_with_tabs = True
 		else:
 			options.indent_with_tabs = False
 
 
-		if (opts["selector_separator_newline"]):
+		if ("selector_separator_newline" in opts and opts["selector_separator_newline"]):
 			options.selector_separator_newline = True
 		else:
 			options.selector_separator_newline = False
 
-		if (opts["end_with_newline"]):
+		if ("end_with_newline" in opts and opts["end_with_newline"]):
 			options.end_with_newline = True
 		else:
 			options.end_with_newline = False

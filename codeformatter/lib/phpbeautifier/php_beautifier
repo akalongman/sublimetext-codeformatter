@@ -38,6 +38,7 @@
 
     // set include path
     $path = dirname($argv[0]).DIRECTORY_SEPARATOR;
+    define('CODEFORMATTER_LIBPATH', $path);
     //file_put_contents('C:\Users\LONGMAN\AppData\Roaming\Sublime Text 3\Packages\CodeFormatter\codeformatter\lib\phpbeautifier\php.log', print_r($argv, true));
     set_include_path($path);
 

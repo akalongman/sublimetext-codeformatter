@@ -29,25 +29,28 @@ class PhpFormatter:
 		filters = []
 
 		# Pear
-		if (opts["pear"]):
+		if ("pear" in opts and opts["pear"]):
 			pear = []
-			add_header = opts["pear_add_header"] if opts["pear_add_header"] else "false"
-			pear.append("add-header="+add_header)
-			newline_class = "true" if opts["pear_newline_class"] else "false"
-			pear.append("newline_class="+newline_class)
-			newline_function = "true" if opts["pear_newline_function"] else "false"
-			pear.append("newline_function="+newline_function)
+			if ("pear_add_header" in opts and opts["pear_add_header"]):
+				pear.append("add_header="+opts["pear_add_header"])
+
+			if ("pear_newline_class" in opts and opts["pear_newline_class"]):
+				pear.append("newline_class=true")
+
+			if ("pear_newline_function" in opts and opts["pear_newline_function"]):
+				pear.append("newline_function=true")
+
 			pear = ",".join(map(str, pear))
 			filters.append("Pear("+pear+")")
 
 
 		# Line filters
 		new_line_before = ""
-		if (opts["new_line_before"]):
+		if ("new_line_before" in opts and opts["new_line_before"]):
 			new_line_before = opts["new_line_before"].replace(",", ":")
 
 		new_line_after = ""
-		if (opts["new_line_after"]):
+		if ("new_line_after" in opts and opts["new_line_after"]):
 			new_line_after = opts["new_line_after"].replace(",", ":")
 
 		new_lines = ""
@@ -62,39 +65,51 @@ class PhpFormatter:
 			filters.append(new_lines)
 
 		# Array Nested
-		if (opts["format_array_nested"]):
+		if ("format_array_nested" in opts and opts["format_array_nested"]):
 			filters.append("ArrayNested()")
 
 		# Lowercase
-		if (opts["lowercase"]):
+		if ("lowercase" in opts and opts["lowercase"]):
 			filters.append("Lowercase()")
 
 
 		# Fluent
-		if (opts["fluent"]):
+		if ("fluent" in opts and opts["fluent"]):
 			filters.append("Fluent()")
 
 
 		# phpBB
-		if (opts["phpbb"]):
+		if ("phpbb" in opts and opts["phpbb"]):
 			filters.append("phpBB()")
 
 		# ListClassFunction
-		if (opts["list_class_function"]):
+		if ("list_class_function" in opts and opts["list_class_function"]):
 			filters.append("ListClassFunction()")
 
 		# EqualsAlign
-		if (opts["equals_align"]):
+		if ("equals_align" in opts and opts["equals_align"]):
 			filters.append("EqualsAlign()")
 
 
 		# Identation
-		ident_type = "t" if opts["indent_with_tabs"] else "s"
-		indent_size = str(opts["indent_size"]) if opts["indent_size"] else "1"
+		if ("indent_with_tabs" in opts and opts["indent_with_tabs"]):
+			ident_type = "t"
+		else:
+			ident_type = "s"
+
+		if ("indent_size" in opts and opts["indent_size"]):
+			indent_size = str(opts["indent_size"])
+		else:
+			indent_size = "4"
+
 		indent = "-"+ident_type+indent_size
 
 		# Indent style
-		indent_style = opts["indent_style"] if opts["indent_style"] else "k&r"
+		if ("indent_style" in opts and opts["indent_style"]):
+			indent_style = opts["indent_style"]
+		else:
+			indent_style = "k&r"
+
 		filters.append("IndentStyles(style="+indent_style+")")
 
 

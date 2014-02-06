@@ -14,20 +14,13 @@
 
 import re
 import string
-try:
- 	# Python 3
-	from . import UnpackingError
-except (ValueError):
- 	# Python 2
-	from UnpackingError import UnpackingError
-
-
+from jsbeautifier.unpackers import UnpackingError
 
 PRIORITY = 1
 
 def detect(source):
     """Detects whether `source` is P.A.C.K.E.R. coded."""
-    return source.replace(' ', '').startswith('eval(function(p,a,c,k,e,r')
+    return source.replace(' ', '').startswith('eval(function(p,a,c,k,e,')
 
 def unpack(source):
     """Unpacks P.A.C.K.E.R. packed js code."""

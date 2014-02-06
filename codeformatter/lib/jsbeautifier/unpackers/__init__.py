@@ -7,15 +7,10 @@
 
 import pkgutil
 import re
-try:
- 	# Python 3
-	from . import evalbased
-except (ValueError):
- 	# Python 2
-	from evalbased import evalbased
+from jsbeautifier.unpackers import evalbased
 
 # NOTE: AT THE MOMENT, IT IS DEACTIVATED FOR YOUR SECURITY: it runs js!
-BLACKLIST = ['evalbased']
+BLACKLIST = ['jsbeautifier.unpackers.evalbased']
 
 class UnpackingError(Exception):
     """Badly packed source or general error. Argument is a

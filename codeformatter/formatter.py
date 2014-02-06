@@ -3,8 +3,13 @@
 # @link 			http://long.ge
 # @license 		GNU General Public License version 2 or later;
 
-import sublime
-import re
+import os, sys, re, sublime
+
+directory = os.path.dirname(os.path.realpath(__file__))
+libs_path = os.path.join(directory, "lib")
+
+if libs_path not in sys.path:
+	sys.path.append(libs_path)
 
 try:
 	# Python 3

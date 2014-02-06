@@ -40,7 +40,7 @@ try:
 except ImportError:
     from urllib.parse import unquote
 
-from . import UnpackingError
+from jsbeautifier.unpackers import UnpackingError
 
 PRIORITY = 1
 

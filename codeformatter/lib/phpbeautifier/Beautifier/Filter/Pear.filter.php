@@ -266,7 +266,6 @@ class PHP_Beautifier_Filter_Pear extends PHP_Beautifier_Filter
      */
     function addHeaderComment()
     {
-
         if (!($sLicense = $this->getSetting('add_header'))) {
             return;
         }
@@ -275,8 +274,7 @@ class PHP_Beautifier_Filter_Pear extends PHP_Beautifier_Filter
         if (file_exists($sLicense)) {
             $sDataPath = $sLicense;
         } else {
-            $oConfig = PEAR_Config::singleton();
-            $sDataPath = PHP_Beautifier_Common::normalizeDir($oConfig->get('data_dir')) . 'Beautifier/Licenses/' . $sLicense . '.txt';
+            $sDataPath = PHP_Beautifier_Common::normalizeDir(CODEFORMATTER_LIBPATH) . 'Beautifier/Licenses/' . $sLicense . '.txt';
         }
         if (file_exists($sDataPath)) {
             $sLicenseText = file_get_contents($sDataPath);

@@ -3,10 +3,9 @@
 # @link 			http://long.ge
 # @license 		GNU General Public License version 2 or later;
 
-import os
-import sys
-import sublime
-import sublime_plugin
+import os, sys, sublime, sublime_plugin
+
+
 
 st_version = 2
 if sublime.version() == '' or int(sublime.version()) > 3000:
@@ -33,7 +32,6 @@ except (ValueError):
 
 # fix for ST2
 cprint = globals()["__builtins__"]["print"]
-
 
 def plugin_loaded():
 	cprint('CodeFormatter: Plugin Initialized')
