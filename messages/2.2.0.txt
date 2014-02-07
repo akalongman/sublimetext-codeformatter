@@ -1,0 +1,17 @@
+Sublime CodeFormatter 2.2.0 Changelog:
+
+Please report me any bugs and proposals at akalongman@gmail.com or GitHub (https://github.com/akalongman/sublimetext-codeformatter/issues)
+
+
+For Linux/ OSx users, you must set chmod +x to file php_beautifier in folder %PACKAGESDIR%/CodeFormatter/codeformatter/lib/phpbeautifier for avoid "Permission denied" error
+
+Bug Fixes
+------------
+- Fixed php beautifier bug while formatting with pear options
+- Fixed bug on overriding default settings by user
+- Many minor bug fixes
+
+
+
+
+

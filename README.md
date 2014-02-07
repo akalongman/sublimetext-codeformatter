@@ -49,9 +49,11 @@ The "Packages" directory is located at:
 ## Formatter-specific notes
 Following are notes specific to individual formatters that you should be aware of:
 ### PHP
-PHP - Used custom fork (which works withoit pear) of [Php_beautifier] (http://pear.php.net/package/PHP_Beautifier) package by Claudio Bustos and Jesús Espino.
+PHP - Used custom fork (which works without pear) of [Php_beautifier] (http://pear.php.net/package/PHP_Beautifier) package by Claudio Bustos and Jesús Espino.
 
 Getting and installing PHP - http://www.php.net/manual/en/install.general.php
+
+On Linux/OSx after installation of package, you must set chmod +x to file php_beautifier in folder %PACKAGESDIR%/CodeFormatter/codeformatter/lib/phpbeautifier
 
 Language specific options:
 ```js
