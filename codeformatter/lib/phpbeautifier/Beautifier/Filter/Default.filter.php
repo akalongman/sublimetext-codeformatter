@@ -49,6 +49,7 @@
 final class PHP_Beautifier_Filter_Default extends PHP_Beautifier_Filter
 {
     protected $sDescription = 'Default Filter for PHP_Beautifier';
+    protected $aSettings = array('newline_before_comment' => false);
     /**
      * __call
      *
@@ -347,6 +348,10 @@ final class PHP_Beautifier_Filter_Default extends PHP_Beautifier_Filter
     {
         $this->oBeaut->removeWhiteSpace();
         $this->oBeaut->addNewLineIndent();
+        if ($this->getSetting('newline_before_comment')) {
+	        $this->oBeaut->addNewLineIndent();
+        }
+
         // process doc
         preg_match("/(\/\*\*[^\r\n]*)(.*?)(\*\/)/sm", $sTag, $aMatch);
         $sDoc = $aMatch[2];
@@ -379,7 +384,10 @@ final class PHP_Beautifier_Filter_Default extends PHP_Beautifier_Filter
     function t_comment($sTag)
     {
         if ($this->oBeaut->removeWhitespace()) {
-            if (preg_match("/\r|\n/", $this->oBeaut->getPreviousWhitespace())) {
+	        if ($this->getSetting('newline_before_comment')) {
+		        $this->oBeaut->addNewLineIndent();
+	        }
+           if (preg_match("/\r|\n/", $this->oBeaut->getPreviousWhitespace())) {
                 $this->oBeaut->addNewLineIndent();
             } else {
                 $this->oBeaut->add(' ');
@@ -883,4 +891,4 @@ final class PHP_Beautifier_Filter_Default extends PHP_Beautifier_Filter
         }
     }
 }
-?>
+

@@ -28,6 +28,14 @@ class PhpFormatter:
 		# Filters
 		filters = []
 
+		# Default
+		default = []
+		if ("newline_before_comment" in opts and opts["newline_before_comment"]):
+			default.append("newline_before_comment=true")
+		default = ",".join(map(str, default))
+		filters.append("Default("+default+")")
+
+
 		# Pear
 		if ("pear" in opts and opts["pear"]):
 			pear = []

@@ -7,6 +7,7 @@
 		"indent_size": 4, // Indent size
 		"indent_with_tabs": false, // Indent with tabs or spaces
 		"indent_style": "k&r", // Indent the code in k&r, allman, gnu or whitesmiths style
+		"newline_before_comment": true, // add new line before comment block
 		// Add new lines after o before specific contents The settings are 'before' and 'after'. As value, use a comma separated list of contents or tokens, e.g. switch,while,for,foreach,try,namespace,T_INTERFACE
 		"new_line_before": "",
 		"new_line_after": "",
