@@ -1,5 +1,5 @@
 # @author 		Avtandil Kikabidze
-# @copyright 		Copyright (c) 2008-2013, Avtandil Kikabidze (akalongman@gmail.com)
+# @copyright 		Copyright (c) 2008-2014, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
 # @link 			http://long.ge
 # @license 		GNU General Public License version 2 or later;
 
@@ -39,6 +39,10 @@ class PhpFormatter:
 
 			if ("pear_newline_function" in opts and opts["pear_newline_function"]):
 				pear.append("newline_function=true")
+
+			if ("pear_switch_without_indent" in opts and opts["pear_switch_without_indent"]):
+				pear.append("switch_without_indent=true")
+
 
 			pear = ",".join(map(str, pear))
 			filters.append("Pear("+pear+")")

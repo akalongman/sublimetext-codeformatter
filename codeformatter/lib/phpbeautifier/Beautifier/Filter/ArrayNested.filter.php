@@ -50,14 +50,14 @@
 class PHP_Beautifier_Filter_ArrayNested extends PHP_Beautifier_Filter
 {
     /**
-     * t_parenthesis_open 
-     * 
+     * t_parenthesis_open
+     *
      * @param mixed $sTag The tag to be procesed
      *
      * @access public
      * @return void
      */
-    public function t_parenthesis_open($sTag) 
+    public function t_parenthesis_open($sTag)
     {
         $this->oBeaut->add($sTag);
         if ($this->oBeaut->getControlParenthesis() == T_ARRAY) {
@@ -67,16 +67,17 @@ class PHP_Beautifier_Filter_ArrayNested extends PHP_Beautifier_Filter
         }
     }
     /**
-     * t_parenthesis_close 
-     * 
+     * t_parenthesis_close
+     *
      * @param mixed $sTag The tag to be procesed
      *
      * @access public
      * @return void
      */
-    public function t_parenthesis_close($sTag) 
+    public function t_parenthesis_close($sTag)
     {
         $this->oBeaut->removeWhitespace();
+
         if ($this->oBeaut->getControlParenthesis() == T_ARRAY) {
             $this->oBeaut->decIndent();
             if ($this->oBeaut->getPreviousTokenContent() != '(') {
@@ -89,14 +90,14 @@ class PHP_Beautifier_Filter_ArrayNested extends PHP_Beautifier_Filter
         }
     }
     /**
-     * t_comma 
-     * 
+     * t_comma
+     *
      * @param mixed $sTag The tag to be procesed
      *
      * @access public
      * @return void
      */
-    public function t_comma($sTag) 
+    public function t_comma($sTag)
     {
         if ($this->oBeaut->getControlParenthesis() != T_ARRAY) {
             $this->oBeaut->add($sTag . ' ');
@@ -107,4 +108,4 @@ class PHP_Beautifier_Filter_ArrayNested extends PHP_Beautifier_Filter
         }
     }
 }
-?>
+

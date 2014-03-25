@@ -1,0 +1,10 @@
+Sublime CodeFormatter 2.3.0 Changelog:
+
+Please report me any bugs and proposals at akalongman@gmail.com or GitHub (https://github.com/akalongman/sublimetext-codeformatter/issues)
+
+Bug Fixes
+------------
+- Fixed css beautifier bug with adding space after colon in pseudo-classes like a:hover
+- Fixed bug for Linux/OSx users which avoid "Permission denied" error
+- Added "pear_switch_without_indent" parameter in php beautifier
+

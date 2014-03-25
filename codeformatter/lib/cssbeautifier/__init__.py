@@ -116,9 +116,10 @@ class Printer:
         self.output.append("}")
         self.newLine()
 
-    def colon(self):
+    def colon(self, addWhitespace=False):
         self.output.append(":")
-        self.singleSpace()
+        if (addWhitespace):
+            self.singleSpace()
 
     def semicolon(self):
         self.output.append(";")
@@ -158,6 +159,7 @@ class Beautifier:
             self.indentSize = 1
         self.pos = -1
         self.ch = None
+        self.pseudo_classes = ["link", "visited", "active", "hover", "focus", "first-letter", "first-line", "first-child", "before", "after", "lang", "language"]
 
     def next(self):
         self.pos = self.pos + 1
@@ -212,12 +214,25 @@ class Beautifier:
         past = self.source_text[self.pos - len(string):self.pos]
         return past.lower() == string
 
+    def lookFront(self, string):
+        front = self.source_text[self.pos + 1:self.pos + len(string) + 1]
+        return front.lower() == string
+
     def isCommentOnLine(self):
         endOfLine = self.source_text.find('\n', self.pos)
         if endOfLine == -1:
             return False;
         restOfLine = self.source_text[self.pos:endOfLine]
         return restOfLine.find('//') != -1
+
+    def nextIsPseudoClass(self):
+        status = False
+        for pseudo_class in self.pseudo_classes:
+            if (self.lookFront(pseudo_class)):
+                status = True
+                break
+        return status
+
 
     def beautify(self):
         m = re.search("^[\r\n]*[\t ]*", self.source_text)
@@ -253,7 +268,8 @@ class Beautifier:
                 insideRule = False
             elif self.ch == ":":
                 self.eatWhitespace()
-                printer.colon()
+                addWhitespace = not self.nextIsPseudoClass()
+                printer.colon(addWhitespace)
                 insideRule = True
             elif self.ch == '"' or self.ch == '\'':
                 printer.push(self.eatString(self.ch))
