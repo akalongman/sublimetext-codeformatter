@@ -60,7 +60,7 @@ require_once 'PEAR/Config.php';
  */
 class PHP_Beautifier_Filter_Pear extends PHP_Beautifier_Filter
 {
-    protected $aSettings = array('add_header' => false, 'newline_class' => true, 'newline_function' => true, 'switch_without_indent'=> true);
+    protected $aSettings = array('add_header' => false, 'newline_class' => true, 'newline_trait' => true, 'newline_function' => false, 'switch_without_indent'=> false);
     protected $sDescription = 'Filter the code to make it compatible with PEAR Coding Specs';
     private $_bOpenTag = false;
     /**
@@ -190,6 +190,10 @@ class PHP_Beautifier_Filter_Pear extends PHP_Beautifier_Filter
             if ($this->oBeaut->getControlSeq() == T_CLASS and $this->getSetting('newline_class')) {
                 $bypass = false;
             }
+            if ($this->oBeaut->getControlSeq() == T_TRAIT and $this->getSetting('newline_trait')) {
+                $bypass = false;
+            }
+
             if ($this->oBeaut->getControlSeq() == T_FUNCTION and $this->getSetting('newline_function')) {
                 $bypass = false;
             }
@@ -287,4 +291,4 @@ class PHP_Beautifier_Filter_Pear extends PHP_Beautifier_Filter
         $this->oBeaut->addNewLineIndent();
     }
 }
-?>
+

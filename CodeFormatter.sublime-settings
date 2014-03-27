@@ -12,10 +12,11 @@
 		"new_line_before": "",
 		"new_line_after": "",
 		"format_array_nested": false, // Indent the array structures Ex.
-		"pear": false, // Format the code to make it compatible with PEAR Coding Standards
+		"pear": true, // Format the code to make it compatible with PEAR Coding Standards
 		"pear_add_header": "", // Add one of the standard PEAR comment header (php, bsd, apache, lgpl, pear) or any file as licence header.
-		// Two extra options allows to break the spec about newline before braces on function and classes:
-		"pear_newline_class": false, // need enabled pear option
+		// Two extra options allows to break the spec about newline before braces on function, classes and traits:
+		"pear_newline_class": true, // need enabled pear option
+		"pear_newline_trait": true, // need enabled pear option
 		"pear_newline_function": false, // need enabled pear option
 		"pear_switch_without_indent": false, // Disable extra switch identation
 		"lowercase": false, // Lowercase all control structures. Such as TRUE, FALSE, SWITCH and more

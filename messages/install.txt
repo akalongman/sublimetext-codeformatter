@@ -60,28 +60,32 @@ On Linux/OSx after installation of package, you must set chmod +x to file php_be
 
 Language specific options:
 ```js
-    // Path for PHP executable, e.g. "C:/Program Files/PHP/php.exe". If empty, uses command "php" from system environments
-    "codeformatter_php_path": "",
-    "codeformatter_php_options":
+	// Path for PHP executable, e.g. "C:/Program Files/PHP/php.exe". If empty, uses command "php" from system environments
+	"codeformatter_php_path": "",
+
+	"codeformatter_php_options":
 	{
-		"indent_size": 1, // Indent size
-		"indent_with_tabs": true, // Indent with tabs or spaces
+		"indent_size": 4, // Indent size
+		"indent_with_tabs": false, // Indent with tabs or spaces
 		"indent_style": "k&r", // Indent the code in k&r, allman, gnu or whitesmiths style
-		// Add new lines after o before specific contents The settings are 'before' and 'after'. As value, use a comma separated list of contents or tokens:
-		"new_line_before": "switch,while,for,foreach,try,case,do,goto,namespace,T_INTERFACE,return,continue,endfor,endforeach,endif,endswitch,endwhile,break,throw",
+		"newline_before_comment": true, // add new line before comment block
+		// Add new lines after o before specific contents The settings are 'before' and 'after'. As value, use a comma separated list of contents or tokens, e.g. switch,while,for,foreach,try,namespace,T_INTERFACE
+		"new_line_before": "",
 		"new_line_after": "",
-		"format_array_nested": true, // Indent the array structures Ex.
+		"format_array_nested": false, // Indent the array structures Ex.
 		"pear": true, // Format the code to make it compatible with PEAR Coding Standards
 		"pear_add_header": "", // Add one of the standard PEAR comment header (php, bsd, apache, lgpl, pear) or any file as licence header.
-		// Two extra options allows to break the spec about newline before braces on function and classes:
-		"pear_newline_class": true,
-		"pear_newline_function": true,
-		"lowercase": true, // Lowercase all control structures. Such as TRUE, FALSE, SWITCH and more
+		// Two extra options allows to break the spec about newline before braces on function, classes and traits:
+		"pear_newline_class": true, // need enabled pear option
+		"pear_newline_trait": true, // need enabled pear option
+		"pear_newline_function": false, // need enabled pear option
+		"pear_switch_without_indent": false, // Disable extra switch identation
+		"lowercase": false, // Lowercase all control structures. Such as TRUE, FALSE, SWITCH and more
 		"fluent": false, // Create fluent style for multi-level object access.
 		"list_class_function": false, // Create a list of functions and classes in the script By default, this Filter puts the list at the beggining of the script.
 		"equals_align": false, // Align the equals symbols in contiguous lines.
-		"phpbb": false // Format the code to make it compatible with phpBB Coding Standards
-	}
+		"phpbb": false // Format the code to make it compatible with phpBB Coding Standards (if enabled, overrides some another options)
+	},
 ```
 
 
@@ -91,12 +95,12 @@ Javascript/JSON/JSONP - used [JSBeautifier] (http://jsbeautifier.org/) by Einar 
 
 Language specific options:
 ```js
-    "codeformatter_js_options":
+	"codeformatter_js_options":
 	{
 		"indent_size": 4, // indentation size
 		"indent_char": " ", // Indent character
 		"indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
-		"preserve_newlines": true, // whether existing line breaks should be preserved,
+		"preserve_newlines": false, // whether existing line breaks should be preserved,
 		"max_preserve_newlines": 10, // maximum number of line breaks to be preserved in one chunk
 		"space_in_paren": false, // Add padding spaces within paren, ie. f( a, b )
 		"e4x": false, // Pass E4X xml literals through untouched
@@ -116,7 +120,7 @@ HTML - used custom python port, please use it with caution, feature in early bet
 
 Language specific options:
 ```js
-    "codeformatter_html_options":
+	"codeformatter_html_options":
 	{
 		"indent_size": 4, // indentation size
 		"indent_char": " ", // Indentation character
@@ -132,12 +136,12 @@ CSS - used [JSBeautifier] (http://jsbeautifier.org/) by Einar Lielmanis and Styl
 
 Language specific options:
 ```js
-    "codeformatter_css_options":
+	"codeformatter_css_options":
 	{
 		"indent_size": 4, // Indentation size
 		"indent_char": " ", // Indentation character
 		"indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
-		"selector_separator_newline": true, // Add new lines after selector separators
+		"selector_separator_newline": false, // Add new lines after selector separators
 		"end_with_newline": false // Add new line of end in file
 	}
 ```

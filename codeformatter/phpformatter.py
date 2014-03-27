@@ -45,6 +45,9 @@ class PhpFormatter:
 			if ("pear_newline_class" in opts and opts["pear_newline_class"]):
 				pear.append("newline_class=true")
 
+			if ("pear_newline_trait" in opts and opts["pear_newline_trait"]):
+				pear.append("newline_trait=true")
+
 			if ("pear_newline_function" in opts and opts["pear_newline_function"]):
 				pear.append("newline_function=true")
 

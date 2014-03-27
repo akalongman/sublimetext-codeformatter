@@ -4,8 +4,10 @@ Please report me any bugs and proposals at akalongman@gmail.com or GitHub (https
 
 Bug Fixes
 ------------
+- Fixed bug with traits in php beautifier
 
 
 Features
 ------------
 - added option for php beautifier "newline_before_comment"
+- added option for php beautifier "pear_newline_trait"

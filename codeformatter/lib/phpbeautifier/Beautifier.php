@@ -250,6 +250,7 @@ class PHP_Beautifier implements PHP_Beautifier_Interface
     {
         $this->aControlStructures = array(
             T_CLASS,
+            T_TRAIT,
             T_FUNCTION,
             T_IF,
             T_ELSE,
@@ -321,6 +322,7 @@ class PHP_Beautifier implements PHP_Beautifier_Interface
             T_ECHO => 'T_LANGUAGE_CONSTRUCT',
             T_NEW => 'T_LANGUAGE_CONSTRUCT',
             T_CLASS => 'T_LANGUAGE_CONSTRUCT',
+            T_TRAIT => 'T_LANGUAGE_CONSTRUCT',
             T_VAR => 'T_LANGUAGE_CONSTRUCT',
             T_GLOBAL => 'T_LANGUAGE_CONSTRUCT',
             T_THROW => 'T_LANGUAGE_CONSTRUCT',
@@ -872,7 +874,13 @@ class PHP_Beautifier implements PHP_Beautifier_Interface
         if (in_array($aCurrentToken[0], $this->aControlStructuresEnd)) {
             $this->popControlSeq();
         }
+
+
         switch ($aCurrentToken[0]) {
+        	default:
+        	    //var_dump(token_name($aCurrentToken[0]));
+        		break;
+
             case T_COMMENT:
                 // callback!
                 $aMatch=array();
@@ -890,6 +898,10 @@ class PHP_Beautifier implements PHP_Beautifier_Interface
                 break;
 
             case T_CLASS:
+                $this->setMode('class');
+                break;
+
+            case T_TRAIT:
                 $this->setMode('class');
                 break;
 
@@ -1477,4 +1489,4 @@ class PHP_Beautifier implements PHP_Beautifier_Interface
         return $this->isPreviousTokenConstant(T_VARIABLE) or $this->isPreviousTokenConstant(T_OBJECT_OPERATOR) or ($this->isPreviousTokenConstant(T_STRING) and $this->getPreviousTokenConstant(2) == T_OBJECT_OPERATOR) or $this->getMode('double_quote');
     }
 }
-?>
+
