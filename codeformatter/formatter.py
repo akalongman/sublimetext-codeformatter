@@ -37,6 +37,7 @@ class Formatter:
 			'json': JsFormatter,
 			'html': HtmlFormatter,
 			'css': CssFormatter,
+			'less': CssFormatter,
 			'python': PyFormatter
 		}
 		self.st_version = 2
