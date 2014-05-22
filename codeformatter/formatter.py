@@ -18,6 +18,7 @@ try:
 	from .htmlformatter import HtmlFormatter
 	from .cssformatter import CssFormatter
 	from .pyformatter import PyFormatter
+	from .xmlformatter import XmlFormatter
 
 except (ValueError):
 	# Python 2
@@ -26,7 +27,7 @@ except (ValueError):
 	from htmlformatter import HtmlFormatter
 	from cssformatter import CssFormatter
 	from pyformatter import PyFormatter
-
+	from xmlformatter import XmlFormatter
 
 class Formatter:
 	def __init__(self, view=False, file_name=False):
@@ -37,7 +38,8 @@ class Formatter:
 			'json': JsFormatter,
 			'html': HtmlFormatter,
 			'css': CssFormatter,
-			'python': PyFormatter
+			'python': PyFormatter,
+			'xml': XmlFormatter
 		}
 		self.st_version = 2
 		if sublime.version() == '' or int(sublime.version()) > 3000:
