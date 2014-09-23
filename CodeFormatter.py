@@ -48,7 +48,7 @@ if st_version == 2:
 
 class CodeFormatterCommand(sublime_plugin.TextCommand):
 
-	def run(self, edit):
+	def run(self, edit, syntax=False):
 
 		if self.view.is_scratch():
 			return show_error("File is scratch.")
@@ -61,7 +61,7 @@ class CodeFormatterCommand(sublime_plugin.TextCommand):
 		# if not os.path.exists(file_name):
 		# 	return show_error("File "+file_name+" does not exist.")
 
-		formatter = Formatter(self.view, file_name)
+		formatter = Formatter(self.view, file_name, syntax)
 		if not formatter.exists():
 			return show_error("Formatter for this file type ("+formatter.syntax+") not found.")
 
