@@ -37,6 +37,7 @@ class Formatter:
 			'json': JsFormatter,
 			'html': HtmlFormatter,
 			'asp': HtmlFormatter,
+			'xml': HtmlFormatter,
 			'css': CssFormatter,
 			'less': CssFormatter,
 			'python': PyFormatter
