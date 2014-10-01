@@ -1,0 +1,7 @@
+Sublime CodeFormatter 2.4.1 Changelog:
+
+Please report me any bugs and proposals at akalongman@gmail.com or GitHub (https://github.com/akalongman/sublimetext-codeformatter/issues)
+
+Features
+------------
+- Added extra commands, such as "Format as Javascript" and etc.

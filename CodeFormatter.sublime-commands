@@ -2,32 +2,37 @@
 	{
 		"caption": "CodeFormatter: Format Code",
 		"command": "code_formatter"
-	}, {
-		"caption": "CodeFormatter: Format As PHP Code",
+	},
+	{
+		"caption": "CodeFormatter: Format as PHP Syntax",
 		"command": "code_formatter",
 		"args": {
 			"syntax": "php"
 		}
-	}, {
-		"caption": "CodeFormatter: Format As javascript Code",
+	},
+	{
+		"caption": "CodeFormatter: Format as Javascript Syntax",
 		"command": "code_formatter",
 		"args": {
 			"syntax": "javascript"
 		}
-	}, {
-		"caption": "CodeFormatter: Format As CSS Code",
+	},
+	{
+		"caption": "CodeFormatter: Format as CSS Syntax",
 		"command": "code_formatter",
 		"args": {
 			"syntax": "css"
 		}
-	}, {
-		"caption": "CodeFormatter: Format As HTML Code",
+	},
+	{
+		"caption": "CodeFormatter: Format as HTML Syntax",
 		"command": "code_formatter",
 		"args": {
 			"syntax": "html"
 		}
-	}, {
-		"caption": "CodeFormatter: Format As python Code",
+	},
+	{
+		"caption": "CodeFormatter: Format as Python Syntax",
 		"command": "code_formatter",
 		"args": {
 			"syntax": "python"
