@@ -29,13 +29,15 @@ except (ValueError):
 
 
 class Formatter:
-	def __init__(self, view=False, file_name=False):
+	def __init__(self, view=False, file_name=False, syntax=False):
 		self.platform = sublime.platform()
 		self.classmap = {
 			'php': PhpFormatter,
 			'javascript': JsFormatter,
 			'json': JsFormatter,
 			'html': HtmlFormatter,
+			'asp': HtmlFormatter,
+			'xml': HtmlFormatter,
 			'css': CssFormatter,
 			'less': CssFormatter,
 			'python': PyFormatter
@@ -45,7 +47,11 @@ class Formatter:
 			self.st_version = 3
 
 		self.syntax_file = view.settings().get('syntax')
-		self.syntax = self.getSyntax()
+		if syntax == False:
+			self.syntax = self.getSyntax()
+		else:
+			self.syntax = syntax
+
 		self.file_name = file_name
 		self.settings = sublime.load_settings('CodeFormatter.sublime-settings')
 		self.packages_path = sublime.packages_path()
