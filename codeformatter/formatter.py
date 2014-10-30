@@ -16,6 +16,7 @@ try:
 	from .phpformatter import PhpFormatter
 	from .jsformatter import JsFormatter
 	from .htmlformatter import HtmlFormatter
+	from .coldfusionformatter import ColdfusionFormatter
 	from .cssformatter import CssFormatter
 	from .pyformatter import PyFormatter
 
@@ -24,6 +25,7 @@ except (ValueError):
 	from phpformatter import PhpFormatter
 	from jsformatter import JsFormatter
 	from htmlformatter import HtmlFormatter
+	from coldfusionformatter import ColdfusionFormatter
 	from cssformatter import CssFormatter
 	from pyformatter import PyFormatter
 
@@ -38,6 +40,7 @@ class Formatter:
 			'html': HtmlFormatter,
 			'asp': HtmlFormatter,
 			'xml': HtmlFormatter,
+			'coldfusion': ColdfusionFormatter,
 			'css': CssFormatter,
 			'less': CssFormatter,
 			'python': PyFormatter
