@@ -64,7 +64,16 @@
 		"max_preserve_newlines": 10, // Maximum number of line-breaks to be preserved in one chunk
 		"indent_tags": "html|head|body|div|nav|ul|ol|dl|li|table|thead|tbody|tr|th|td|blockquote|select|form|option|optgroup|fieldset|legend|label|header|section|aside|footer|figure|video" // List of tags (defaults to indent) that should be reformatted. Example "div|p|li|table"
 	},
-
+	
+	"codeformatter_coldfusion_options":
+	{
+		"indent_size": 4, // indentation size
+		"indent_char": " ", // Indentation character
+		"indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
+		"preserve_newlines": false, // Preserve existing line-breaks
+		"max_preserve_newlines": 10, // Maximum number of line-breaks to be preserved in one chunk
+		"indent_tags": "html|head|body|div|nav|ul|ol|dl|li|table|thead|tbody|tr|th|td|blockquote|select|form|option|optgroup|fieldset|legend|label|header|section|aside|footer|figure|video|cfapplet|cfapplication|cfassociate|cfauthenticate|cfbreak|cfcache|cfcol|cfcollection|cfcontent|cfcookie|cfdirectory|cferror|cfexecute|cfexit|cffile|cfform|cfftp|cffunction|cfgrid|cfgridcolumn|cfgridrow|cfgridupdate|cfheader|cfhtmlhead|cfhttp|cfhttpparam|cfif|cfelseif|cfelse|cfimpersonate|cfindex|cfinput|cfinsert|cfldap|cflocation|cflock|cfloop|cfmail|cfmailparam|cfmodule|cfobject|cfoutput|cfpop|cfprocessingdirective|cfprocparam|cfprocresult|cfquery|cfqueryparam|cfregistry|cfreport|cfrethrow|cfschedule|cfscript|cfsearch|cfselect|cfservlet|cfservletparam|cfsetting|cfsilent|cfslider|cfstoredproc|cfswitch|cfcase|cfdefaultcase|cftable|cftextinput|cftransaction|cftree|cftreeitem|cftry|cfcatch|cfupdate|cfwddx" // List of tags (defaults to indent) that should be reformatted. Example "div|p|li|table"
+	},
 
 	"codeformatter_python_options":
 	{
