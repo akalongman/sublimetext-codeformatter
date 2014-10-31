@@ -15,7 +15,7 @@ class BeautifierOptions:
 		self.indent_with_tabs = False
 		self.preserve_newlines = False
 		self.max_preserve_newlines = 10
-		self.indent_tags = 'html|head|body|div|nav|ul|ol|dl|li|table|thead|tbody|tr|th|td|blockquote|select|form|option|optgroup|fieldset|legend|label|header|section|aside|footer|figure|video'
+		self.indent_tags = 'html|head|body|div|nav|ul|ol|dl|li|table|thead|tbody|tr|th|td|blockquote|select|form|option|optgroup|fieldset|legend|label|header|section|aside|footer|figure|video|cfapplet|cfapplication|cfassociate|cfauthenticate|cfcache|cfcol|cfcollection|cfcontent|cfdirectory|cferror|cfexecute|cfexit|cffile|cfform|cfftp|cffunction|cfgrid|cfgridcolumn|cfgridrow|cfgridupdate|cfheader|cfhtmlhead|cfhttp|cfif|cfindex|cfinput|cfldap|cflocation|cflock|cfloop|cfmail|cfmodule|cfobject|cfoutput|cfpop|cfprocparam|cfprocresult|cfquery|cfreport|cfrethrow|cfschedule|cfscript|cfsearch|cfselect|cfservlet|cfsetting|cfsilent|cfslider|cfstoredproc|cfswitch|cfcase|cfdefaultcase|cftable|cftextinput|cftransaction|cftree|cftry|cfcatch|cfsavecontent'
 		self.indent_unindent_tags = 'cfelse|cfelseif'
 
 	def __repr__(self):
@@ -88,7 +88,7 @@ class Beautifier:
 			tag_indent_unindent = "<"+self.indentUnindentTags.replace('|', '|<')
 			tag_unindent = "</"+self.indentTags.replace('|', '|</')
 
-			tag_pos_inline = "<link.*/>|<link.*\">|<meta.*/>|<script.*</script>|<div.*</div>|<li.*</li>|<dt.*</dt>|<dd.*</dd>|<th.*</th>|<td.*</td>|<legend.*</legend>|<label.*</label>|<option.*</option>|<input.*/>|<input.*\">|<!--.*-->|<cfif.*</cfif><cfcase.*<cfbreak></cfcase>"
+			tag_pos_inline = "<link.*/>|<link.*\">|<meta.*/>|<script.*</script>|<div.*</div>|<li.*</li>|<dt.*</dt>|<dd.*</dd>|<th.*</th>|<td.*</td>|<legend.*</legend>|<label.*</label>|<option.*</option>|<input.*/>|<input.*\">|<!--.*-->|<cfif.*</cfif><cfcase.*<cfbreak></cfcase>|<cftransaction.*/>"
 
 			tag_raw_flat_opening = "<pre"
 			tag_raw_flat_closing = "</pre"
