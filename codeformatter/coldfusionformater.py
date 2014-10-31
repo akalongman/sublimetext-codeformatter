@@ -9,7 +9,7 @@ import re
 import sublime
 import subprocess
 
-import htmlbeautifier
+import coldfusionbeautifier
 
 class ColdfusionFormatter:
 	def __init__(self, formatter):
@@ -23,7 +23,7 @@ class ColdfusionFormatter:
 
 		stderr = ""
 		stdout = ""
-		options = htmlbeautifier.default_options()
+		options = coldfusionbeautifier.default_options()
 
 		if ("indent_size" in opts and opts["indent_size"]):
 			options.indent_size = opts["indent_size"]
@@ -54,8 +54,13 @@ class ColdfusionFormatter:
 		if ("indent_tags" in opts and opts["indent_tags"]):
 			options.indent_tags = str(opts["indent_tags"])
 
+		if ("indent_unindent_tags" in opts and opts["indent_unindent_tags"]):
+			options.indent_tags = str(opts["indent_unindent_tags"])
+
+
+
 		try:
- 		 	stdout = htmlbeautifier.beautify(text, options)
+ 		 	stdout = coldfusionbeautifier.beautify(text, options)
 		except Exception as e:
 		 	stderr = str(e)
 
