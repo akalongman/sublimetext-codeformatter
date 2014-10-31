@@ -55,7 +55,7 @@ class ColdfusionFormatter:
 			options.indent_tags = str(opts["indent_tags"])
 
 		if ("indent_unindent_tags" in opts and opts["indent_unindent_tags"]):
-			options.indent_tags = str(opts["indent_unindent_tags"])
+			options.indent_unindent_tags = str(opts["indent_unindent_tags"])
 
 
 
