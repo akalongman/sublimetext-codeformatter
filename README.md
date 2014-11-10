@@ -142,7 +142,7 @@ Language specific options:
 	}
 ```
 ### Python
-CSS - used [PythonTidy] (https://pypi.python.org/pypi/PythonTidy/) by Chuck Rhode
+Python - used [PythonTidy] (https://pypi.python.org/pypi/PythonTidy/) by Chuck Rhode
 
 Language specific options:
 ```js
