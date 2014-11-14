@@ -30,13 +30,17 @@ class PHP_Beautifier_Filter_SpaceInParen extends PHP_Beautifier_Filter
      * @access public
      * @return void
      */
-    public function t_parenthesis_open($sTag)
+    public function t_parenthesis_open( $sTag )
     {
-        $this->oBeaut->removeWhitespace();
-        if ($this->oBeaut->getNextTokenContent() == ')') {
-            $this->oBeaut->add($sTag);
+        if ( $this->oBeaut->getControlParenthesis() != T_ARRAY && $this->oBeaut->getNextTokenContent() != ')' ) {
+            
+            $this->oBeaut->removeWhitespace();
+            $this->oBeaut->add( $sTag . ' ' );
+
         }else{
-            $this->oBeaut->add($sTag. ' ');
+
+            $this->oBeaut->add( $sTag );
+
         }
 
     }
@@ -48,14 +52,17 @@ class PHP_Beautifier_Filter_SpaceInParen extends PHP_Beautifier_Filter
      * @access public
      * @return void
      */
-    public function t_parenthesis_close($sTag)
+    public function t_parenthesis_close( $sTag )
     {
-        $this->oBeaut->removeWhitespace();
-        
-        if ($this->oBeaut->getPreviousTokenContent() == '(') {
-            $this->oBeaut->add($sTag);
+        if ( $this->oBeaut->getControlParenthesis() != T_ARRAY && $this->oBeaut->getPreviousTokenContent() != '(' ) {
+
+            $this->oBeaut->removeWhitespace();
+            $this->oBeaut->add( ' ' . $sTag );
+
         }else{
-            $this->oBeaut->add(' '.$sTag);
+
+            $this->oBeaut->add( $sTag );
+
         }
 
     }
