@@ -39,7 +39,7 @@ class PHP_Beautifier_Filter_SpaceInParen extends PHP_Beautifier_Filter
 
         }else{
 
-            $this->oBeaut->add( $sTag );
+            return BYPASS;
 
         }
 
@@ -61,7 +61,7 @@ class PHP_Beautifier_Filter_SpaceInParen extends PHP_Beautifier_Filter
 
         }else{
 
-            $this->oBeaut->add( $sTag );
+            return BYPASS;
 
         }
 
