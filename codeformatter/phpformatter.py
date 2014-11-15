@@ -108,6 +108,10 @@ class PhpFormatter:
 		# SpaceInParen
 		if ("space_in_paren" in opts and opts["space_in_paren"]):
 			filters.append("SpaceInParen()")
+
+		# SpaceInSquare
+		if ("space_in_square" in opts and opts["space_in_square"]):
+			filters.append("SpaceInSquare()")
 			
 		# Identation
 		if ("indent_with_tabs" in opts and opts["indent_with_tabs"]):
