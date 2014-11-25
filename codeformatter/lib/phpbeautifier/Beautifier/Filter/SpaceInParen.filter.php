@@ -33,7 +33,6 @@ class PHP_Beautifier_Filter_SpaceInParen extends PHP_Beautifier_Filter
     public function t_parenthesis_open( $sTag )
     {
         if ( $this->oBeaut->getControlParenthesis() != T_ARRAY && $this->oBeaut->getNextTokenContent() != ')' ) {
-            
             $this->oBeaut->removeWhitespace();
             $this->oBeaut->add( $sTag . ' ' );
 
@@ -55,7 +54,6 @@ class PHP_Beautifier_Filter_SpaceInParen extends PHP_Beautifier_Filter
     public function t_parenthesis_close( $sTag )
     {
         if ( $this->oBeaut->getControlParenthesis() != T_ARRAY && $this->oBeaut->getPreviousTokenContent() != '(' ) {
-
             $this->oBeaut->removeWhitespace();
             $this->oBeaut->add( ' ' . $sTag );
 
