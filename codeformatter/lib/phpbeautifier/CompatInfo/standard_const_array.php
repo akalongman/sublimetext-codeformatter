@@ -260,6 +260,11 @@ $GLOBALS['_PHP_COMPATINFO_CONST_STANDARD'] = array (
     'init' => '5.0.0',
     'name' => 'final',
   ),
+  'FINALLY' =>
+  array (
+    'init' => '5.5.0',
+    'name' => 'finally',
+  ),
   'GLOB_AVAILABLE_FLAGS' =>
   array (
     'init' => '4.0.0',

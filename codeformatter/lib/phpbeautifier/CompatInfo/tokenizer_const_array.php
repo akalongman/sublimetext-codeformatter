@@ -270,6 +270,11 @@ $GLOBALS['_PHP_COMPATINFO_CONST_TOKENIZER'] = array (
     'init' => '4.0.0',
     'name' => 'T_FINAL',
   ),
+  'T_FINALLY' => 
+  array (
+    'init' => '4.0.0',
+    'name' => 'T_FINALLY',
+  ),
   'T_FOR' => 
   array (
     'init' => '4.0.0',

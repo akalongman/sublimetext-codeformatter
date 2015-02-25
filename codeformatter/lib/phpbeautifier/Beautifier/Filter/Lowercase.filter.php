@@ -58,6 +58,7 @@ class PHP_Beautifier_Filter_Lowercase extends PHP_Beautifier_Filter
         T_DEFAULT,
         T_TRY,
         T_CATCH,
+        T_FINALLY,
         T_ENDWHILE,
         T_ENDFOREACH,
         T_ENDFOR,

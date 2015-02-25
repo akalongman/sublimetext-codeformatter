@@ -262,7 +262,8 @@ class PHP_Beautifier implements PHP_Beautifier_Interface
             T_SWITCH,
             T_DECLARE,
             T_TRY,
-            T_CATCH
+            T_CATCH,
+            T_FINALLY
         );
         $this->aControlStructuresEnd = array(
             T_ENDWHILE,
