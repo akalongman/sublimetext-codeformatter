@@ -90,6 +90,7 @@
  */
 class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
 {
+    protected $aIndentTag = array();
     protected $aSettings = array(
         'style' => 'K&R'
     );
@@ -156,6 +157,7 @@ class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
         $this->oBeaut->addNewLineIndent();
         $this->oBeaut->add($sTag);
         $this->oBeaut->incIndent();
+        $this->_switchOpenBracketFix();
         $this->oBeaut->addNewLineIndent();
     }
     /**
@@ -173,6 +175,7 @@ class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
         } else {
             $this->oBeaut->removeWhitespace();
             $this->oBeaut->decIndent();
+            $this->_switchCloseBracketFix();
             $this->oBeaut->addNewLineIndent();
             $this->oBeaut->add($sTag);
             $this->oBeaut->addNewLineIndent();
@@ -191,6 +194,7 @@ class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
         $this->oBeaut->addNewLine();
         $this->oBeaut->incIndent();
         $this->oBeaut->addIndent();
+        $this->_switchOpenBracketFix();
         $this->oBeaut->add($sTag);
         $this->oBeaut->addNewLineIndent();
     }
@@ -208,6 +212,7 @@ class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
             $this->oBeaut->add($sTag);
         } else {
             $this->oBeaut->removeWhitespace();
+            $this->_switchCloseBracketFix();
             $this->oBeaut->addNewLineIndent();
             $this->oBeaut->add($sTag);
             $this->oBeaut->decIndent();
@@ -230,6 +235,7 @@ class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
             $iHalfSpace = floor($this->oBeaut->iIndentNumber/2);
             $this->oBeaut->removeWhitespace();
             $this->oBeaut->decIndent();
+            $this->_switchCloseBracketFix();
             $this->oBeaut->addNewLineIndent();
             $this->oBeaut->add(str_repeat($this->oBeaut->sIndentChar, $iHalfSpace));
             $this->oBeaut->add($sTag);
@@ -251,6 +257,7 @@ class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
         $this->oBeaut->add(str_repeat($this->oBeaut->sIndentChar, $iHalfSpace));
         $this->oBeaut->add($sTag);
         $this->oBeaut->incIndent();
+        $this->_switchOpenBracketFix();
         $this->oBeaut->addNewLineIndent();
     }
     /**
@@ -266,7 +273,7 @@ class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
         if ($this->oBeaut->getPreviousTokenContent() == '}') {
             $this->oBeaut->removeWhitespace();
             $this->oBeaut->add(' ');
-            //$this->oBeaut->addNewLineIndent();
+            $this->oBeaut->addNewLineIndent();
             $this->oBeaut->add(trim($sTag));
             if (!$this->oBeaut->isNextTokenContent('{')) {
                     $this->oBeaut->add(' ');
@@ -290,6 +297,36 @@ class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
             throw (new Exception("Style " . $sStyle . " doesn't exists"));
         }
         return $sMethod . "_" . $this->aAllowedStyles[$sStyle];
+    }
+
+    /**
+     * Fix PHP_Beautifier Bug #10019 (switch indent)
+     * Patch     switch-indentation-fix
+     * Developer arturkotyrba
+     * @see http://pear.php.net/bugs/bug.php?id=10019&edit=12&patch=switch-indentation-fix&revision=latest
+     * @return void
+     */
+    private function _switchOpenBracketFix()
+    {
+        if ($this->oBeaut->getControlSeq()==T_SWITCH) {
+            $this->oBeaut->incIndent();
+            $this->aIndentTag[] = 'switch';        
+        } else { 
+            $this->aIndentTag[] = 'non-switch';        
+        }
+    }
+    /**
+     * Fix PHP_Beautifier Bug #10019 (switch indent)
+     * Patch     switch-indentation-fix
+     * Developer arturkotyrba
+     * @see http://pear.php.net/bugs/bug.php?id=10019&edit=12&patch=switch-indentation-fix&revision=latest
+     * @return void
+     */
+    private function _switchCloseBracketFix()
+    {
+        if (array_pop($this->aIndentTag)=='switch') {
+            $this->oBeaut->decIndent();            
+        }
     }
 }
 ?>
