@@ -23,7 +23,9 @@
 		"fluent": false, // Create fluent style for multi-level object access.
 		"list_class_function": false, // Create a list of functions and classes in the script By default, this Filter puts the list at the beggining of the script.
 		"equals_align": false, // Align the equals symbols in contiguous lines.
-		"phpbb": false // Format the code to make it compatible with phpBB Coding Standards (if enabled, overrides some another options)
+		"phpbb": false, // Format the code to make it compatible with phpBB Coding Standards (if enabled, overrides some another options)
+		"space_in_paren": false, // Add padding spaces within paren if not empty, ie. f( a, b ),g()
+		"space_in_square": false // Add padding spaces within square brackets if contains a variable, ie. [ $a ],["key"],[]
 	},
 
 	"codeformatter_js_options":
