@@ -14,6 +14,13 @@ CodeFormatter has support for the following languages:
 * Python - By PythonTidy (only ST2)
 
 
+Sponsors
+-----
+No sponsors yet.. :(
+If you like the software, don't forget to donate to further development of it!
+
+[![PayPal donate button](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=MVCBM7M2RCEX6&lc=US&item_name=Support%20our%20open%2dsource%20initiatives&item_number=donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted "Donate once-off to this project using Paypal")
+
 
 Installing
 ----------
@@ -212,13 +219,6 @@ Usage
 Tools -> Command Palette (`Cmd+Shift+P` or `Ctrl+Shift+P`) and type `Format Code`.
 
 You can set up your own key combo for this, by going to Preferences -> Key Bindings - User, and adding a command in that huge array: `{ "keys": ["ctrl+alt+f"], "command": "code_formatter" },`. Default keybinding is `ctrl+alt+f`. You can use any other key you want, thought most of them are already taken.
-
-Sponsors
------
-No sponsors yet.. :( Will you be the first?
-
-[![PayPal donate button](https://www.paypalobjects.com/en_US/i/btn/btn_donate_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=avtandil%2ekikabidze%40gmail%2ecom&lc=US&item_name=Buy%20me%20beer%20%3a%29&item_number=donation&currency_code=USD&bn=PP%2dDonationsBF%3abtn_donate_LG%2egif%3aNonHosted "Donate once-off to this project using Paypal")
-
 
 TODO
 -----
