@@ -4,6 +4,7 @@
 
 	"codeformatter_php_options":
 	{
+		"formatters": "php", // If you run into 'Formatter for this file type (...) not found.' errors for files you know are php. Add the missing 'file type' here (the 'file type 'is within the parentheses in the error dialog).
 		"indent_size": 4, // Indent size
 		"indent_with_tabs": false, // Indent with tabs or spaces
 		"indent_style": "k&r", // Indent the code in k&r, allman, gnu or whitesmiths style
@@ -30,6 +31,7 @@
 
 	"codeformatter_js_options":
 	{
+		"formatters": "javascript,json", // If you run into 'Formatter for this file type (...) not found.' errors for files you know are js. Add the missing 'file type' here (the 'file type 'is within the parentheses in the error dialog).
 		"indent_size": 4, // indentation size
 		"indent_char": " ", // Indent character
 		"indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
@@ -50,6 +52,7 @@
 
 	"codeformatter_css_options":
 	{
+		"formatters": "css,less", // If you run into 'Formatter for this file type (...) not found.' errors for files you know are css. Add the missing 'file type' here (the 'file type 'is within the parentheses in the error dialog).
 		"indent_size": 4, // Indentation size
 		"indent_char": " ", // Indentation character
 		"indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
@@ -59,6 +62,7 @@
 
 	"codeformatter_html_options":
 	{
+		"formatters": "html,asp,xml", // If you run into 'Formatter for this file type (...) not found.' errors for files you know are html. Add the missing 'file type' here (the 'file type 'is within the parentheses in the error dialog).
 		"indent_size": 4, // indentation size
 		"indent_char": " ", // Indentation character
 		"indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
@@ -70,6 +74,7 @@
 
 	"codeformatter_python_options":
 	{
+		"formatters": "python", // If you run into 'Formatter for this file type (...) not found.' errors for files you know are python. Add the missing 'file type' here (the 'file type 'is within the parentheses in the error dialog).
 		"indent_size": 1, // indentation size
 		"indent_with_tabs": true, // Indent with tabs or spaces
 		"max_char": 80, // Width of output lines in characters.
