@@ -81,7 +81,7 @@ class Formatter:
 			return False
 
 	def getSyntax(self):
-		pattern = re.compile(r"Packages/(.+?)/.+?\.tmLanguage")
+		pattern = re.compile(r"Packages/.*/(.+?).(?=tmLanguage|sublime-syntax)")
 		m = pattern.search(self.syntax_file)
 		found = ""
 		if (m):
