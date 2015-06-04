@@ -37,5 +37,12 @@
 		"args": {
 			"syntax": "python"
 		}
+	},
+	{
+		"caption": "CodeFormatter: Format as Coldfusion Syntax",
+		"command": "code_formatter",
+		"args": {
+			"syntax": "coldfusion"
+		}
 	}
 ]
