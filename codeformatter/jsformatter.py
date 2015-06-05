@@ -1,7 +1,7 @@
-# @author 		Avtandil Kikabidze
-# @copyright 		Copyright (c) 2008-2014, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
+# @author 			Avtandil Kikabidze
+# @copyright 		Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
 # @link 			http://long.ge
-# @license 		GNU General Public License version 2 or later;
+# @license 		The MIT License (MIT)
 
 import os
 import sys
@@ -56,6 +56,11 @@ class JsFormatter:
 		else:
 			options.space_in_paren = False
 
+		if ("space_in_empty_paren" in opts and opts["space_in_empty_paren"]):
+			options.space_in_empty_paren = True
+		else:
+			options.space_in_empty_paren = False
+
 		if ("e4x" in opts and opts["e4x"]):
 			options.e4x = True
 		else:
@@ -108,11 +113,26 @@ class JsFormatter:
 		else:
 			options.break_chained_methods = False
 
+		if ("end_with_newline" in opts and opts["end_with_newline"]):
+			options.end_with_newline = True
+		else:
+			options.end_with_newline = False
+
+		if ("comma_first" in opts and opts["comma_first"]):
+			options.comma_first = True
+		else:
+			options.comma_first = False
+
+
+
 
 		try:
- 		 	stdout = jsbeautifier.beautify(text, options)
+			stdout = jsbeautifier.beautify(text, options)
 		except Exception as e:
 		 	stderr = str(e)
+
+		#return "", ""
+
 
 		if (not stderr and not stdout):
 			stderr = "Formatting error!"

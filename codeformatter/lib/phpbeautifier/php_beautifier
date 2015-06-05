@@ -39,7 +39,8 @@
     // set include path
     $path = dirname($argv[0]).DIRECTORY_SEPARATOR;
     define('CODEFORMATTER_LIBPATH', $path);
-    //file_put_contents('C:\Users\LONGMAN\AppData\Roaming\Sublime Text 3\Packages\CodeFormatter\codeformatter\lib\phpbeautifier\php.log', print_r($argv, true));
+    //file_put_contents('~\php.log', print_r($argv, true));
+
     set_include_path($path);
 
     /**
@@ -64,6 +65,12 @@
     require_once 'Beautifier/Batch.php';
     // get log object
     $oLog = PHP_Beautifier_Common::getLog();
+
+    function CFLog($text) {
+        $path = '/home/longman/.config/sublime-text-3/Packages/CodeFormatter/codeformatter/lib/phpbeautifier/php.log';
+        file_put_contents($path, print_r($text, true)."\n", FILE_APPEND);
+    }
+
 
     //default_options
     $aInputFiles = STDIN;

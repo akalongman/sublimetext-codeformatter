@@ -1,7 +1,7 @@
-# @author 		Avtandil Kikabidze
-# @copyright 		Copyright (c) 2008-2014, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
+# @author 			Avtandil Kikabidze
+# @copyright 		Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
 # @link 			http://long.ge
-# @license 		GNU General Public License version 2 or later;
+# @license 		The MIT License (MIT)
 
 import os
 import sys
@@ -112,7 +112,7 @@ class PhpFormatter:
 		# SpaceInSquare
 		if ("space_in_square" in opts and opts["space_in_square"]):
 			filters.append("SpaceInSquare()")
-			
+
 		# Identation
 		if ("indent_with_tabs" in opts and opts["indent_with_tabs"]):
 			ident_type = "t"
