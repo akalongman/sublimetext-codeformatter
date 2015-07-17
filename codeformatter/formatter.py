@@ -34,6 +34,7 @@ class Formatter:
 		self.classmap = {
 			'php': PhpFormatter,
 			'javascript': JsFormatter,
+			'javascriptnext': JsFormatter,
 			'json': JsFormatter,
 			'html': HtmlFormatter,
 			'asp': HtmlFormatter,
