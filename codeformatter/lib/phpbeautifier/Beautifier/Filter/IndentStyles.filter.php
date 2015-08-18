@@ -273,7 +273,9 @@ class PHP_Beautifier_Filter_IndentStyles extends PHP_Beautifier_Filter
         if ($this->oBeaut->getPreviousTokenContent() == '}') {
             $this->oBeaut->removeWhitespace();
             $this->oBeaut->add(' ');
-            $this->oBeaut->addNewLineIndent();
+            if (strtolower($this->getSetting('style')) == 'allman') {
+                $this->oBeaut->addNewLineIndent();
+            }
             $this->oBeaut->add(trim($sTag));
             if (!$this->oBeaut->isNextTokenContent('{')) {
                     $this->oBeaut->add(' ');
