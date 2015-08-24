@@ -31,17 +31,7 @@ except (ValueError):
 class Formatter:
 	def __init__(self, view=False, file_name=False, syntax=False):
 		self.platform = sublime.platform()
-		self.classmap = {
-			'php': PhpFormatter,
-			'javascript': JsFormatter,
-			'json': JsFormatter,
-			'html': HtmlFormatter,
-			'asp': HtmlFormatter,
-			'xml': HtmlFormatter,
-			'css': CssFormatter,
-			'less': CssFormatter,
-			'python': PyFormatter
-		}
+		self.classmap = {}
 		self.st_version = 2
 		if sublime.version() == '' or int(sublime.version()) > 3000:
 			self.st_version = 3
@@ -55,6 +45,31 @@ class Formatter:
 		self.file_name = file_name
 		self.settings = sublime.load_settings('CodeFormatter.sublime-settings')
 		self.packages_path = sublime.packages_path()
+
+		opts = self.settings.get('codeformatter_php_options')
+		if ("formatters" in opts and opts["formatters"]):
+			for _formatter in opts["formatters"].split(","):
+				self.classmap[_formatter.strip()] = PhpFormatter
+
+		opts = self.settings.get('codeformatter_js_options')
+		if ("formatters" in opts and opts["formatters"]):
+			for _formatter in opts["formatters"].split(","):
+				self.classmap[_formatter.strip()] = JsFormatter
+
+		opts = self.settings.get('codeformatter_css_options')
+		if ("formatters" in opts and opts["formatters"]):
+			for _formatter in opts["formatters"].split(","):
+				self.classmap[_formatter.strip()] = CssFormatter
+
+		opts = self.settings.get('codeformatter_html_options')
+		if ("formatters" in opts and opts["formatters"]):
+			for _formatter in opts["formatters"].split(","):
+				self.classmap[_formatter.strip()] = HtmlFormatter
+
+		opts = self.settings.get('codeformatter_python_options')
+		if ("formatters" in opts and opts["formatters"]):
+			for _formatter in opts["formatters"].split(","):
+				self.classmap[_formatter.strip()] = PyFormatter
 
 	def format(self, text):
 
