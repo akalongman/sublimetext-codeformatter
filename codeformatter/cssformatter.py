@@ -51,7 +51,10 @@ class CssFormatter:
 		else:
 			options.end_with_newline = False
 
-
+        if ("eol" in opts and opts["eol"]):
+            options.eol = opts["eol"]
+        else:
+            options.eol = "\n"
 
 
 		try:

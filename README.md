@@ -106,6 +106,7 @@ Language specific options:
 		"indent_size": 4, // indentation size
 		"indent_char": " ", // Indent character
 		"indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
+        "eol": "\n", // EOL symbol
 		"preserve_newlines": false, // whether existing line breaks should be preserved,
 		"max_preserve_newlines": 10, // maximum number of line breaks to be preserved in one chunk
 		"space_in_paren": false, // Add padding spaces within paren, ie. f( a, b )
@@ -152,7 +153,8 @@ Language specific options:
 		"indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
 		"selector_separator_newline": false, // Add new lines after selector separators
 		"end_with_newline": false, // Add new line of end in file
-		"newline_between_rules": false // Add new line between rules
+		"newline_between_rules": false, // Add new line between rules
+        "eol": "\n" // EOL symbol
 	}
 ```
 ### Python
