@@ -15,8 +15,8 @@ class BeautifierOptions:
 		self.indent_with_tabs = True
 		self.preserve_newlines = True
 		self.max_preserve_newlines = 10
-		self.opening_tags = '^(Function |Sub |If |For |Do While |Select Case)'
-		self.middle_tags = '^(Else|ElseIf .*|Case .*)$'
+		self.opening_tags = '^(Function .*|Sub .*|If .* Then|For .*|Do While .*|Select Case.*)$'
+		self.middle_tags = '^(Else|ElseIf .* Then|Case .*)$'
 		self.closing_tags = '^(End Function|End Sub|End If|Next|Loop|End Select)$'
 
 	def __repr__(self):
