@@ -135,7 +135,20 @@
         // parenthesis is brought back left to the indent level of the enclosing
         // statement.
         "java_style_list_dedent": false
-    }
+    },
+
+    "codeformatter_vbscript_options":
+    {
+        "syntaxes": "vbscript", // Syntax names which must process VBScript formatter
+        "indent_size": 1, // indentation size
+        "indent_char": "\t", // Indentation character
+        "indent_with_tabs": true, // Indent with one tab (overrides indent_size and indent_char options)
+        "preserve_newlines": true, // Preserve existing line-breaks
+        "max_preserve_newlines": 10, // Maximum number of line-breaks to be preserved in one chunk
+        "opening_tags": "^(Function |Sub |If |For |Do While |Select Case)", // List of keywords which open a new block
+        "middle_tags": "^(Else|ElseIf .*|Case .*)$", // List of keywords which divide a block, but neither open or close the block
+        "closing_tags": "^(End Function|End Sub|End If|Next|Loop|End Select)$" // List of keywords which close an open block
+    },
 
 
 }

@@ -18,6 +18,7 @@ try:
     from .htmlformatter import HtmlFormatter
     from .cssformatter import CssFormatter
     from .pyformatter import PyFormatter
+    from .vbscriptformatter import VbscriptFormatter
 
 except (ValueError):
     # Python 2
@@ -26,6 +27,7 @@ except (ValueError):
     from htmlformatter import HtmlFormatter
     from cssformatter import CssFormatter
     from pyformatter import PyFormatter
+    from vbscriptformatter import VbscriptFormatter
 
 
 class Formatter:
@@ -75,6 +77,12 @@ class Formatter:
         if ("syntaxes" in opts and opts["syntaxes"]):
             for _formatter in opts["syntaxes"].split(","):
                 self.classmap[_formatter.strip()] = PyFormatter
+
+        # VBScript
+        opts = self.settings.get('codeformatter_vbscript_options')
+        if ("syntaxes" in opts and opts["syntaxes"]):
+            for _formatter in opts["syntaxes"].split(","):
+                self.classmap[_formatter.strip()] = VbscriptFormatter
 
 
 
