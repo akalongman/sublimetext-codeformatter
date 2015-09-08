@@ -15,9 +15,9 @@ class BeautifierOptions:
 		self.indent_with_tabs = True
 		self.preserve_newlines = True
 		self.max_preserve_newlines = 10
-		self.opening_tags = '^(Function .*|Sub .*|If .* Then|For .*|Do While .*|Select Case.*)$'
+		self.opening_tags = '^(Function .*|Sub .*|If .* Then|For .*|Do While .*|Select Case.*)'
 		self.middle_tags = '^(Else|ElseIf .* Then|Case .*)$'
-		self.closing_tags = '^(End Function|End Sub|End If|Next|Loop|End Select)$'
+		self.closing_tags = '(End Function|End Sub|End If|Next|Loop|End Select)$'
 
 	def __repr__(self):
 		return \
@@ -109,21 +109,17 @@ class Beautifier:
 			is_block_raw = False
 
 			for item in rawcode_flat_list:
+				is_middle = False
 				if re.search(self.closing_tags, item, re.IGNORECASE):
 					indent_level -= 1
 					if indent_level < 0:
 						indent_level = 0
-					tmp = (indent_char * indent_level) + item
-				elif re.search(self.middle_tags, item, re.IGNORECASE):
-					tmp = (indent_char * (indent_level - 1)) + item
-				elif re.search(self.opening_tags, item, re.IGNORECASE):
-					tmp = (indent_char * indent_level) + item
+				if re.search(self.middle_tags, item, re.IGNORECASE):
+					is_middle = True
+				if re.search(self.opening_tags, item, re.IGNORECASE):
 					indent_level += 1
-				else:
-					if item == "":
-						tmp = item
-					else:
-						tmp = (indent_char * indent_level) + item
+				
+				tmp = (indent_char * (indent_level-is_middle)) + item
 				beautified_code = beautified_code + tmp + '\n'
 				
 			beautified_code = beautified_code.strip()
