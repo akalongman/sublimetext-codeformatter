@@ -12,6 +12,7 @@ CodeFormatter has support for the following languages:
 * HTML - By JSBeautifier
 * CSS - By JSBeautifier
 * Python - By PythonTidy (only ST2)
+* Visual Basic/VBScript
 
 
 Sponsors
@@ -218,6 +219,23 @@ Language specific options:
 		// parenthesis is brought back left to the indent level of the enclosing
 		// statement.
 		"java_style_list_dedent": false
+	}
+```
+### Visual Basic/VBScript
+Visual Basic/VBScript - used custom approach using the HTML beautifier as a guide
+
+Language specific options:
+```js
+	"codeformatter_vbscript_options":
+	{
+        "indent_size": 1, // indentation size
+        "indent_char": "\t", // Indentation character
+        "indent_with_tabs": true, // Indent with one tab (overrides indent_size and indent_char options)
+        "preserve_newlines": true, // Preserve existing line-breaks
+        "max_preserve_newlines": 10, // Maximum number of line-breaks to be preserved in one chunk
+        "opening_tags": "^(Function .*|Sub .*|If .* Then|For .*|Do While .*|Select Case.*)", // List of keywords which open a new block
+        "middle_tags": "^(Else|ElseIf .* Then|Case .*)$", // List of keywords which divide a block, but neither open or close the block
+        "closing_tags": "(End Function|End Sub|End If|Next|Loop|End Select)$" // List of keywords which close an open block
 	}
 ```
 
