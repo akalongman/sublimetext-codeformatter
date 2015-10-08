@@ -97,7 +97,7 @@ Language specific options:
 
 
 ### Javascript/JSON
-Javascript/JSON/JSONP - used [JSBeautifier] (http://jsbeautifier.org/) by Einar Lielmanis
+Javascript/JSON - used [JSBeautifier] (http://jsbeautifier.org/) by Einar Lielmanis
 
 Language specific options:
 ```js
