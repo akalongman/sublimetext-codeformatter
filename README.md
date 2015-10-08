@@ -86,7 +86,7 @@ Language specific options:
 		"pear_switch_without_indent": false, // Disable extra switch identation
 		"lowercase": false, // Lowercase all control structures. Such as TRUE, FALSE, SWITCH and more
 		"fluent": false, // Create fluent style for multi-level object access.
-		"list_class_function": false, // Create a list of functions and classes in the script By default, this Filter puts the list at the beggining of the script.
+		"list_class_function": false, // Create a list of functions and classes in the script By default, this Filter puts the list at the beginning of the script.
 		"equals_align": false, // Align the equals symbols in contiguous lines.
 		"phpbb": false, // Format the code to make it compatible with phpBB Coding Standards (if enabled, overrides some another options)
 		"space_in_paren": false, // Add padding spaces within paren if not empty, ie. f( a, b ),g()
