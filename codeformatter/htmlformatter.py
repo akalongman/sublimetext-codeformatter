@@ -15,44 +15,37 @@ class HtmlFormatter:
 	def __init__(self, formatter):
 		self.formatter = formatter
 
-
 	def format(self, text):
 		text = text.decode("utf-8")
 		opts = self.formatter.settings.get('codeformatter_html_options')
-
 
 		stderr = ""
 		stdout = ""
 		options = htmlbeautifier.default_options()
 
-		if ("indent_size" in opts and opts["indent_size"]):
+		if "indent_size" in opts:
 			options.indent_size = opts["indent_size"]
-		else:
-			options.indent_size = 4
 
-
-		if ("indent_char" in opts and opts["indent_char"]):
+		if "indent_char" in opts:
 			options.indent_char = str(opts["indent_char"])
-		else:
-			options.indent_char = "	"
 
-		if ("indent_with_tabs" in opts and opts["indent_with_tabs"]):
-			options.indent_with_tabs = True
-		else:
-			options.indent_with_tabs = False
+		if "minimum_attribute_count" in opts:
+			options.minimum_attribute_count = opts["minimum_attribute_count"]
 
-		if ("preserve_newlines" in opts and opts["preserve_newlines"]):
-			options.preserve_newlines = True
-		else:
-			options.preserve_newlines = False
+		if "indent_with_tabs" in opts:
+			options.indent_with_tabs = opts["indent_with_tabs"]
 
-		if ("max_preserve_newlines" in opts and opts["max_preserve_newlines"]):
-			options.max_preserve_newlines = opts["max_preserve_newlines"]
-		else:
-			options.max_preserve_newlines = 10
+		if "expand_tags" in opts:
+			options.expand_tags = opts["expand_tags"]
 
-		if ("indent_tags" in opts and opts["indent_tags"]):
-			options.indent_tags = str(opts["indent_tags"])
+		if "expand_javascript" in opts:
+			options.expand_javascript = opts["expand_javascript"]
+
+		if "reduce_empty_tags" in opts:
+			options.reduce_empty_tags = opts["reduce_empty_tags"]
+
+		if "exception_on_tag_mismatch" in opts:
+			options.exception_on_tag_mismatch = opts["exception_on_tag_mismatch"]
 
 		try:
  		 	stdout = htmlbeautifier.beautify(text, options)
@@ -63,4 +56,3 @@ class HtmlFormatter:
 			stderr = "Formatting error!"
 
 		return stdout, stderr
-
