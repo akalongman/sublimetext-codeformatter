@@ -272,7 +272,7 @@ $GLOBALS['_PHP_COMPATINFO_CONST_TOKENIZER'] = array (
   ),
   'T_FINALLY' => 
   array (
-    'init' => '4.0.0',
+    'init' => '5.5.0',
     'name' => 'T_FINALLY',
   ),
   'T_FOR' => 
@@ -299,6 +299,11 @@ $GLOBALS['_PHP_COMPATINFO_CONST_TOKENIZER'] = array (
   array (
     'init' => '4.0.0',
     'name' => 'T_GLOBAL',
+  ),
+  'T_GOTO' => 
+  array (
+    'init' => '5.3.0',
+    'name' => 'T_GOTO',
   ),
   'T_HALT_COMPILER' => 
   array (

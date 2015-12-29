@@ -327,6 +327,7 @@ class PHP_Beautifier implements PHP_Beautifier_Interface
             T_VAR => 'T_LANGUAGE_CONSTRUCT',
             T_GLOBAL => 'T_LANGUAGE_CONSTRUCT',
             T_THROW => 'T_LANGUAGE_CONSTRUCT',
+            T_GOTO => 'T_LANGUAGE_CONSTRUCT',
             /* CONTROL */
             T_IF => 'T_CONTROL',
             T_DO => 'T_CONTROL',

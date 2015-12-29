@@ -78,6 +78,7 @@ class PHP_Beautifier_Filter_Lowercase extends PHP_Beautifier_Filter
         T_VAR,
         T_GLOBAL,
         T_THROW,
+        T_GOTO,
         /* CONTROL */
         T_IF,
         T_DO,
