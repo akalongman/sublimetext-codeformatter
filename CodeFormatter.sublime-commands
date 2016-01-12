@@ -25,6 +25,13 @@
 		}
 	},
 	{
+		"caption": "CodeFormatter: Format as SCSS Syntax",
+		"command": "code_formatter",
+		"args": {
+			"syntax": "scss"
+		}
+	},
+	{
 		"caption": "CodeFormatter: Format as HTML Syntax",
 		"command": "code_formatter",
 		"args": {
