@@ -17,6 +17,7 @@ try:
     from .jsformatter import JsFormatter
     from .htmlformatter import HtmlFormatter
     from .cssformatter import CssFormatter
+    from .scssformatter import ScssFormatter
     from .pyformatter import PyFormatter
 
 except (ValueError):
@@ -25,6 +26,7 @@ except (ValueError):
     from jsformatter import JsFormatter
     from htmlformatter import HtmlFormatter
     from cssformatter import CssFormatter
+    from scssformatter import ScssFormatter
     from pyformatter import PyFormatter
 
 
@@ -72,6 +74,12 @@ class Formatter:
 
         # Python
         opts = self.settings.get('codeformatter_python_options')
+        if ("syntaxes" in opts and opts["syntaxes"]):
+            for _formatter in opts["syntaxes"].split(","):
+                self.classmap[_formatter.strip()] = PyFormatter
+
+        # SCSS
+        opts = self.settings.get('codeformatter_scss_options')
         if ("syntaxes" in opts and opts["syntaxes"]):
             for _formatter in opts["syntaxes"].split(","):
                 self.classmap[_formatter.strip()] = PyFormatter

@@ -1,5 +1,6 @@
-# @author 			Avtandil Kikabidze
-# @copyright 		Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
+# @author           Avtandil Kikabidze
+# @contributors Avtandil Kikabidze, Nishutosh Sharma
+# @copyright        Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
 # @link 			http://long.ge
 # @license 		The MIT License (MIT)
 
@@ -28,6 +29,7 @@ mods_load_order = [
     '.jsformatter',
     '.htmlformatter',
     '.cssformatter',
+    '.scssformatter',
     '.pyformatter',
     '.formatter'
 ]
