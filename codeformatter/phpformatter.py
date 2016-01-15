@@ -1,144 +1,164 @@
-# @author 			Avtandil Kikabidze
-# @copyright 		Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
-# @link 			http://long.ge
-# @license 		The MIT License (MIT)
+# @author             Avtandil Kikabidze
+# @copyright         Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
+# @link             http://long.ge
+# @license         The MIT License (MIT)
 
 import os
 import sys
 import re
 import sublime
+import subprocess
 
 try:
-	# Python 3
-	from .phpbeautifier import Beautifier
+    # Python 3
+    from .phpbeautifier import Beautifier
 except (ValueError):
-	# Python 2
-	from phpbeautifier import Beautifier
+    # Python 2
+    from phpbeautifier import Beautifier
 
 class PhpFormatter:
-	def __init__(self, formatter):
-		self.formatter = formatter
+    def __init__(self, formatter):
+        self.formatter = formatter
 
 
 
-	def format(self, text):
-		opts = self.formatter.settings.get('codeformatter_php_options')
+    def format(self, text):
+        opts = self.formatter.settings.get('codeformatter_php_options')
 
 
-		# Filters
-		filters = []
+        php_path = self.formatter.settings.get('codeformatter_php_path', '');
+        if (php_path == ""):
+            php_path = "php"
 
-		# Default
-		default = []
-		if ("newline_before_comment" in opts and opts["newline_before_comment"]):
-			default.append("newline_before_comment=true")
-		default = ",".join(map(str, default))
-		filters.append("Default("+default+")")
-
-
-		# Pear
-		if ("pear" in opts and opts["pear"]):
-			pear = []
-			if ("pear_add_header" in opts and opts["pear_add_header"]):
-				pear.append("add_header="+opts["pear_add_header"])
-
-			if ("pear_newline_class" in opts and opts["pear_newline_class"]):
-				pear.append("newline_class=true")
-
-			if ("pear_newline_trait" in opts and opts["pear_newline_trait"]):
-				pear.append("newline_trait=true")
-
-			if ("pear_newline_function" in opts and opts["pear_newline_function"]):
-				pear.append("newline_function=true")
-
-			if ("pear_switch_without_indent" in opts and opts["pear_switch_without_indent"]):
-				pear.append("switch_without_indent=true")
+        cmd = php_path + " " + sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/php_cs_fixer.phar"
+        cmd = "php-cs-fixer"
+        #cmd = "echo "+text.decode("utf-8")+" | php-cs-fixer"
+        #print(str(cmd))
 
 
-			pear = ",".join(map(str, pear))
-			filters.append("Pear("+pear+")")
+        p = subprocess.Popen([str(cmd), "fix", "--level=psr2", "-"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        stdout, stderr = p.communicate(text)
 
 
-		# Line filters
-		new_line_before = ""
-		if ("new_line_before" in opts and opts["new_line_before"]):
-			new_line_before = opts["new_line_before"].replace(",", ":")
-
-		new_line_after = ""
-		if ("new_line_after" in opts and opts["new_line_after"]):
-			new_line_after = opts["new_line_after"].replace(",", ":")
-
-		new_lines = ""
-		if (new_line_before and new_line_after):
-			new_lines += "NewLines(before="+new_line_before+",after="+new_line_after+")"
-		elif (new_line_before != ""):
-			new_lines += "NewLines(before="+new_line_before+")"
-		elif (new_line_after != ""):
-			new_lines += "NewLines(after="+new_line_after+")"
-
-		if (new_lines):
-			filters.append(new_lines)
-
-		# Array Nested
-		if ("format_array_nested" in opts and opts["format_array_nested"]):
-			filters.append("ArrayNested()")
-
-		# Lowercase
-		if ("lowercase" in opts and opts["lowercase"]):
-			filters.append("Lowercase()")
+        #print(stdout)
+        #print(stderr)
+        return stdout, stderr
 
 
-		# Fluent
-		if ("fluent" in opts and opts["fluent"]):
-			filters.append("Fluent()")
+        # Filters
+        filters = []
+
+        # Default
+        default = []
+        if ("newline_before_comment" in opts and opts["newline_before_comment"]):
+            default.append("newline_before_comment=true")
+        default = ",".join(map(str, default))
+        filters.append("Default("+default+")")
 
 
-		# phpBB
-		if ("phpbb" in opts and opts["phpbb"]):
-			filters.append("phpBB()")
+        # Pear
+        if ("pear" in opts and opts["pear"]):
+            pear = []
+            if ("pear_add_header" in opts and opts["pear_add_header"]):
+                pear.append("add_header="+opts["pear_add_header"])
 
-		# ListClassFunction
-		if ("list_class_function" in opts and opts["list_class_function"]):
-			filters.append("ListClassFunction()")
+            if ("pear_newline_class" in opts and opts["pear_newline_class"]):
+                pear.append("newline_class=true")
 
-		# EqualsAlign
-		if ("equals_align" in opts and opts["equals_align"]):
-			filters.append("EqualsAlign()")
+            if ("pear_newline_trait" in opts and opts["pear_newline_trait"]):
+                pear.append("newline_trait=true")
 
-		# SpaceInParen
-		if ("space_in_paren" in opts and opts["space_in_paren"]):
-			filters.append("SpaceInParen()")
+            if ("pear_newline_function" in opts and opts["pear_newline_function"]):
+                pear.append("newline_function=true")
 
-		# SpaceInSquare
-		if ("space_in_square" in opts and opts["space_in_square"]):
-			filters.append("SpaceInSquare()")
-
-		# Identation
-		if ("indent_with_tabs" in opts and opts["indent_with_tabs"]):
-			ident_type = "t"
-		else:
-			ident_type = "s"
-
-		if ("indent_size" in opts and opts["indent_size"]):
-			indent_size = str(opts["indent_size"])
-		else:
-			indent_size = "4"
-
-		indent = "-"+ident_type+indent_size
-
-		# Indent style
-		if ("indent_style" in opts and opts["indent_style"]):
-			indent_style = opts["indent_style"]
-		else:
-			indent_style = "k&r"
-
-		filters.append("IndentStyles(style="+indent_style+")")
+            if ("pear_switch_without_indent" in opts and opts["pear_switch_without_indent"]):
+                pear.append("switch_without_indent=true")
 
 
-		filters = " ".join(map(str, filters))
-
-		beautifier = Beautifier(self.formatter)
-		stdout, stderr = beautifier.beautify(text, indent, filters)
+            pear = ",".join(map(str, pear))
+            filters.append("Pear("+pear+")")
 
 
-		return stdout, stderr
+        # Line filters
+        new_line_before = ""
+        if ("new_line_before" in opts and opts["new_line_before"]):
+            new_line_before = opts["new_line_before"].replace(",", ":")
+
+        new_line_after = ""
+        if ("new_line_after" in opts and opts["new_line_after"]):
+            new_line_after = opts["new_line_after"].replace(",", ":")
+
+        new_lines = ""
+        if (new_line_before and new_line_after):
+            new_lines += "NewLines(before="+new_line_before+",after="+new_line_after+")"
+        elif (new_line_before != ""):
+            new_lines += "NewLines(before="+new_line_before+")"
+        elif (new_line_after != ""):
+            new_lines += "NewLines(after="+new_line_after+")"
+
+        if (new_lines):
+            filters.append(new_lines)
+
+        # Array Nested
+        if ("format_array_nested" in opts and opts["format_array_nested"]):
+            filters.append("ArrayNested()")
+
+        # Lowercase
+        if ("lowercase" in opts and opts["lowercase"]):
+            filters.append("Lowercase()")
+
+
+        # Fluent
+        if ("fluent" in opts and opts["fluent"]):
+            filters.append("Fluent()")
+
+
+        # phpBB
+        if ("phpbb" in opts and opts["phpbb"]):
+            filters.append("phpBB()")
+
+        # ListClassFunction
+        if ("list_class_function" in opts and opts["list_class_function"]):
+            filters.append("ListClassFunction()")
+
+        # EqualsAlign
+        if ("equals_align" in opts and opts["equals_align"]):
+            filters.append("EqualsAlign()")
+
+        # SpaceInParen
+        if ("space_in_paren" in opts and opts["space_in_paren"]):
+            filters.append("SpaceInParen()")
+
+        # SpaceInSquare
+        if ("space_in_square" in opts and opts["space_in_square"]):
+            filters.append("SpaceInSquare()")
+
+        # Identation
+        if ("indent_with_tabs" in opts and opts["indent_with_tabs"]):
+            ident_type = "t"
+        else:
+            ident_type = "s"
+
+        if ("indent_size" in opts and opts["indent_size"]):
+            indent_size = str(opts["indent_size"])
+        else:
+            indent_size = "4"
+
+        indent = "-"+ident_type+indent_size
+
+        # Indent style
+        if ("indent_style" in opts and opts["indent_style"]):
+            indent_style = opts["indent_style"]
+        else:
+            indent_style = "k&r"
+
+        filters.append("IndentStyles(style="+indent_style+")")
+
+
+        filters = " ".join(map(str, filters))
+
+        beautifier = Beautifier(self.formatter)
+        stdout, stderr = beautifier.beautify(text, indent, filters)
+
+
+        return stdout, stderr
