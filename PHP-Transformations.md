@@ -346,26 +346,14 @@ class A {
 
 
 ### ConvertOpenTagWithEcho
-<table>
-<tr>
-<td>Before</td>
-<td>After</td>
-</tr>
-<tr>
-<td>
-<pre>
-<?="Hello World?>
 
-</pre>
-</td>
-<td>
-<pre>
-<?php echo "Hello World ?>
+##### Before
 
-</pre>
-</td>
-</tr>
-</table>
+`<?="Hello World?>`
+
+##### After
+
+`<?php echo "Hello World ?>`
 
 
 ### DoubleToSingleQuote
@@ -575,29 +563,23 @@ if($a){
 
 
 ### MergeNamespaceWithOpenTag
-<table>
-<tr>
-<td>Before</td>
-<td>After</td>
-</tr>
-<tr>
-<td>
-<pre>
+
+##### Before
+
+```
 <?php
 
 namespace A;
 ?>
-</pre>
-</td>
-<td>
-<pre>
+```
+
+##### After
+
+```
 <?php
 namespace A;
 ?>
-</pre>
-</td>
-</tr>
-</table>
+```
 
 
 ### NoSpaceAfterPHPDocBlocks
