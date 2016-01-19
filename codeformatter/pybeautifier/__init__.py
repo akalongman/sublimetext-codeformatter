@@ -1,6 +1,6 @@
 # @author 			Avtandil Kikabidze
 # @copyright 		Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
-# @link 			http://long.ge
+# @link 			http://longman.me
 # @license 		The MIT License (MIT)
 
 try:

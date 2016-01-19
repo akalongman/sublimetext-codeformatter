@@ -1,6 +1,6 @@
 # @author             Avtandil Kikabidze
 # @copyright         Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
-# @link             http://long.ge
+# @link             http://longman.me
 # @license         The MIT License (MIT)
 
 import os
@@ -9,156 +9,119 @@ import re
 import sublime
 import subprocess
 
-try:
-    # Python 3
-    from .phpbeautifier import Beautifier
-except (ValueError):
-    # Python 2
-    from phpbeautifier import Beautifier
-
 class PhpFormatter:
     def __init__(self, formatter):
         self.formatter = formatter
+        self.opts = formatter.settings.get('codeformatter_php_options')
 
 
 
     def format(self, text):
-        opts = self.formatter.settings.get('codeformatter_php_options')
+
+        php_path = "php"
+        if ("php_path" in self.opts and self.opts["php_path"]):
+            php_path = self.opts["php_path"]
+
+        enable_auto_align = False
+        if ("enable_auto_align" in self.opts and self.opts["enable_auto_align"]):
+            enable_auto_align = self.opts["enable_auto_align"]
+
+        indent_with_space = False
+        if ("indent_with_space" in self.opts and self.opts["indent_with_space"]):
+            indent_with_space = self.opts["indent_with_space"]
 
 
-        php_path = self.formatter.settings.get('codeformatter_php_path', '');
-        if (php_path == ""):
-            php_path = "php"
+        psr1 = False
+        if ("psr1" in self.opts and self.opts["psr1"]):
+            psr1 = self.opts["psr1"]
 
-        cmd = php_path + " " + sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/php_cs_fixer.phar"
-        cmd = "php-cs-fixer"
-        #cmd = "echo "+text.decode("utf-8")+" | php-cs-fixer"
-        #print(str(cmd))
-
-
-        p = subprocess.Popen([str(cmd), "fix", "--level=psr2", "-"], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        stdout, stderr = p.communicate(text)
+        psr1_naming = False
+        if ("psr1_naming" in self.opts and self.opts["psr1_naming"]):
+            psr1_naming = self.opts["psr1_naming"]
 
 
-        #print(stdout)
-        #print(stderr)
-        return stdout, stderr
+        psr2 = False
+        if ("psr2" in self.opts and self.opts["psr2"]):
+            psr2 = self.opts["psr2"]
+
+        smart_linebreak_after_curly = False
+        if ("smart_linebreak_after_curly" in self.opts and self.opts["smart_linebreak_after_curly"]):
+            smart_linebreak_after_curly = self.opts["smart_linebreak_after_curly"]
+
+        visibility_order = False
+        if ("visibility_order" in self.opts and self.opts["visibility_order"]):
+            visibility_order = self.opts["visibility_order"]
+
+        passes = []
+        if ("passes" in self.opts and self.opts["passes"]):
+            passes = self.opts["passes"]
+
+        excludes = []
+        if ("excludes" in self.opts and self.opts["excludes"]):
+            excludes = self.opts["excludes"]
 
 
-        # Filters
-        filters = []
+        cmd = []
+        cmd.append(str(php_path))
+        cmd.append(sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar")
 
-        # Default
-        default = []
-        if ("newline_before_comment" in opts and opts["newline_before_comment"]):
-            default.append("newline_before_comment=true")
-        default = ",".join(map(str, default))
-        filters.append("Default("+default+")")
+        if psr1:
+            cmd.append("--psr1")
 
+        if psr1_naming:
+            cmd.append("--psr1-naming")
 
-        # Pear
-        if ("pear" in opts and opts["pear"]):
-            pear = []
-            if ("pear_add_header" in opts and opts["pear_add_header"]):
-                pear.append("add_header="+opts["pear_add_header"])
+        if psr2:
+            cmd.append("--psr2")
 
-            if ("pear_newline_class" in opts and opts["pear_newline_class"]):
-                pear.append("newline_class=true")
+        if indent_with_space is True:
+            cmd.append("--indent_with_space")
+        elif indent_with_space > 0:
+            cmd.append("--indent_with_space="+str(indent_with_space))
 
-            if ("pear_newline_trait" in opts and opts["pear_newline_trait"]):
-                pear.append("newline_trait=true")
+        if enable_auto_align:
+            cmd.append("--enable_auto_align")
 
-            if ("pear_newline_function" in opts and opts["pear_newline_function"]):
-                pear.append("newline_function=true")
+        if visibility_order:
+            cmd.append("--visibility_order")
 
-            if ("pear_switch_without_indent" in opts and opts["pear_switch_without_indent"]):
-                pear.append("switch_without_indent=true")
+        if smart_linebreak_after_curly:
+            cmd.append("--smart_linebreak_after_curly")
 
+        if len(passes) > 0:
+            cmd.append("--passes="+','.join(passes))
 
-            pear = ",".join(map(str, pear))
-            filters.append("Pear("+pear+")")
+        if len(excludes) > 0:
+            cmd.append("--exclude="+','.join(excludes))
 
+        cmd.append("--dry-run")
+        cmd.append("--no-backup")
+        cmd.append("-")
 
-        # Line filters
-        new_line_before = ""
-        if ("new_line_before" in opts and opts["new_line_before"]):
-            new_line_before = opts["new_line_before"].replace(",", ":")
+        stderr = ""
+        stdout = ""
 
-        new_line_after = ""
-        if ("new_line_after" in opts and opts["new_line_after"]):
-            new_line_after = opts["new_line_after"].replace(",", ":")
+        try:
+            if (self.formatter.platform == "windows"):
+                startupinfo = subprocess.STARTUPINFO()
+                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+                startupinfo.wShowWindow = subprocess.SW_HIDE
+                p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, startupinfo=startupinfo, shell=False, creationflags=subprocess.SW_HIDE)
+            else:
+                p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            stdout, stderr = p.communicate(text)
+        except Exception as e:
+            stderr = str(e)
 
-        new_lines = ""
-        if (new_line_before and new_line_after):
-            new_lines += "NewLines(before="+new_line_before+",after="+new_line_after+")"
-        elif (new_line_before != ""):
-            new_lines += "NewLines(before="+new_line_before+")"
-        elif (new_line_after != ""):
-            new_lines += "NewLines(after="+new_line_after+")"
-
-        if (new_lines):
-            filters.append(new_lines)
-
-        # Array Nested
-        if ("format_array_nested" in opts and opts["format_array_nested"]):
-            filters.append("ArrayNested()")
-
-        # Lowercase
-        if ("lowercase" in opts and opts["lowercase"]):
-            filters.append("Lowercase()")
-
-
-        # Fluent
-        if ("fluent" in opts and opts["fluent"]):
-            filters.append("Fluent()")
-
-
-        # phpBB
-        if ("phpbb" in opts and opts["phpbb"]):
-            filters.append("phpBB()")
-
-        # ListClassFunction
-        if ("list_class_function" in opts and opts["list_class_function"]):
-            filters.append("ListClassFunction()")
-
-        # EqualsAlign
-        if ("equals_align" in opts and opts["equals_align"]):
-            filters.append("EqualsAlign()")
-
-        # SpaceInParen
-        if ("space_in_paren" in opts and opts["space_in_paren"]):
-            filters.append("SpaceInParen()")
-
-        # SpaceInSquare
-        if ("space_in_square" in opts and opts["space_in_square"]):
-            filters.append("SpaceInSquare()")
-
-        # Identation
-        if ("indent_with_tabs" in opts and opts["indent_with_tabs"]):
-            ident_type = "t"
-        else:
-            ident_type = "s"
-
-        if ("indent_size" in opts and opts["indent_size"]):
-            indent_size = str(opts["indent_size"])
-        else:
-            indent_size = "4"
-
-        indent = "-"+ident_type+indent_size
-
-        # Indent style
-        if ("indent_style" in opts and opts["indent_style"]):
-            indent_style = opts["indent_style"]
-        else:
-            indent_style = "k&r"
-
-        filters.append("IndentStyles(style="+indent_style+")")
-
-
-        filters = " ".join(map(str, filters))
-
-        beautifier = Beautifier(self.formatter)
-        stdout, stderr = beautifier.beautify(text, indent, filters)
-
+        if (not stderr and not stdout):
+            stderr = "Formatting error!"
 
         return stdout, stderr
+
+
+
+    def formatOnSaveEnabled(self):
+        format_on_save = False
+        if ("format_on_save" in self.opts and self.opts["format_on_save"]):
+            format_on_save = self.opts["format_on_save"]
+        return format_on_save

@@ -45,11 +45,15 @@
 			"syntax": "python"
 		}
 	},
+    {
+        "caption": "CodeFormatter: Format as VBScript Syntax",
+        "command": "code_formatter",
+        "args": {
+            "syntax": "vbscript"
+        }
+    },
 	{
-		"caption": "CodeFormatter: Format as VBScript Syntax",
-		"command": "code_formatter",
-		"args": {
-			"syntax": "vbscript"
-		}
+		"caption": "CodeFormatter: Show PHP Transformations",
+		"command": "code_formatter_show_php_transformations"
 	}
 ]

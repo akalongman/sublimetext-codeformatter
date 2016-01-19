@@ -1,6 +1,6 @@
 # @author             Avtandil Kikabidze
 # @copyright         Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
-# @link             http://long.ge
+# @link             http://longman.me
 # @license         The MIT License (MIT)
 
 import os, sys, re, sublime
@@ -33,7 +33,7 @@ except (ValueError):
 
 
 class Formatter:
-    def __init__(self, view=False, file_name=False, syntax=False):
+    def __init__(self, view=False, file_name=False, syntax=False, saving=False):
         self.platform = sublime.platform()
         self.classmap = {}
         self.st_version = 2
@@ -49,6 +49,8 @@ class Formatter:
             self.syntax = self.getSyntax()
         else:
             self.syntax = syntax
+
+        self.saving = saving
 
         # PHP
         opts = self.settings.get('codeformatter_php_options')
@@ -96,14 +98,7 @@ class Formatter:
 
 
     def format(self, text):
-
-        try:
-            formatter = self.classmap[self.syntax](self)
-        except Exception as e:
-            stdout = ""
-            stderr = "Formatter for "+self.syntax+" files not supported."
-            return self.clean(stdout), self.clean(stderr)
-
+        formatter = self.classmap[self.syntax](self)
         try:
             stdout, stderr = formatter.format(text)
         except Exception as e:
@@ -128,6 +123,18 @@ class Formatter:
                 found = s
                 break
         return found.lower()
+
+
+
+
+    def formatOnSaveEnabled(self):
+        if (not self.exists()):
+            return False
+        formatter = self.classmap[self.syntax](self)
+        return formatter.formatOnSaveEnabled()
+
+
+
 
     def clean(self, string):
         if hasattr(string, 'decode'):

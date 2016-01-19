@@ -5,11 +5,27 @@ namespace Illuminate\System\App\Libraries;
 use Illuminate\System\App\Collections\BaseCollection;
 use Illuminate\System\App\Entities\BaseEntity;
 use Ramsey\Uuid\Uuid;
-
+/**
+* Lorem ipsum.
+*
+* @param string $param1
+* @param bool   $param2 lorem ipsum
+* @param  string $param3 lorem ipsum
+*
+* @return int lorem ipsum
+*/
 trait RevisionableTrait
 {
 private $revisions_tbl_suffix = '_revisions';
-
+/**
+* Lorem ipsum.
+*
+* @param string $param1
+* @param bool   $param2 lorem ipsum
+* @param  string $param3 lorem ipsum
+*
+* @return int lorem ipsum
+*/
 public function saveRevision(BaseCollection $old_data, $new_data = null, $options = [])
 {
 $table = $this->getRevisionsTableName();

@@ -1,0 +1,14 @@
+Sublime CodeFormatter 3.0.0 Changelog:
+
+Please report me any bugs and proposals at akalongman@gmail.com or GitHub (https://github.com/akalongman/sublimetext-codeformatter/issues)
+
+Improvements
+------------
+- PHP beautifier replaced with phpfmt (https://github.com/phpfmt/fmt)
+- You can list all available PHP transformations from Command Palette: CodeFormatter: Show PHP Transformations
+- PHP executable option included in php options and new name is php_path
+- WARNING: To use php formatter, you must upgrade your php version to 5.6 or above (https://github.com/phpfmt/fmt#requirements)
+- Added format_on_save option for each language
+- Updated jsbeautfier to version 1.5.10
+
+

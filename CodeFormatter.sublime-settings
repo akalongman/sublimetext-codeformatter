@@ -1,37 +1,30 @@
 {
-    // Path for PHP executable, e.g. "C:/Program Files/PHP/php.exe". If empty, uses command "php" from system environments
-    "codeformatter_php_path": "",
 
     "codeformatter_php_options":
     {
         "syntaxes": "php", // Syntax names which must process PHP formatter
-        "indent_size": 4, // Indent size
-        "indent_with_tabs": false, // Indent with tabs or spaces
-        "indent_style": "k&r", // Indent the code in k&r, allman, gnu or whitesmiths style
-        "newline_before_comment": true, // add new line before comment block
-        // Add new lines after o before specific contents The settings are 'before' and 'after'. As value, use a comma separated list of contents or tokens, e.g. switch,while,for,foreach,try,namespace,T_INTERFACE
-        "new_line_before": "",
-        "new_line_after": "",
-        "format_array_nested": false, // Indent the array structures Ex.
-        "pear": true, // Format the code to make it compatible with PEAR Coding Standards
-        "pear_add_header": "", // Add one of the standard PEAR comment header (php, bsd, apache, lgpl, pear) or any file as licence header.
-        // Two extra options allows to break the spec about newline before braces on function, classes and traits:
-        "pear_newline_class": true, // need enabled pear option
-        "pear_newline_trait": true, // need enabled pear option
-        "pear_newline_function": false, // need enabled pear option
-        "pear_switch_without_indent": false, // Disable extra switch identation
-        "lowercase": false, // Lowercase all control structures. Such as TRUE, FALSE, SWITCH and more
-        "fluent": false, // Create fluent style for multi-level object access.
-        "list_class_function": false, // Create a list of functions and classes in the script By default, this Filter puts the list at the beggining of the script.
-        "equals_align": false, // Align the equals symbols in contiguous lines.
-        "phpbb": false, // Format the code to make it compatible with phpBB Coding Standards (if enabled, overrides some another options)
-        "space_in_paren": false, // Add padding spaces within paren if not empty, ie. f( a, b ),g()
-        "space_in_square": false // Add padding spaces within square brackets if contains a variable, ie. [ $a ],["key"],[]
+        "php_path": "", // Path for PHP executable, e.g. "/usr/lib/php" or "C:/Program Files/PHP/php.exe". If empty, uses command "php" from system environments
+        "format_on_save": false, // Format on save
+        "psr1": false, // Activate PSR1 style
+        "psr1_naming": false, // Activate PSR1 style - Section 3 and 4.3 - Class and method names case
+        "psr2": true, // Activate PSR2 style
+        "indent_with_space": 4, // Use spaces instead of tabs for indentation
+        "enable_auto_align": true, // Enable auto align of = and =>
+        "visibility_order": true, // Fixes visibiliy order for method in classes - PSR-2 4.2
+        "smart_linebreak_after_curly": true, // Convert multistatement blocks into multiline blocks
+
+        // Enable specific transnformations. Example: ["ConvertOpenTagWithEcho", "PrettyPrintDocBlocks"]
+        // You can list all available transnformations from command palette: CodeFormatter: Show PHP Transformations
+        "passes": [],
+
+        // Disable specific transnformations
+        "exclude": []
     },
 
     "codeformatter_js_options":
     {
         "syntaxes": "javascript,json", // Syntax names which must process JS formatter
+        "format_on_save": false, // Format on save
         "indent_size": 4, // indentation size
         "indent_char": " ", // Indent character
         "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
@@ -57,6 +50,7 @@
     "codeformatter_css_options":
     {
         "syntaxes": "css,less", // Syntax names which must process CSS formatter
+        "format_on_save": false, // Format on save
         "indent_size": 4, // Indentation size
         "indent_char": " ", // Indentation character
         "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
@@ -68,7 +62,10 @@
 
 	"codeformatter_scss_options":
 	{
+        "syntaxes": "scss", // Indentation size
+        "format_on_save": false, // Format on save
 		"indent_size": 2, // Indentation size
+        "format_on_save": false, // Format on save
 		"indent_char": " ", // Indentation character
 		"indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
 		"selector_separator_newline": true, // Add new lines after selector separators
@@ -78,6 +75,7 @@
     "codeformatter_html_options":
     {
         "syntaxes": "html,asp,xml", // Syntax names which must process HTML formatter
+        "format_on_save": false, // Format on save
         "indent_size": 4, // indentation size
         "indent_char": " ", // Indentation character
         "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
@@ -90,6 +88,7 @@
     "codeformatter_python_options":
     {
         "syntaxes": "python", // Syntax names which must process Python formatter
+        "format_on_save": false, // Format on save
         "indent_size": 1, // indentation size
         "indent_with_tabs": true, // Indent with tabs or spaces
         "max_char": 80, // Width of output lines in characters.
@@ -149,6 +148,7 @@
     "codeformatter_vbscript_options":
     {
         "syntaxes": "vbscript", // Syntax names which must process VBScript formatter
+        "format_on_save": false, // Format on save
         "indent_size": 1, // indentation size
         "indent_char": "\t", // Indentation character
         "indent_with_tabs": true, // Indent with one tab (overrides indent_size and indent_char options)
