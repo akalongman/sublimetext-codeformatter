@@ -69,6 +69,8 @@ On Linux/OSx after installation of package, you must set chmod +x to file fmt.ph
 
 You can list all available transformations from Command Palette: CodeFormatter: Show PHP Transformations
 
+Examples of many transformations can be found here: [PHP Transformation Examples](https://github.com/akalongman/sublimetext-codeformatter/blob/master/PHP-Transformations.md)
+
 Language specific options:
 ```js
    "codeformatter_php_options":
@@ -81,11 +83,12 @@ Language specific options:
         "psr2": true, // Activate PSR2 style
         "indent_with_space": 4, // Use spaces instead of tabs for indentation
         "enable_auto_align": true, // Enable auto align of = and =>
-        "visibility_order": true, // Fixes visibiliy order for method in classes - PSR-2 4.2
+        "visibility_order": true, // Fixes visibility order for method in classes - PSR-2 4.2
         "smart_linebreak_after_curly": true, // Convert multistatement blocks into multiline blocks
 
         // Enable specific transformations. Example: ["ConvertOpenTagWithEcho", "PrettyPrintDocBlocks"]
         // You can list all available transformations from command palette: CodeFormatter: Show PHP Transformations
+        // You can also see examples of many transformations at https://github.com/akalongman/sublimetext-codeformatter/blob/master/PHP-Transformations.md
         "passes": [],
 
         // Disable specific transformations
@@ -115,8 +118,8 @@ Language specific options:
         "e4x": false, // Pass E4X xml literals through untouched
         "jslint_happy": false, // if true, then jslint-stricter mode is enforced. Example function () vs function()
         "brace_style": "collapse", // "collapse" | "expand" | "end-expand". put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
-        "keep_array_indentation": false, // keep array identation.
-        "keep_function_indentation": false, // keep function identation.
+        "keep_array_indentation": false, // keep array indentation.
+        "keep_function_indentation": false, // keep function indentation.
         "eval_code": false, // eval code
         "unescape_strings": false, // Decode printable characters encoded in xNN notation
         "wrap_line_length": 0, // Wrap lines at next opportunity after N characters
