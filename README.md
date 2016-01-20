@@ -14,7 +14,10 @@ CodeFormatter has support for the following languages:
 * SCSS - By Nishutosh Sharma
 * Python - By PythonTidy (only ST2)
 * Visual Basic/VBScript
+<<<<<<< HEAD
 * Coldfusion/Railo/Lucee
+=======
+>>>>>>> refs/remotes/akalongman/master
 
 
 Sponsors
@@ -69,6 +72,11 @@ You must install 5.6 or above (https://github.com/phpfmt/fmt#requirements)
 On Linux/OSx after installation of package, you must set chmod +x to file fmt.phar in folder %PACKAGESDIR%/CodeFormatter/codeformatter/lib/phpbeautifier
 
 You can list all available transformations from Command Palette: CodeFormatter: Show PHP Transformations
+<<<<<<< HEAD
+=======
+
+Examples of many transformations can be found here: [PHP Transformation Examples](https://github.com/akalongman/sublimetext-codeformatter/blob/master/PHP-Transformations.md)
+>>>>>>> refs/remotes/akalongman/master
 
 Language specific options:
 ```js
@@ -82,11 +90,19 @@ Language specific options:
         "psr2": true, // Activate PSR2 style
         "indent_with_space": 4, // Use spaces instead of tabs for indentation
         "enable_auto_align": true, // Enable auto align of = and =>
+<<<<<<< HEAD
         "visibility_order": true, // Fixes visibiliy order for method in classes - PSR-2 4.2
+=======
+        "visibility_order": true, // Fixes visibility order for method in classes - PSR-2 4.2
+>>>>>>> refs/remotes/akalongman/master
         "smart_linebreak_after_curly": true, // Convert multistatement blocks into multiline blocks
 
         // Enable specific transformations. Example: ["ConvertOpenTagWithEcho", "PrettyPrintDocBlocks"]
         // You can list all available transformations from command palette: CodeFormatter: Show PHP Transformations
+<<<<<<< HEAD
+=======
+        // You can also see examples of many transformations at https://github.com/akalongman/sublimetext-codeformatter/blob/master/PHP-Transformations.md
+>>>>>>> refs/remotes/akalongman/master
         "passes": [],
 
         // Disable specific transformations
@@ -116,8 +132,13 @@ Language specific options:
         "e4x": false, // Pass E4X xml literals through untouched
         "jslint_happy": false, // if true, then jslint-stricter mode is enforced. Example function () vs function()
         "brace_style": "collapse", // "collapse" | "expand" | "end-expand". put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
+<<<<<<< HEAD
         "keep_array_indentation": false, // keep array identation.
         "keep_function_indentation": false, // keep function identation.
+=======
+        "keep_array_indentation": false, // keep array indentation.
+        "keep_function_indentation": false, // keep function indentation.
+>>>>>>> refs/remotes/akalongman/master
         "eval_code": false, // eval code
         "unescape_strings": false, // Decode printable characters encoded in xNN notation
         "wrap_line_length": 0, // Wrap lines at next opportunity after N characters
@@ -247,6 +268,7 @@ Language specific options:
 ```
 ### Visual Basic/VBScript
 Visual Basic/VBScript - used custom approach using the HTML beautifier as a guide
+<<<<<<< HEAD
 
 Language specific options:
 ```js
@@ -280,6 +302,23 @@ Language specific options:
         "max_preserve_newlines": 10, // Maximum number of line-breaks to be preserved in one chunk
         "indent_tags": "html|head|body|div|nav|ul|ol|dl|li|table|thead|tbody|tr|th|td|blockquote|select|form|option|optgroup|fieldset|legend|label|header|section|aside|footer|figure|video|cfapplet|cfapplication|cfassociate|cfauthenticate|cfcache|cfcol|cfcollection|cfcontent|cfdirectory|cferror|cfexecute|cfexit|cffile|cfform|cfftp|cffunction|cfgrid|cfgridcolumn|cfgridrow|cfgridupdate|cfheader|cfhtmlhead|cfhttp|cfif|cfindex|cfinput|cfldap|cflocation|cflock|cfloop|cfmail|cfmodule|cfobject|cfoutput|cfpop|cfprocparam|cfprocresult|cfquery|cfreport|cfrethrow|cfschedule|cfscript|cfsearch|cfselect|cfservlet|cfsetting|cfsilent|cfslider|cfstoredproc|cfswitch|cfcase|cfdefaultcase|cftable|cftextinput|cftransaction|cftree|cftry|cfcatch|cfsavecontent", // List of tags (defaults to indent) that should be reformatted. Example "div|p|li|table"
         "middle_tags" : "cfelse|cfelseif"
+=======
+
+Language specific options:
+```js
+    "codeformatter_vbscript_options":
+    {
+        "syntaxes": "vbscript", // Syntax names which must process VBScript formatter
+        "format_on_save": false, // Format on save
+        "indent_size": 1, // indentation size
+        "indent_char": "\t", // Indentation character
+        "indent_with_tabs": true, // Indent with one tab (overrides indent_size and indent_char options)
+        "preserve_newlines": true, // Preserve existing line-breaks
+        "max_preserve_newlines": 10, // Maximum number of line-breaks to be preserved in one chunk
+        "opening_tags": "^(Function .*|Sub .*|If .* Then|For .*|Do While .*|Select Case.*)", // List of keywords which open a new block
+        "middle_tags": "^(Else|ElseIf .* Then|Case .*)$", // List of keywords which divide a block, but neither open or close the block
+        "closing_tags": "(End Function|End Sub|End If|Next|Loop|End Select)$" // List of keywords which close an open block
+>>>>>>> refs/remotes/akalongman/master
     }
 ```
 

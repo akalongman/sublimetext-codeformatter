@@ -33,8 +33,26 @@ except (ValueError):
 # fix for ST2
 cprint = globals()["__builtins__"]["print"]
 
+debug_mode = False
+
 def plugin_loaded():
     cprint('CodeFormatter: Plugin Initialized')
+<<<<<<< HEAD
+=======
+
+    settings = sublime.load_settings('CodeFormatter.sublime-settings')
+    debug_mode = settings.get('codeformatter_debug', False)
+
+    if debug_mode:
+        #from pprint import pprint
+        #pprint(settings)
+        debug_write("Debug mode enabled")
+        debug_write("Platform "+sublime.platform()+" "+sublime.arch())
+        debug_write("Sublime Version "+sublime.version())
+        #debug_write("Settings "+pprint(settings))
+
+
+>>>>>>> refs/remotes/akalongman/master
     if (sublime.platform() != "windows"):
         import stat
         path = sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar"
@@ -49,6 +67,7 @@ if st_version == 2:
 class CodeFormatterCommand(sublime_plugin.TextCommand):
 
     def run(self, edit, syntax=False, saving=False):
+<<<<<<< HEAD
 
         if self.view.is_scratch():
             return show_error("File is scratch")
@@ -86,6 +105,45 @@ class CodeFormatterCommand(sublime_plugin.TextCommand):
 
 class CodeFormatterEventListener(sublime_plugin.EventListener):
 
+=======
+
+        if self.view.is_scratch():
+            return show_error("File is scratch")
+
+        file_name = self.view.file_name()
+
+        # if not file_name:
+        #     return show_error("File does not exist.")
+
+        # if not os.path.exists(file_name):
+        #     return show_error("File "+file_name+" does not exist.")
+
+        formatter = Formatter(self.view, file_name, syntax, saving)
+        if not formatter.exists():
+            if saving:
+                return False
+            return show_error("Formatter for this file type ("+formatter.syntax+") not found.")
+
+
+        if (saving and not formatter.formatOnSaveEnabled()):
+            return False
+
+
+        file_text = sublime.Region(0, self.view.size())
+        file_text_utf = self.view.substr(file_text).encode('utf-8')
+        if (len(file_text_utf) == 0):
+            return show_error("No code found.")
+
+        stdout, stderr = formatter.format(file_text_utf)
+
+        if len(stderr) == 0 and len(stdout) > 0:
+            self.view.replace(edit, file_text, stdout)
+        else:
+            show_error("Format error:\n"+stderr)
+
+class CodeFormatterEventListener(sublime_plugin.EventListener):
+
+>>>>>>> refs/remotes/akalongman/master
     def on_pre_save(self, view):
         args = {}
         args['saving'] = True
@@ -101,9 +159,15 @@ class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
 
         opts = settings.get('codeformatter_php_options')
 
+<<<<<<< HEAD
         php_path = settings.get('codeformatter_php_path', '');
         if (php_path == ""):
             php_path = "php"
+=======
+        php_path = "php"
+        if ("php_path" in opts and opts["php_path"]):
+            php_path = opts["php_path"]
+>>>>>>> refs/remotes/akalongman/master
 
 
         cmd = []
@@ -137,13 +201,23 @@ class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
             pt.insert(edit, pt.size(), text)
             window.run_command("show_panel", {"panel": "output.paneltranformations"})
         else:
+<<<<<<< HEAD
             show_error("Formatter error:\n"+stderr.decode('utf-8'))
+=======
+            show_error("Formatter error:\n"+stderr)
+>>>>>>> refs/remotes/akalongman/master
 
 
 def console_write(text, prefix=False):
     if prefix:
         sys.stdout.write('CodeFormatter: ')
     sys.stdout.write(text+"\n")
+<<<<<<< HEAD
+=======
+
+def debug_write(text, prefix=False):
+    console_write(text, True)
+>>>>>>> refs/remotes/akalongman/master
 
 
 def show_error(text):
