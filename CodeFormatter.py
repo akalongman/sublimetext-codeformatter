@@ -37,8 +37,6 @@ debug_mode = False
 
 def plugin_loaded():
     cprint('CodeFormatter: Plugin Initialized')
-<<<<<<< HEAD
-=======
 
     settings = sublime.load_settings('CodeFormatter.sublime-settings')
     debug_mode = settings.get('codeformatter_debug', False)
@@ -52,7 +50,6 @@ def plugin_loaded():
         #debug_write("Settings "+pprint(settings))
 
 
->>>>>>> refs/remotes/akalongman/master
     if (sublime.platform() != "windows"):
         import stat
         path = sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar"
@@ -67,7 +64,6 @@ if st_version == 2:
 class CodeFormatterCommand(sublime_plugin.TextCommand):
 
     def run(self, edit, syntax=False, saving=False):
-<<<<<<< HEAD
 
         if self.view.is_scratch():
             return show_error("File is scratch")
@@ -105,7 +101,6 @@ class CodeFormatterCommand(sublime_plugin.TextCommand):
 
 class CodeFormatterEventListener(sublime_plugin.EventListener):
 
-=======
 
         if self.view.is_scratch():
             return show_error("File is scratch")
@@ -143,7 +138,6 @@ class CodeFormatterEventListener(sublime_plugin.EventListener):
 
 class CodeFormatterEventListener(sublime_plugin.EventListener):
 
->>>>>>> refs/remotes/akalongman/master
     def on_pre_save(self, view):
         args = {}
         args['saving'] = True
@@ -159,15 +153,9 @@ class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
 
         opts = settings.get('codeformatter_php_options')
 
-<<<<<<< HEAD
-        php_path = settings.get('codeformatter_php_path', '');
-        if (php_path == ""):
-            php_path = "php"
-=======
         php_path = "php"
         if ("php_path" in opts and opts["php_path"]):
             php_path = opts["php_path"]
->>>>>>> refs/remotes/akalongman/master
 
 
         cmd = []
@@ -201,23 +189,17 @@ class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
             pt.insert(edit, pt.size(), text)
             window.run_command("show_panel", {"panel": "output.paneltranformations"})
         else:
-<<<<<<< HEAD
-            show_error("Formatter error:\n"+stderr.decode('utf-8'))
-=======
             show_error("Formatter error:\n"+stderr)
->>>>>>> refs/remotes/akalongman/master
 
 
 def console_write(text, prefix=False):
     if prefix:
         sys.stdout.write('CodeFormatter: ')
     sys.stdout.write(text+"\n")
-<<<<<<< HEAD
-=======
 
 def debug_write(text, prefix=False):
     console_write(text, True)
->>>>>>> refs/remotes/akalongman/master
+
 
 
 def show_error(text):
