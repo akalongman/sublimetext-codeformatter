@@ -1,0 +1,52 @@
+.clearfix:after,
+.container-fluid:after,
+.form-horizontal .form-group:after,
+.btn-group-vertical > .btn-group:after {
+clear:both;
+}
+
+a::after {
+clear:both;
+}
+
+.text-hide {
+font:0/0 a;
+color:transparent;
+text-shadow:none;
+background-color:transparent;
+border:0;
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+.visible-md-inline-block {
+display:inline-block !important;
+}
+}
+
+th.visible-lg, td.visible-lg {
+display:table-cell !important;
+}
+
+@media print {
+.visible-print-inline-block {
+display:inline-block !important;
+}
+}
+
+abbr[title] {
+border-bottom:1px dotted;
+}
+
+#top_menu ul li.spectacle:last-child {
+margin-right:40px;
+}
+
+#connexion ul li:last-child:after {
+content:"";
+}
+
+
+
+#connexion2 ul li::last-child {
+content:"";
+}
