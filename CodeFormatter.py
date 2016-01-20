@@ -101,43 +101,6 @@ class CodeFormatterCommand(sublime_plugin.TextCommand):
 
 class CodeFormatterEventListener(sublime_plugin.EventListener):
 
-
-        if self.view.is_scratch():
-            return show_error("File is scratch")
-
-        file_name = self.view.file_name()
-
-        # if not file_name:
-        #     return show_error("File does not exist.")
-
-        # if not os.path.exists(file_name):
-        #     return show_error("File "+file_name+" does not exist.")
-
-        formatter = Formatter(self.view, file_name, syntax, saving)
-        if not formatter.exists():
-            if saving:
-                return False
-            return show_error("Formatter for this file type ("+formatter.syntax+") not found.")
-
-
-        if (saving and not formatter.formatOnSaveEnabled()):
-            return False
-
-
-        file_text = sublime.Region(0, self.view.size())
-        file_text_utf = self.view.substr(file_text).encode('utf-8')
-        if (len(file_text_utf) == 0):
-            return show_error("No code found.")
-
-        stdout, stderr = formatter.format(file_text_utf)
-
-        if len(stderr) == 0 and len(stdout) > 0:
-            self.view.replace(edit, file_text, stdout)
-        else:
-            show_error("Format error:\n"+stderr)
-
-class CodeFormatterEventListener(sublime_plugin.EventListener):
-
     def on_pre_save(self, view):
         args = {}
         args['saving'] = True
@@ -199,7 +162,6 @@ def console_write(text, prefix=False):
 
 def debug_write(text, prefix=False):
     console_write(text, True)
-
 
 
 def show_error(text):
