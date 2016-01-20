@@ -101,9 +101,9 @@ class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
 
         opts = settings.get('codeformatter_php_options')
 
-        php_path = settings.get('codeformatter_php_path', '');
-        if (php_path == ""):
-            php_path = "php"
+        php_path = "php"
+        if ("php_path" in opts and opts["php_path"]):
+            php_path = opts["php_path"]
 
 
         cmd = []
@@ -137,7 +137,7 @@ class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
             pt.insert(edit, pt.size(), text)
             window.run_command("show_panel", {"panel": "output.paneltranformations"})
         else:
-            show_error("Formatter error:\n"+stderr.decode('utf-8'))
+            show_error("Formatter error:\n"+stderr)
 
 
 def console_write(text, prefix=False):

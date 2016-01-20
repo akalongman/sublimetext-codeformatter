@@ -65,7 +65,6 @@
         "syntaxes": "scss", // Indentation size
         "format_on_save": false, // Format on save
 		"indent_size": 2, // Indentation size
-        "format_on_save": false, // Format on save
 		"indent_char": " ", // Indentation character
 		"indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
 		"selector_separator_newline": true, // Add new lines after selector separators
