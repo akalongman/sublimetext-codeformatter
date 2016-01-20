@@ -33,8 +33,23 @@ except (ValueError):
 # fix for ST2
 cprint = globals()["__builtins__"]["print"]
 
+debug_mode = False
+
 def plugin_loaded():
     cprint('CodeFormatter: Plugin Initialized')
+
+    settings = sublime.load_settings('CodeFormatter.sublime-settings')
+    debug_mode = settings.get('codeformatter_debug', False)
+
+    if debug_mode:
+        #from pprint import pprint
+        #pprint(settings)
+        debug_write("Debug mode enabled")
+        debug_write("Platform "+sublime.platform()+" "+sublime.arch())
+        debug_write("Sublime Version "+sublime.version())
+        #debug_write("Settings "+pprint(settings))
+
+
     if (sublime.platform() != "windows"):
         import stat
         path = sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar"
@@ -144,6 +159,9 @@ def console_write(text, prefix=False):
     if prefix:
         sys.stdout.write('CodeFormatter: ')
     sys.stdout.write(text+"\n")
+
+def debug_write(text, prefix=False):
+    console_write(text, True)
 
 
 def show_error(text):

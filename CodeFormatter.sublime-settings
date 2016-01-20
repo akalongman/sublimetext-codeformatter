@@ -1,4 +1,5 @@
 {
+    "codeformatter_debug": false,
 
     "codeformatter_php_options":
     {
