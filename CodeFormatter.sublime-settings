@@ -1,8 +1,5 @@
 {
-<<<<<<< HEAD
-=======
     "codeformatter_debug": false,
->>>>>>> refs/remotes/akalongman/master
 
     "codeformatter_php_options":
     {
@@ -14,16 +11,6 @@
         "psr2": true, // Activate PSR2 style
         "indent_with_space": 4, // Use spaces instead of tabs for indentation
         "enable_auto_align": true, // Enable auto align of = and =>
-<<<<<<< HEAD
-        "visibility_order": true, // Fixes visibiliy order for method in classes - PSR-2 4.2
-        "smart_linebreak_after_curly": true, // Convert multistatement blocks into multiline blocks
-
-        // Enable specific transnformations. Example: ["ConvertOpenTagWithEcho", "PrettyPrintDocBlocks"]
-        // You can list all available transnformations from command palette: CodeFormatter: Show PHP Transformations
-        "passes": [],
-
-        // Disable specific transnformations
-=======
         "visibility_order": true, // Fixes visibility order for method in classes - PSR-2 4.2
         "smart_linebreak_after_curly": true, // Convert multistatement blocks into multiline blocks
 
@@ -32,7 +19,6 @@
         "passes": [],
 
         // Disable specific transformations
->>>>>>> refs/remotes/akalongman/master
         "exclude": []
     },
 
@@ -51,13 +37,8 @@
         "e4x": false, // Pass E4X xml literals through untouched
         "jslint_happy": false, // if true, then jslint-stricter mode is enforced. Example function () vs function()
         "brace_style": "collapse", // "collapse" | "expand" | "end-expand". put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
-<<<<<<< HEAD
-        "keep_array_indentation": false, // keep array identation.
-        "keep_function_indentation": false, // keep function identation.
-=======
         "keep_array_indentation": false, // keep array indentation.
         "keep_function_indentation": false, // keep function indentation.
->>>>>>> refs/remotes/akalongman/master
         "eval_code": false, // eval code
         "unescape_strings": false, // Decode printable characters encoded in xNN notation
         "wrap_line_length": 0, // Wrap lines at next opportunity after N characters
@@ -80,19 +61,6 @@
         "eol": "\n" // EOL symbol
     },
 
-<<<<<<< HEAD
-    "codeformatter_scss_options":
-    {
-        "syntaxes": "scss", // Indentation size
-        "format_on_save": false, // Format on save
-        "indent_size": 2, // Indentation size
-        "format_on_save": false, // Format on save
-        "indent_char": " ", // Indentation character
-        "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
-        "selector_separator_newline": true, // Add new lines after selector separators
-        "end_with_newline": true // Add new line of end in file
-    },
-=======
 	"codeformatter_scss_options":
 	{
         "syntaxes": "scss", // Indentation size
@@ -103,7 +71,6 @@
 		"selector_separator_newline": true, // Add new lines after selector separators
 		"end_with_newline": true // Add new line of end in file
 	},
->>>>>>> refs/remotes/akalongman/master
 
     "codeformatter_html_options":
     {
@@ -191,7 +158,6 @@
         "middle_tags": "^(Else|ElseIf .* Then|Case .*)$", // List of keywords which divide a block, but neither open or close the block
         "closing_tags": "(End Function|End Sub|End If|Next|Loop|End Select)$" // List of keywords which close an open block
     },
-<<<<<<< HEAD
         
     "codeformatter_coldfusion_options":
     {
@@ -205,8 +171,6 @@
         "indent_tags": "html|head|body|div|nav|ul|ol|dl|li|table|thead|tbody|tr|th|td|blockquote|select|form|option|optgroup|fieldset|legend|label|header|section|aside|footer|figure|video|cfapplet|cfapplication|cfassociate|cfauthenticate|cfcache|cfcol|cfcollection|cfcontent|cfdirectory|cferror|cfexecute|cfexit|cffile|cfform|cfftp|cffunction|cfgrid|cfgridcolumn|cfgridrow|cfgridupdate|cfheader|cfhtmlhead|cfhttp|cfif|cfindex|cfinput|cfldap|cflocation|cflock|cfloop|cfmail|cfmodule|cfobject|cfoutput|cfpop|cfprocparam|cfprocresult|cfquery|cfreport|cfrethrow|cfschedule|cfscript|cfsearch|cfselect|cfservlet|cfsetting|cfsilent|cfslider|cfstoredproc|cfswitch|cfcase|cfdefaultcase|cftable|cftextinput|cftransaction|cftree|cftry|cfcatch|cfsavecontent", // List of tags (defaults to indent) that should be reformatted. Example "div|p|li|table"
         "middle_tags" : "cfelse|cfelseif"
     },
-=======
->>>>>>> refs/remotes/akalongman/master
 
 
 }

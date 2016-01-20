@@ -45,7 +45,6 @@
 			"syntax": "python"
 		}
 	},
-<<<<<<< HEAD
 	{
 		"caption": "CodeFormatter: Format as VBScript Syntax",
 		"command": "code_formatter",
@@ -63,17 +62,5 @@
 		"args": {
 			"syntax": "coldfusion"
 		}
-=======
-    {
-        "caption": "CodeFormatter: Format as VBScript Syntax",
-        "command": "code_formatter",
-        "args": {
-            "syntax": "vbscript"
-        }
-    },
-	{
-		"caption": "CodeFormatter: Show PHP Transformations",
-		"command": "code_formatter_show_php_transformations"
->>>>>>> refs/remotes/akalongman/master
 	}
 ]
