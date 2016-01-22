@@ -14,6 +14,7 @@ CodeFormatter has support for the following languages:
 * SCSS - By Nishutosh Sharma
 * Python - By PythonTidy (only ST2)
 * Visual Basic/VBScript
+* Coldfusion/Railo/Lucee
 
 
 Sponsors
@@ -68,7 +69,6 @@ You must install 5.6 or above (https://github.com/phpfmt/fmt#requirements)
 On Linux/OSx after installation of package, you must set chmod +x to file fmt.phar in folder %PACKAGESDIR%/CodeFormatter/codeformatter/lib/phpbeautifier
 
 You can list all available transformations from Command Palette: CodeFormatter: Show PHP Transformations
-
 Examples of many transformations can be found here: [PHP Transformation Examples](https://github.com/akalongman/sublimetext-codeformatter/blob/master/PHP-Transformations.md)
 
 Language specific options:
@@ -264,6 +264,24 @@ Language specific options:
         "opening_tags": "^(Function .*|Sub .*|If .* Then|For .*|Do While .*|Select Case.*)", // List of keywords which open a new block
         "middle_tags": "^(Else|ElseIf .* Then|Case .*)$", // List of keywords which divide a block, but neither open or close the block
         "closing_tags": "(End Function|End Sub|End If|Next|Loop|End Select)$" // List of keywords which close an open block
+    }
+```
+
+### Coldfusion Markup Language
+
+Language specific options:
+```js
+    "codeformatter_coldfusion_options":
+    {
+        "syntaxes": "coldfusion,cfm,cfml", // Syntax names which must process Coldfusion Markup Language formatter
+        "format_on_save": false, // Format on save
+        "indent_size": 2, // indentation size
+        "indent_char": " ", // Indentation character
+        "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
+        "preserve_newlines": false, // Preserve existing line-breaks
+        "max_preserve_newlines": 10, // Maximum number of line-breaks to be preserved in one chunk
+        "indent_tags": "html|head|body|div|nav|ul|ol|dl|li|table|thead|tbody|tr|th|td|blockquote|select|form|option|optgroup|fieldset|legend|label|header|section|aside|footer|figure|video|cfapplet|cfapplication|cfassociate|cfauthenticate|cfcache|cfcol|cfcollection|cfcontent|cfdirectory|cferror|cfexecute|cfexit|cffile|cfform|cfftp|cffunction|cfgrid|cfgridcolumn|cfgridrow|cfgridupdate|cfheader|cfhtmlhead|cfhttp|cfif|cfindex|cfinput|cfldap|cflocation|cflock|cfloop|cfmail|cfmodule|cfobject|cfoutput|cfpop|cfprocparam|cfprocresult|cfquery|cfreport|cfrethrow|cfschedule|cfscript|cfsearch|cfselect|cfservlet|cfsetting|cfsilent|cfslider|cfstoredproc|cfswitch|cfcase|cfdefaultcase|cftable|cftextinput|cftransaction|cftree|cftry|cfcatch|cfsavecontent", // List of tags (defaults to indent) that should be reformatted. Example "div|p|li|table"
+        "middle_tags" : "cfelse|cfelseif"
     }
 ```
 
