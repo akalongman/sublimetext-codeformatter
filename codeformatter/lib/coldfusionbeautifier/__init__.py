@@ -70,7 +70,7 @@ class Beautifier:
             self.tab_size = sublime.load_settings('Preferences.sublime-settings').get('tab_size',4)
         self.indent_level = 0
         # These are the tags that are currently defined as being void by the HTML5 spec, and should be self-closing (a.k.a. singletons)
-        self.singletons = r'<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|cfabort|cfadmin|cfapplet|cfargument|cfassociate|cfauthenticate|cfbreak|cfcontent|cfcontinue|cfcookie|cfdirectory|cfdocument|cfdocumentitem|cfdocumentsection|cfdump|cferror|cfexecute|cfexit|cffile|cfflush|cfheader|cfhttpparam|cfimport|cfinclude|cfindex|cfinvoke|cfinvokeargument|cfldap|cflocation|cflog|cfmailparam|cfobject|cfobjectcache|cfprocessingdirective|cfproperty|cfqueryparam|cfrethrow|cfreturn|cfretry|cfschedule|cfset|cfsetting|cfthread|cfthrow)([^>]*)>'
+        self.singletons = r'<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|cfabort|cfadmin|cfapplet|cfargument|cfassociate|cfauthenticate|cfbreak|cfcontent|cfcontinue|cfcookie|cfdirectory|cfdocument|cfdocumentitem|cfdocumentsection|cfdump|cferror|cfexecute|cfexit|cffile|cfflush|cfheader|cfhttpparam|cfimport|cfinclude|cfindex|cfinvoke|cfinvokeargument|cfldap|cflocation|cflog|cfmailparam|cfobject|cfobjectcache|cfparam|cfprocessingdirective|cfproperty|cfqueryparam|cfrethrow|cfreturn|cfretry|cfschedule|cfset|cfsetting|cfthread|cfthrow)([^>]*)>'
         self.midle_tags = r'<cf(else|elseif)([^>]*)>'
 
     def remove_newlines(self,str):
