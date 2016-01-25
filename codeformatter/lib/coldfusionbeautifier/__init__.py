@@ -124,7 +124,7 @@ class Beautifier:
             raw = re.sub(r'\}(.*?)(\{|;)',r'}\n\1\2',raw)
 
         raw = re.sub(r'("[^"]*")',self.remove_newlines,raw)             # Put all content between double-quote marks back on the same line
-        raw = re.sub(self.singletons,r'<\1\2 />',raw)                   # Replace all singleton tags with /-delimited tags (XHTML style)
+        raw = re.sub(self.singletons,r'<\1\2/>',raw)                    # Replace all singleton tags with /-delimited tags (XHTML style)
         raw = raw.replace('//>','/>')                                   # Fix the singleton tags if they were already /-delimited
         raw = re.sub(r'\n{2,}',r'\n',raw)                               # Replace multiple newlines with just one
 
