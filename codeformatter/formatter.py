@@ -20,6 +20,7 @@ try:
     from .scssformatter import ScssFormatter
     from .pyformatter import PyFormatter
     from .vbscriptformatter import VbscriptFormatter
+    from .coldfusionformatter import ColdfusionFormatter
 
 except (ValueError):
     # Python 2
@@ -30,6 +31,7 @@ except (ValueError):
     from scssformatter import ScssFormatter
     from pyformatter import PyFormatter
     from vbscriptformatter import VbscriptFormatter
+    from coldfusionformatter import ColdfusionFormatter
 
 
 class Formatter:
@@ -93,6 +95,12 @@ class Formatter:
         if ("syntaxes" in opts and opts["syntaxes"]):
             for _formatter in opts["syntaxes"].split(","):
                 self.classmap[_formatter.strip()] = PyFormatter
+
+        # COLDFUSION
+        opts = self.settings.get('codeformatter_coldfusion_options')
+        if ("syntaxes" in opts and opts["syntaxes"]):
+            for _formatter in opts["syntaxes"].split(","):
+                self.classmap[_formatter.strip()] = ColdfusionFormatter
 
 
 
