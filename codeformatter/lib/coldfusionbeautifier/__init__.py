@@ -70,7 +70,7 @@ class Beautifier:
             self.tab_size = sublime.load_settings('Preferences.sublime-settings').get('tab_size',4)
         self.indent_level = 0
         # These are the tags that are currently defined as being void by the HTML5 spec, and should be self-closing (a.k.a. singletons)
-        self.singletons = r'<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|cfabort|cfadmin|cfapplet|cfargument|cfassociate|cfauthenticate|cfbreak|cfcontent|cfcontinue|cfcookie|cfdirectory|cfdocument|cfdocumentitem|cfdocumentsection|cfdump|cferror|cfexecute|cfexit|cffile|cfflush|cfheader|cfhttpparam|cfimport|cfinclude|cfindex|cfinvoke|cfinvokeargument|cfldap|cflocation|cflog|cfmailparam|cfobject|cfobjectcache|cfprocessingdirective|cfproperty|cfqueryparam|cfrethrow|cfreturn|cfretry|cfschedule|cfset|cfsetting|cfthread|cfthrow)([^>]*)>'
+        self.singletons = r'<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|cfabort|cfadmin|cfapplet|cfargument|cfassociate|cfauthenticate|cfbreak|cfcontent|cfcontinue|cfcookie|cfdirectory|cfdocument|cfdocumentitem|cfdocumentsection|cfdump|cferror|cfexecute|cfexit|cffile|cfflush|cfheader|cfhttpparam|cfimport|cfinclude|cfindex|cfinvoke|cfinvokeargument|cfldap|cflocation|cflog|cfmailparam|cfobject|cfobjectcache|cfparam|cfprocessingdirective|cfproperty|cfqueryparam|cfrethrow|cfreturn|cfretry|cfschedule|cfset|cfsetting|cfthread|cfthrow)([^>]*)>'
         self.midle_tags = r'<cf(else|elseif)([^>]*)>'
 
     def remove_newlines(self,str):
@@ -124,7 +124,7 @@ class Beautifier:
             raw = re.sub(r'\}(.*?)(\{|;)',r'}\n\1\2',raw)
 
         raw = re.sub(r'("[^"]*")',self.remove_newlines,raw)             # Put all content between double-quote marks back on the same line
-        raw = re.sub(self.singletons,r'<\1\2 />',raw)                   # Replace all singleton tags with /-delimited tags (XHTML style)
+        raw = re.sub(self.singletons,r'<\1\2/>',raw)                    # Replace all singleton tags with /-delimited tags (XHTML style)
         raw = raw.replace('//>','/>')                                   # Fix the singleton tags if they were already /-delimited
         raw = re.sub(r'\n{2,}',r'\n',raw)                               # Replace multiple newlines with just one
 
