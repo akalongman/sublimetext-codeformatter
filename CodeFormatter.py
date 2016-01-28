@@ -41,12 +41,12 @@ def plugin_loaded():
     settings = sublime.load_settings('CodeFormatter.sublime-settings')
     debug_mode = settings.get('codeformatter_debug', False)
 
-    if debug_mode:
+    #if debug_mode:
         #from pprint import pprint
         #pprint(settings)
-        debug_write("Debug mode enabled")
-        debug_write("Platform "+sublime.platform()+" "+sublime.arch())
-        debug_write("Sublime Version "+sublime.version())
+        #debug_write("Debug mode enabled")
+        #debug_write("Platform "+sublime.platform()+" "+sublime.arch())
+        #debug_write("Sublime Version "+sublime.version())
         #debug_write("Settings "+pprint(settings))
 
 

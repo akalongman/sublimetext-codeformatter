@@ -6,6 +6,7 @@
         "syntaxes": "php", // Syntax names which must process PHP formatter
         "php_path": "", // Path for PHP executable, e.g. "/usr/lib/php" or "C:/Program Files/PHP/php.exe". If empty, uses command "php" from system environments
         "format_on_save": false, // Format on save
+        "php55_compat": false, // PHP 5.5 compatible mode
         "psr1": false, // Activate PSR1 style
         "psr1_naming": false, // Activate PSR1 style - Section 3 and 4.3 - Class and method names case
         "psr2": true, // Activate PSR2 style
@@ -158,7 +159,7 @@
         "middle_tags": "^(Else|ElseIf .* Then|Case .*)$", // List of keywords which divide a block, but neither open or close the block
         "closing_tags": "(End Function|End Sub|End If|Next|Loop|End Select)$" // List of keywords which close an open block
     },
-        
+
     "codeformatter_coldfusion_options":
     {
         "syntaxes": "coldfusion,cfm,cfml", // Syntax names which must process Coldfusion Markup Language formatter
@@ -170,7 +171,7 @@
         "max_preserve_newlines": 10, // Maximum number of line-breaks to be preserved in one chunk
         "indent_tags": "html|head|body|div|nav|ul|ol|dl|li|table|thead|tbody|tr|th|td|blockquote|select|form|option|optgroup|fieldset|legend|label|header|section|aside|footer|figure|video|cfapplet|cfapplication|cfassociate|cfauthenticate|cfcache|cfcol|cfcollection|cfcontent|cfdirectory|cferror|cfexecute|cfexit|cffile|cfform|cfftp|cffunction|cfgrid|cfgridcolumn|cfgridrow|cfgridupdate|cfheader|cfhtmlhead|cfhttp|cfif|cfindex|cfinput|cfldap|cflocation|cflock|cfloop|cfmail|cfmodule|cfobject|cfoutput|cfpop|cfprocparam|cfprocresult|cfquery|cfreport|cfrethrow|cfschedule|cfscript|cfsearch|cfselect|cfservlet|cfsetting|cfsilent|cfslider|cfstoredproc|cfswitch|cfcase|cfdefaultcase|cftable|cftextinput|cftransaction|cftree|cftry|cfcatch|cfsavecontent", // List of tags (defaults to indent) that should be reformatted. Example "div|p|li|table"
         "middle_tags" : "cfelse|cfelseif"
-    },
+    }
 
 
 }

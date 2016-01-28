@@ -22,6 +22,10 @@ class PhpFormatter:
         if ("php_path" in self.opts and self.opts["php_path"]):
             php_path = self.opts["php_path"]
 
+        php55_compat = False
+        if ("php55_compat" in self.opts and self.opts["php55_compat"]):
+            php55_compat = self.opts["php55_compat"]
+
         enable_auto_align = False
         if ("enable_auto_align" in self.opts and self.opts["enable_auto_align"]):
             enable_auto_align = self.opts["enable_auto_align"]
@@ -29,7 +33,6 @@ class PhpFormatter:
         indent_with_space = False
         if ("indent_with_space" in self.opts and self.opts["indent_with_space"]):
             indent_with_space = self.opts["indent_with_space"]
-
 
         psr1 = False
         if ("psr1" in self.opts and self.opts["psr1"]):
@@ -63,7 +66,10 @@ class PhpFormatter:
 
         cmd = []
         cmd.append(str(php_path))
-        cmd.append(sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar")
+        if php55_compat:
+            cmd.append(sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.8.9.0.phar")
+        else:
+            cmd.append(sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar")
 
         if psr1:
             cmd.append("--psr1")
@@ -94,12 +100,16 @@ class PhpFormatter:
         if len(excludes) > 0:
             cmd.append("--exclude="+','.join(excludes))
 
-        cmd.append("--dry-run")
+        if not php55_compat:
+            cmd.append("--dry-run")
+
         cmd.append("--no-backup")
         cmd.append("-")
 
         stderr = ""
         stdout = ""
+
+        print(cmd)
 
         try:
             if (self.formatter.platform == "windows"):
