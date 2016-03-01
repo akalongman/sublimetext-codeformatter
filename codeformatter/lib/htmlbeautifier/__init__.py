@@ -1,6 +1,7 @@
 from __future__ import print_function
 import sys
 import re
+import sublime
 try:
  	# Python 3
 	from .__version__ import __version__
@@ -13,29 +14,28 @@ class BeautifierOptions:
 		self.indent_size = 4
 		self.indent_char = ' '
 		self.indent_with_tabs = False
-		self.preserve_newlines = False
-		self.max_preserve_newlines = 10
-		self.indent_tags = 'html|head|body|div|nav|ul|ol|dl|li|table|thead|tbody|tr|th|td|blockquote|select|form|option|optgroup|fieldset|legend|label|header|section|aside|footer|figure|video'
+		self.expand_tags = False
+		self.expand_javascript = False
+		self.minimum_attribute_count = 2
+		self.reduce_empty_tags = False
+		self.exception_on_tag_mismatch = False
 
 	def __repr__(self):
-		return \
-"""indent_size = %d
+		return """indent_size = %d
 indent_char = [%s]
 indent_with_tabs = [%s]
-preserve_newlines = [%s]
-max_preserve_newlines = [%d]
-indent_tags = [%d]
-""" % (self.indent_size, self.indent_char, self.indent_with_tabs, self.preserve_newlines, self.max_preserve_newlines, self.indent_tags)
-
+expand_tags = [%s]
+expand_javascript = [%s]
+minimum_attribute_count = %d
+reduce_empty_tags = [%s]
+exception_on_tag_mismatch = [%s]""" % (self.indent_size, self.indent_char, self.indent_with_tabs, self.expand_tags, self.expand_javascript, self.minimum_attribute_count, self.reduce_empty_tags, self.exception_on_tag_mismatch)
 
 def default_options():
 	return BeautifierOptions()
 
-
 def beautify(string, opts=default_options()):
 	b = Beautifier(string, opts)
 	return b.beautify()
-
 
 def beautify_file(file_name, opts=default_options()):
 	if file_name == '-':  # stdin
@@ -46,141 +46,120 @@ def beautify_file(file_name, opts=default_options()):
 	b = Beautifier(content, opts)
 	return b.beautify()
 
-
 def usage(stream=sys.stdout):
-
-	print("htmlbeautifier.py@" + __version__ + """
-
-HTML beautifier (http://jsbeautifier.org/)
-
-""", file=stream)
-	if stream == sys.stderr:
-		return 1
-	else:
-		return 0
-
-
+	print("htmlbeautifier.py@" + __version__ + "\nHTML beautifier (http://jsbeautifier.org/)\n", file=stream)
+	return stream == sys.stderr
+	if stream == sys.stderr: return 1
+	else: return 0
 
 class Beautifier:
-
 	def __init__(self, source_text, opts=default_options()):
 		self.source_text = source_text
 		self.opts = opts
-		self.indentSize = opts.indent_size
-		self.indentChar = opts.indent_char
-		if opts.indent_with_tabs:
-			self.indentChar = "\t"
-			self.indentSize = 1
-		self.preserveNewlines = opts.preserve_newlines
-		self.maxPreserveNewlines = opts.max_preserve_newlines
-		self.indentTags = opts.indent_tags
+		self.exception_on_tag_mismatch = opts.exception_on_tag_mismatch
+		self.expand_tags = opts.expand_tags
+		self.expand_javascript = opts.expand_javascript
+		self.minimum_attribute_count = opts.minimum_attribute_count
+		self.reduce_empty_tags = opts.reduce_empty_tags
+		self.indent_size = opts.indent_size
+		self.indent_char = opts.indent_char
+		self.indent_with_tabs = opts.indent_with_tabs
+		if self.indent_with_tabs:
+			self.indent_char = "\t"
+			self.indent_size = 1
+			self.tab_size = sublime.load_settings('Preferences.sublime-settings').get('tab_size',4)
+		self.indent_level = 0
+		# These are the tags that are currently defined as being void by the HTML5 spec, and should be self-closing (a.k.a. singletons)
+		self.singletons = r'<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr)([^>]*)>'
 
+	def remove_newlines(self,str):
+		return re.sub(r'\n\s*',r'',str.group(1))
+
+	def expand_tag(self,str):
+		s = re.split(r'(?<=") ',str.group(1))
+		# If the tag has fewer than "minimum_attribute_count" attributes, leave it alone
+		if len(s) <= self.minimum_attribute_count: return str.group(1)
+		# Otherwise, leave the first attribute on the same line as the tag
+		tag = s[0]
+		# Determine the extra amount of indentation to insert before each attribute
+		indent = tag.split(' ')[0]
+		indent = len(indent) + 1
+		if self.indent_with_tabs:
+			extra_tabs = int(indent / self.tab_size)
+			indent = indent % self.tab_size
+		else:
+			extra_tabs = 0
+		# For each attribute after the first, append a newline and indentation followed by the attribute
+		for l in s[1:]:
+			if l != '/>': tag += '\n' + (((self.indent_level * self.indent_size) + extra_tabs) * self.indent_char) + (indent * ' ') + l
+			else: tag += l
+		return tag
 
 	def beautify(self):
+		beautiful = ''
+		raw = self.source_text
 
-			ignored_tag_opening = "<script|<style|<!--|{\\*|<\\?php"
-			ignored_tag_closing = "</script|</style|-->|\\*}|\\?>"
+		# Replace single-line javascript comments with block comments so that expansion of the elements inside doesn't
+		# become un-commented, ignoring commented CDATA tags
+		if self.expand_javascript:
+			raw = re.sub(r'(?<=\s)//(?!<!\[CDATA\[|\]\]>)(.+)\n',r'/*\1*/\n',raw)
+			raw = re.sub(r';+',r';',raw)
 
-			tag_indent = "<"+self.indentTags.replace('|', '|<')
-			tag_unindent = "</"+self.indentTags.replace('|', '|</')
+		# Add newlines before/after tags (excluding CDATA). This separates single-line HTML comments into 3 lines as well
+		raw = re.sub(r'(<[^! ]|(?<!/\*|//)\]\]>|(?<!<!\[endif\])-->)',r'\n\1',raw)
+		raw = re.sub(r'(>|(?<!/\*|//)<!\[CDATA\[|<!--(?!\[if .+?\]>))',r'\1\n',raw)
 
-			tag_pos_inline = "<link.*/>|<link.*\">|<meta.*/>|<script.*</script>|<div.*</div>|<li.*</li>|<dt.*</dt>|<dd.*</dd>|<th.*</th>|<td.*</td>|<legend.*</legend>|<label.*</label>|<option.*</option>|<input.*/>|<input.*\">|<!--.*-->"
+		# Add newlines before=after javascript braces/switch cases/comments
+		if self.expand_javascript:
+			raw = re.sub(r'(\}|\*/)',r'\n\1',raw)
+			raw = re.sub(r'(\{|/\*|(?<!\();(?!\))|(?:case [^:]+|default):)',r'\1\n',raw)
+			raw = re.sub(r'\[(?!(?:if .+?\]>|endif\]-->))([^\]]+)\]',r'[\n\1\n]',raw)# Split javascript array entries onto new lines
+			raw = re.sub(r'(\[[^\[\]]{0,10}\])',self.remove_newlines,raw)# Fix javascript regex that was broken by the previous regex replace
+			raw = re.sub(r',(?!;$)([^:;\{]+:[^,])',r',\n\1',raw)		# Split javascript object entries onto new lines
+			raw = re.sub(r'({[^\{}]{0,10}})',self.remove_newlines,raw)# Fix javascript regex that was broken by the previous regex replace
+			raw = re.sub(r'((for|while)\s+?(\([^\)]+\))\s+?\{)',self.remove_newlines,raw)	# Put all the content of a loop def on the same line
+			raw = re.sub(r'\},\s*?\{',r'},\n{',raw)
+			# Fix CSS that will have been expanded by this option as well so that new CSS rulesets begin on their own line
+			raw = re.sub(r'\}(.*?)(\{|;)',r'}\n\1\2',raw)
 
-			tag_raw_flat_opening = "<pre"
-			tag_raw_flat_closing = "</pre"
+		raw = re.sub(r'("[^"]*")',self.remove_newlines,raw)				# Put all content between double-quote marks back on the same line
+		raw = re.sub(self.singletons,r'<\1\2/>',raw)							# Replace all singleton tags with /-delimited tags (XHTML style)
+		raw = raw.replace('//>','/>')															# Fix the singleton tags if they were already /-delimited
+		raw = re.sub(r'\n{2,}',r'\n',raw)													# Replace multiple newlines with just one
 
-			rawcode = self.source_text
+		for l in re.split('\n',raw):
+			l = l.strip()																						# Trim whitespace from the line
+			if l == '' or l == ';': continue												# If the line has no content (HTML or JavaScript), skip
 
+			# If the line starts with </, or an end CDATA/block comment tag, reduce indentation
+			if re.match(r'</|]]>|(?:<!\[endif\])?-->',l): self.indent_level -= 1
+			# If the line starts with }, a switch case, or the end of a block comment, reduce indentation
+			if self.expand_javascript and re.match(r'\}|\]|(?:case [^:]+|default):|\*/',l): self.indent_level -= 1
 
-			rawcode = rawcode.strip()
+			beautiful += (self.indent_char * self.indent_level * self.indent_size)
+			if self.expand_tags:
+				beautiful += re.sub(r'(<[^/!][^>]+>)',self.expand_tag,l)
+			else:
+				beautiful += l
+			beautiful += '\n'
 
-			rawcode_list = re.split('\n', rawcode)
+			if re.search(self.singletons,l): pass										# If the tag is a singleton, indentation stays the same
+			else:
+				# If the line starts with a begin CDATA/block comment tag or a tag, indent the next line
+				if re.match(r'<!--|<!\[CDATA\[|<[^/?! ]',l): self.indent_level += 1
+				# If the line starts with a block comment, switch case, or ends with {, indent the next line}
+				if self.expand_javascript:
+					if re.match(r'/\*|(?:case [^:]+|default):',l) or re.search(r'(?:\{|\[)$',l): self.indent_level += 1
 
-			rawcode_flat = ""
-			is_block_ignored = False
-			is_block_raw = False
+		# If the end of the document is not at the same indentation as the beginning, the tags aren't matched
+		if not self.indent_level == 0 and self.exception_on_tag_mismatch:
+			raise Exception("Mismatched tags")
 
-			indent_char = self.indentSize * self.indentChar
-			preserved_new_lines = 0;
-			for item in rawcode_list:
+		# Put all matched start/end tags with no content between them on the same line and return
+		if self.reduce_empty_tags:
+			beautiful = re.sub(r'<(\w+)([^>]+)>\s+</\1>',r'<\1\2></\1>',beautiful)
 
-				if item == "":
-					if self.preserveNewlines == False:
-						continue
-					else:
-						preserved_new_lines += 1
-						if preserved_new_lines >= self.maxPreserveNewlines:
-							preserved_new_lines = 0
-							continue
+		# Put all single-line comments back on a single line - I separated them out earlier for simplicity's sake
+		beautiful = re.sub(r'<!--\n\s+(.+)\n\s+-->',r'<!-- \1 -->',beautiful)
 
-
-
-
-				# ignore raw code
-				if re.search(tag_raw_flat_closing, item, re.IGNORECASE):
-					tmp = item.strip()
-					is_block_raw = False
-				elif re.search(tag_raw_flat_opening, item, re.IGNORECASE):
-					tmp = item.strip()
-					is_block_raw = True
-
-				if re.search(ignored_tag_closing, item, re.IGNORECASE):
-					tmp = item.strip()
-					is_block_ignored = False
-				elif re.search(ignored_tag_opening, item, re.IGNORECASE):
-
-					ignored_block_tab_count = item.count('\t')
-					tmp = item.strip()
-					is_block_ignored = True
-
-				else:
-					if is_block_raw == True:
-						# remove tabs from raw_flat content
-						tmp = re.sub('\t', '', item)
-					elif is_block_ignored == True:
-						tab_count = item.count(indent_char) - ignored_block_tab_count
-						tmp = indent_char * tab_count + item.strip()
-					else:
-						tmp = item.strip()
-
-				rawcode_flat = rawcode_flat + tmp + '\n'
-
-			rawcode_flat_list = re.split('\n', rawcode_flat)
-
-			beautified_code = ""
-
-			indent_level = 0
-			is_block_ignored = False
-			is_block_raw = False
-
-			for item in rawcode_flat_list:
-
-				if re.search(tag_pos_inline, item, re.IGNORECASE):
-					tmp = (indent_char * indent_level) + item
-
-				elif re.search(tag_unindent, item, re.IGNORECASE):
-					indent_level = indent_level - 1
-					tmp = (indent_char * indent_level) + item
-
-				elif re.search(tag_indent, item, re.IGNORECASE):
-					tmp = (indent_char * indent_level) + item
-					indent_level = indent_level + 1
-
-				elif re.search(tag_raw_flat_opening, item, re.IGNORECASE):
-					tmp = item
-					is_block_raw = True
-				elif re.search(tag_raw_flat_closing, item, re.IGNORECASE):
-					tmp = item
-					is_block_raw = False
-				else:
-					if is_block_raw == True or item == "":
-						tmp = item
-
-					else:
-						tmp = (indent_char * indent_level) + item
-
-				beautified_code = beautified_code + tmp + '\n'
-
-			beautified_code = beautified_code.strip()
-
-			return beautified_code
+		return beautiful

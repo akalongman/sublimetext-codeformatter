@@ -1,7 +1,6 @@
-# @author             Avtandil Kikabidze
-# @copyright         Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
-# @link             http://longman.me
-# @license         The MIT License (MIT)
+# @author         Nishutosh Sharma
+# @copyright     No Copyright, use it and modify for betterment
+# This is a modified version of cssformatter.py
 
 import os
 import sys
@@ -11,14 +10,15 @@ import subprocess
 
 import cssbeautifier
 
-class CssFormatter:
+class ScssFormatter:
     def __init__(self, formatter):
         self.formatter = formatter
-        self.opts = formatter.settings.get('codeformatter_css_options')
+        self.opts = formatter.settings.get('codeformatter_scss_options')
 
 
     def format(self, text):
         text = text.decode("utf-8")
+
 
         stderr = ""
         stdout = ""
@@ -27,7 +27,7 @@ class CssFormatter:
         if ("indent_size" in self.opts and self.opts["indent_size"]):
             options.indent_size = self.opts["indent_size"]
         else:
-            options.indent_size = 4
+            options.indent_size = 2
 
         if ("indent_char" in self.opts and self.opts["indent_char"]):
             options.indent_char = self.opts["indent_char"]
@@ -50,10 +50,7 @@ class CssFormatter:
         else:
             options.end_with_newline = False
 
-        if ("eol" in self.opts and self.opts["eol"]):
-            options.eol = self.opts["eol"]
-        else:
-            options.eol = "\n"
+
 
 
         try:

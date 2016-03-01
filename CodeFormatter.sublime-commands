@@ -25,6 +25,13 @@
 		}
 	},
 	{
+		"caption": "CodeFormatter: Format as SCSS Syntax",
+		"command": "code_formatter",
+		"args": {
+			"syntax": "scss"
+		}
+	},
+	{
 		"caption": "CodeFormatter: Format as HTML Syntax",
 		"command": "code_formatter",
 		"args": {
@@ -36,6 +43,24 @@
 		"command": "code_formatter",
 		"args": {
 			"syntax": "python"
+		}
+	},
+	{
+		"caption": "CodeFormatter: Format as VBScript Syntax",
+		"command": "code_formatter",
+		"args": {
+			"syntax": "vbscript"
+		}
+	},
+	{
+		"caption": "CodeFormatter: Show PHP Transformations",
+		"command": "code_formatter_show_php_transformations"
+	},
+	{
+		"caption": "CodeFormatter: Format as Coldfusion Syntax",
+		"command": "code_formatter",
+		"args": {
+			"syntax": "coldfusion"
 		}
 	}
 ]

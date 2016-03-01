@@ -9,19 +9,19 @@ import re
 import sublime
 import subprocess
 
-import htmlbeautifier
+import coldfusionbeautifier
 
-class HtmlFormatter:
+class ColdfusionFormatter:
     def __init__(self, formatter):
         self.formatter = formatter
-        self.opts = formatter.settings.get('codeformatter_html_options')
+        self.opts = formatter.settings.get('codeformatter_coldfusion_options')
 
     def format(self, text):
         text = text.decode("utf-8")
 
         stderr = ""
         stdout = ""
-        options = htmlbeautifier.default_options()
+        options = coldfusionbeautifier.default_options()
 
         if "indent_size" in self.opts:
             options.indent_size = self.opts["indent_size"]
@@ -48,7 +48,7 @@ class HtmlFormatter:
             options.exception_on_tag_mismatch = self.opts["exception_on_tag_mismatch"]
 
         try:
-              stdout = htmlbeautifier.beautify(text, options)
+              stdout = coldfusionbeautifier.beautify(text, options)
         except Exception as e:
              stderr = str(e)
 
@@ -62,4 +62,3 @@ class HtmlFormatter:
         if ("format_on_save" in self.opts and self.opts["format_on_save"]):
             format_on_save = self.opts["format_on_save"]
         return format_on_save
-

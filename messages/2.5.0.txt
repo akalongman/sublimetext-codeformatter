@@ -1,0 +1,9 @@
+Sublime CodeFormatter 2.5.0 Changelog:
+
+Please report me any bugs and proposals at akalongman@gmail.com or GitHub (https://github.com/akalongman/sublimetext-codeformatter/issues)
+
+Improvements
+------------
+- Updated JS Beautifier and CSS Beautifier
+- in codeformatter_js_options added space_in_empty_paren, end_with_newline, comma_first options
+- in codeformatter_css_options added end_with_newline and newline_between_rules options

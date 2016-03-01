@@ -9,55 +9,59 @@ import re
 import sublime
 import subprocess
 
-import cssbeautifier
+import vbscriptbeautifier
 
-class CssFormatter:
+class VbscriptFormatter:
     def __init__(self, formatter):
         self.formatter = formatter
-        self.opts = formatter.settings.get('codeformatter_css_options')
+        self.opts = formatter.settings.get('codeformatter_vbscript_options')
 
 
     def format(self, text):
         text = text.decode("utf-8")
 
+
         stderr = ""
         stdout = ""
-        options = cssbeautifier.default_options()
+        options = vbscriptbeautifier.default_options()
 
         if ("indent_size" in self.opts and self.opts["indent_size"]):
             options.indent_size = self.opts["indent_size"]
         else:
-            options.indent_size = 4
+            options.indent_size = 1
+
 
         if ("indent_char" in self.opts and self.opts["indent_char"]):
-            options.indent_char = self.opts["indent_char"]
+            options.indent_char = str(self.opts["indent_char"])
         else:
-            options.indent_char = ' '
+            options.indent_char = "\t"
 
         if ("indent_with_tabs" in self.opts and self.opts["indent_with_tabs"]):
             options.indent_with_tabs = True
         else:
-            options.indent_with_tabs = False
+            options.indent_with_tabs = True
 
-
-        if ("selector_separator_newline" in self.opts and self.opts["selector_separator_newline"]):
-            options.selector_separator_newline = True
+        if ("preserve_newlines" in self.opts and self.opts["preserve_newlines"]):
+            options.preserve_newlines = True
         else:
-            options.selector_separator_newline = False
+            options.preserve_newlines = False
 
-        if ("end_with_newline" in self.opts and self.opts["end_with_newline"]):
-            options.end_with_newline = True
+        if ("max_preserve_newlines" in self.opts and self.opts["max_preserve_newlines"]):
+            options.max_preserve_newlines = self.opts["max_preserve_newlines"]
         else:
-            options.end_with_newline = False
+            options.max_preserve_newlines = 10
 
-        if ("eol" in self.opts and self.opts["eol"]):
-            options.eol = self.opts["eol"]
-        else:
-            options.eol = "\n"
+        if ("opening_tags" in self.opts and self.opts["opening_tags"]):
+            options.opening_tags = str(self.opts["opening_tags"])
 
+        if ("middle_tags" in self.opts and self.opts["middle_tags"]):
+            options.middle_tags = str(self.opts["middle_tags"])
+
+        if ("closing_tags" in self.opts and self.opts["closing_tags"]):
+            options.closing_tags = str(self.opts["closing_tags"])
 
         try:
-              stdout = cssbeautifier.beautify(text, options)
+              stdout = vbscriptbeautifier.beautify(text, options)
         except Exception as e:
              stderr = str(e)
 

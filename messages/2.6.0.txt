@@ -1,0 +1,9 @@
+Sublime CodeFormatter 2.6.0 Changelog:
+
+Please report me any bugs and proposals at akalongman@gmail.com or GitHub (https://github.com/akalongman/sublimetext-codeformatter/issues)
+
+Improvements
+------------
+- Updated JS/CSS Beautifier
+- Fixed many bugs in JS/CSS Formatting
+- Added eol setting in JS/CSS formatter
