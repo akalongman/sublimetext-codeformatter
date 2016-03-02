@@ -142,6 +142,8 @@ class Beautifier:
             raw = re.sub(r'\},\s*?\{',r'},\n{',raw)
             # Fix CSS that will have been expanded by this option as well so that new CSS rulesets begin on their own line
             raw = re.sub(r'\}(.*?)(\{|;)',r'}\n\1\2',raw)
+            # Fix AngularJS/Blade/etc brace ({{}}) templates that will have been broken into multiple lines
+            raw = re.sub(r'(\{{2,})(.*?)(\}{2,})',r'\1 \2 \3',re.sub(r'(\{(?:\s*\{)+[\s\S]*?\}(?:\s*\})+)',self.remove_newlines,raw))
 
         raw = re.sub(r'("[^"]*")',self.remove_newlines,raw)             # Put all content between double-quote marks back on the same line
         raw = re.sub(self.singletons,r'<\1\2/>',raw)                    # Replace all singleton tags with /-delimited tags (XHTML style)
