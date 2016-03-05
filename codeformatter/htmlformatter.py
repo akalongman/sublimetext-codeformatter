@@ -31,6 +31,9 @@ class HtmlFormatter:
 
         if "minimum_attribute_count" in self.opts:
             options.minimum_attribute_count = self.opts["minimum_attribute_count"]
+            
+        if "first_attribute_on_new_line" in self.opts:
+            options.first_attribute_on_new_line = self.opts["first_attribute_on_new_line"]
 
         if "indent_with_tabs" in self.opts:
             options.indent_with_tabs = self.opts["indent_with_tabs"]
@@ -46,6 +49,9 @@ class HtmlFormatter:
 
         if "exception_on_tag_mismatch" in self.opts:
             options.exception_on_tag_mismatch = self.opts["exception_on_tag_mismatch"]
+            
+        if "custom_singletons" in self.opts:
+            options.custom_singletons = self.opts["custom_singletons"]
 
         try:
               stdout = htmlbeautifier.beautify(text, options)

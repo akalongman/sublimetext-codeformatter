@@ -17,8 +17,10 @@ class BeautifierOptions:
         self.expand_tags = False
         self.expand_javascript = False
         self.minimum_attribute_count = 2
+        self.first_attribute_on_new_line = False
         self.reduce_empty_tags = False
         self.exception_on_tag_mismatch = False
+        self.custom_singletons = ''
 
     def __repr__(self):
         return """indent_size = %d
@@ -27,8 +29,10 @@ indent_with_tabs = [%s]
 expand_tags = [%s]
 expand_javascript = [%s]
 minimum_attribute_count = %d
+first_attribute_on_new_line = [%s]
 reduce_empty_tags = [%s]
-exception_on_tag_mismatch = [%s]""" % (self.indent_size, self.indent_char, self.indent_with_tabs, self.expand_tags, self.expand_javascript, self.minimum_attribute_count, self.reduce_empty_tags, self.exception_on_tag_mismatch)
+exception_on_tag_mismatch = [%s]
+custom_singletons = [%s]""" % (self.indent_size, self.indent_char, self.indent_with_tabs, self.expand_tags, self.expand_javascript, self.minimum_attribute_count, self.first_attribute_on_new_line, self.reduce_empty_tags, self.exception_on_tag_mismatch, self.custom_singletons)
 
 def default_options():
     return BeautifierOptions()
@@ -60,6 +64,7 @@ class Beautifier:
         self.expand_tags = opts.expand_tags
         self.expand_javascript = opts.expand_javascript
         self.minimum_attribute_count = opts.minimum_attribute_count
+        self.first_attribute_on_new_line = opts.first_attribute_on_new_line
         self.reduce_empty_tags = opts.reduce_empty_tags
         self.indent_size = opts.indent_size
         self.indent_char = opts.indent_char
@@ -70,30 +75,45 @@ class Beautifier:
             self.tab_size = sublime.load_settings('Preferences.sublime-settings').get('tab_size',4)
         self.indent_level = 0
         # These are the tags that are currently defined as being void by the HTML5 spec, and should be self-closing (a.k.a. singletons)
-        self.singletons = r'<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|cfabort|cfadmin|cfapplet|cfargument|cfassociate|cfauthenticate|cfbreak|cfcontent|cfcontinue|cfcookie|cfdirectory|cfdocument|cfdocumentitem|cfdocumentsection|cfdump|cferror|cfexecute|cfexit|cffile|cfflush|cfheader|cfhttpparam|cfimport|cfinclude|cfindex|cfinvoke|cfinvokeargument|cfldap|cflocation|cflog|cfmailparam|cfobject|cfobjectcache|cfparam|cfprocessingdirective|cfproperty|cfqueryparam|cfrethrow|cfreturn|cfretry|cfschedule|cfset|cfsetting|cfthread|cfthrow)([^>]*)>'
+        self.singletons = r'<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|cf(?:abort|admin|applet|argument|associate|authenticate|break|content|continue|cookie|directory|document|documentitem|documentsection|dump|error|execute|exit|file|flush|header|httpparam|import|include|index|invoke|invokeargument|ldap|location|log|mailparam|object|objectcache|param|processingdirective|property|queryparam|rethrow|return|retry|schedule|set|setting|thread|throw)<%= custom %>)([^>]*)>'
+        if not opts.custom_singletons == '':
+            self.singletons = re.sub(r'<%= custom %>','|' + opts.custom_singletons,self.singletons)
+        else:
+            self.singletons = re.sub(r'<%= custom %>','',self.singletons)
         self.midle_tags = r'<cf(else|elseif)([^>]*)>'
 
     def remove_newlines(self,str):
         return re.sub(r'\n\s*',r'',str.group(1))
 
     def expand_tag(self,str):
-        s = re.split(r'(?<=") ',str.group(1))
+        _str = str.group(0) # cache the original string in a variable for faster access
+        s = re.findall(r'([\w\-]+(?:=(?:"[^"]*"|\'[^\']*\'))?)',_str)
         # If the tag has fewer than "minimum_attribute_count" attributes, leave it alone
-        if len(s) <= self.minimum_attribute_count: return str.group(1)
-        # Otherwise, leave the first attribute on the same line as the tag
-        tag = s[0]
-        # Determine the extra amount of indentation to insert before each attribute
-        indent = tag.split(' ')[0]
-        indent = len(indent) + 1
-        if self.indent_with_tabs:
-            extra_tabs = int(indent / self.tab_size)
-            indent = indent % self.tab_size
-        else:
-            extra_tabs = 0
-        # For each attribute after the first, append a newline and indentation followed by the attribute
-        for l in s[1:]:
-            if l != '/>': tag += '\n' + (((self.indent_level * self.indent_size) + extra_tabs) * self.indent_char) + (indent * ' ') + l
-            else: tag += l
+        if len(s) <= self.minimum_attribute_count: return _str
+        tagEnd = re.search(r'/?>$',_str)
+        if not tagEnd == None: s += [tagEnd.group(0)] # Append the end of the tag to the array of attributes
+        tag = '<' + s[0] # The '<' at the beginning of a tag is not included in the regex match
+        indent = len(tag) + 1 # include the space after the tag name, this is not included in the regex
+        s = s[1:] # pop the tag name off of the attribute array - we don't need it any more
+        # Calculate how much to indent each line
+        if self.first_attribute_on_new_line: # If we're putting all the attributes on their own line, only use 1 indentation unit
+            if self.indent_with_tabs:
+                indent = 0
+                extra_tabs = 1
+            else:
+                indent = self.indent_size
+                extra_tabs = 0
+        else: # Otherwise, align the attributes with the beginning of the first attribute after the tag name
+            if self.indent_with_tabs:
+                extra_tabs = int(indent / self.tab_size)
+                indent = indent % self.tab_size
+            else:
+                extra_tabs = 0
+            tag += ' ' + s[0]
+            s = s[1:] # Go ahead and pop the first attribute off the array so that we don't duplicate it in the loop below
+        # For each attribute in the list, append a newline and indentation followed by the attribute (or the end of the tag)
+        for l in s:
+            tag += '\n' + (((self.indent_level * self.indent_size) + extra_tabs) * self.indent_char) + (indent * ' ') + l
         return tag
 
     def beautify(self):
@@ -122,6 +142,8 @@ class Beautifier:
             raw = re.sub(r'\},\s*?\{',r'},\n{',raw)
             # Fix CSS that will have been expanded by this option as well so that new CSS rulesets begin on their own line
             raw = re.sub(r'\}(.*?)(\{|;)',r'}\n\1\2',raw)
+            # Fix AngularJS/Blade/etc brace ({{}}) templates that will have been broken into multiple lines
+            raw = re.sub(r'(\{{2,})(.*?)(\}{2,})',r'\1 \2 \3',re.sub(r'(\{(?:\s*\{)+[\s\S]*?\}(?:\s*\})+)',self.remove_newlines,raw))
 
         raw = re.sub(r'("[^"]*")',self.remove_newlines,raw)             # Put all content between double-quote marks back on the same line
         raw = re.sub(self.singletons,r'<\1\2/>',raw)                    # Replace all singleton tags with /-delimited tags (XHTML style)
@@ -139,7 +161,7 @@ class Beautifier:
 
             beautiful += (self.indent_char * self.indent_level * self.indent_size)
             if self.expand_tags:
-                beautiful += re.sub(r'(<[^/!][^>]+>)',self.expand_tag,l)
+                beautiful += re.sub(r'^<.*>$',self.expand_tag,l)
             else:
                 beautiful += l
             beautiful += '\n'
@@ -159,7 +181,7 @@ class Beautifier:
 
         # Put all matched start/end tags with no content between them on the same line and return
         if self.reduce_empty_tags:
-            beautiful = re.sub(r'<(\w+)([^>]+)>\s+</\1>',r'<\1\2></\1>',beautiful)
+            beautiful = re.sub(r'<([\w\-]+)([^>]*)>\s+</\1>',r'<\1\2></\1>',beautiful)
 
         # Put all single-line comments back on a single line - I separated them out earlier for simplicity's sake
         beautiful = re.sub(r'<!---\n\s+(.+)\n\s+--->',r'<!--- \1 --->',beautiful)
