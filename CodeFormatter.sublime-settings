@@ -75,7 +75,7 @@
 
     "codeformatter_html_options":
     {
-        "syntaxes": "html,asp,xml", // Syntax names which must process HTML formatter
+        "syntaxes": "html,blade,asp,xml", // Syntax names which must process HTML formatter
         "format_on_save": false, // Format on save
         "indent_size": 4, // indentation size
         "indent_char": " ", // Indentation character
