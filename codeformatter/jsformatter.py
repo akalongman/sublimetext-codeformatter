@@ -130,6 +130,14 @@ class JsFormatter:
         else:
             options.comma_first = False
 
+        if ("space_after_anon_function" in self.opts and self.opts["space_after_anon_function"]):
+            options.space_after_anon_function = True
+        else:
+            options.space_after_anon_function = False
+
+
+
+
         try:
             stdout = jsbeautifier.beautify(text, options)
         except Exception as e:

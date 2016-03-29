@@ -1,2 +1,3 @@
 *.pyc
 /package-metadata.json
+.fuse_*
