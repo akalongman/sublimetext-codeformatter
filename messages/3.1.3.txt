@@ -1,0 +1,8 @@
+Sublime CodeFormatter 3.1.3 Changelog:
+
+Please report me any bugs and proposals at akalongman@gmail.com or GitHub (https://github.com/akalongman/sublimetext-codeformatter/issues)
+
+Changelog
+------------
+- Fixed bug with short open tag in PHP formatter
+- Updated php_fmt
