@@ -1,6 +1,6 @@
-# @author             Avtandil Kikabidze
-# @copyright         Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
-# @link             http://longman.me
+# @author          Avtandil Kikabidze
+# @copyright       Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
+# @link            http://longman.me
 # @license         The MIT License (MIT)
 
 import os
@@ -9,7 +9,16 @@ import re
 import sublime
 import subprocess
 
-import htmlbeautifier
+directory = os.path.dirname(os.path.realpath(__file__))
+libs_path = os.path.join(directory, "lib")
+libs_path = os.path.join(libs_path, "htmlbeautifier")
+
+print(libs_path)
+
+if libs_path not in sys.path:
+    sys.path.append(libs_path)
+
+from bs4 import BeautifulSoup
 
 class HtmlFormatter:
     def __init__(self, formatter):
@@ -18,50 +27,63 @@ class HtmlFormatter:
 
     def format(self, text):
         text = text.decode("utf-8")
-
         stderr = ""
         stdout = ""
-        options = htmlbeautifier.default_options()
 
+        p_indent_size = 4
         if "indent_size" in self.opts:
-            options.indent_size = self.opts["indent_size"]
-
-        if "indent_char" in self.opts:
-            options.indent_char = str(self.opts["indent_char"])
-
-        if "minimum_attribute_count" in self.opts:
-            options.minimum_attribute_count = self.opts["minimum_attribute_count"]
-            
-        if "first_attribute_on_new_line" in self.opts:
-            options.first_attribute_on_new_line = self.opts["first_attribute_on_new_line"]
-
-        if "indent_with_tabs" in self.opts:
-            options.indent_with_tabs = self.opts["indent_with_tabs"]
-
-        if "expand_tags" in self.opts:
-            options.expand_tags = self.opts["expand_tags"]
-
-        if "expand_javascript" in self.opts:
-            options.expand_javascript = self.opts["expand_javascript"]
-
-        if "reduce_empty_tags" in self.opts:
-            options.reduce_empty_tags = self.opts["reduce_empty_tags"]
-
-        if "exception_on_tag_mismatch" in self.opts:
-            options.exception_on_tag_mismatch = self.opts["exception_on_tag_mismatch"]
-            
-        if "custom_singletons" in self.opts:
-            options.custom_singletons = self.opts["custom_singletons"]
+            p_indent_size = self.opts["indent_size"]
 
         try:
-              stdout = htmlbeautifier.beautify(text, options)
+            soup = BeautifulSoup(text, 'html.parser')
+            stdout = soup.prettify(indent_size=p_indent_size)
         except Exception as e:
-             stderr = str(e)
+            stderr = str(e)
 
-        if (not stderr and not stdout):
-            stderr = "Formatting error!"
 
         return stdout, stderr
+
+        # options = htmlbeautifier.default_options()
+
+        # if "indent_size" in self.opts:
+        #     options.indent_size = self.opts["indent_size"]
+
+        # if "indent_char" in self.opts:
+        #     options.indent_char = str(self.opts["indent_char"])
+
+        # if "minimum_attribute_count" in self.opts:
+        #     options.minimum_attribute_count = self.opts["minimum_attribute_count"]
+
+        # if "first_attribute_on_new_line" in self.opts:
+        #     options.first_attribute_on_new_line = self.opts["first_attribute_on_new_line"]
+
+        # if "indent_with_tabs" in self.opts:
+        #     options.indent_with_tabs = self.opts["indent_with_tabs"]
+
+        # if "expand_tags" in self.opts:
+        #     options.expand_tags = self.opts["expand_tags"]
+
+        # if "expand_javascript" in self.opts:
+        #     options.expand_javascript = self.opts["expand_javascript"]
+
+        # if "reduce_empty_tags" in self.opts:
+        #     options.reduce_empty_tags = self.opts["reduce_empty_tags"]
+
+        # if "exception_on_tag_mismatch" in self.opts:
+        #     options.exception_on_tag_mismatch = self.opts["exception_on_tag_mismatch"]
+
+        # if "custom_singletons" in self.opts:
+        #     options.custom_singletons = self.opts["custom_singletons"]
+
+        # try:
+        #     stdout = htmlbeautifier.beautify(text, options)
+        # except Exception as e:
+        #     stderr = str(e)
+
+        # if (not stderr and not stdout):
+        #     stderr = "Formatting error!"
+
+        # return stdout, stderr
 
     def formatOnSaveEnabled(self):
         format_on_save = False
