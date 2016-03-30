@@ -1,0 +1,9 @@
+Sublime CodeFormatter 3.2.0 Changelog:
+
+Please report me any bugs and proposals at akalongman@gmail.com or GitHub (https://github.com/akalongman/sublimetext-codeformatter/issues)
+
+Changelog
+------------
+- Fixed bug with less property mixins @{...} in CSS formatter
+- Updated JS formatter. Added new options: space_after_anon_function and e4x
+- Started working on improving HTML formatter. Now works only indent_size option
