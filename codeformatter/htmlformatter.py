@@ -13,8 +13,6 @@ directory = os.path.dirname(os.path.realpath(__file__))
 libs_path = os.path.join(directory, "lib")
 libs_path = os.path.join(libs_path, "htmlbeautifier")
 
-print(libs_path)
-
 if libs_path not in sys.path:
     sys.path.append(libs_path)
 
@@ -36,7 +34,7 @@ class HtmlFormatter:
 
         try:
             soup = BeautifulSoup(text, 'html.parser')
-            stdout = soup.prettify(indent_size=p_indent_size)
+            stdout = soup.prettify(formatter=None,indent_size=p_indent_size)
         except Exception as e:
             stderr = str(e)
 
