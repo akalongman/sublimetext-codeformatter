@@ -94,7 +94,7 @@ class Formatter:
         opts = self.settings.get('codeformatter_scss_options')
         if ("syntaxes" in opts and opts["syntaxes"]):
             for _formatter in opts["syntaxes"].split(","):
-                self.classmap[_formatter.strip()] = PyFormatter
+                self.classmap[_formatter.strip()] = ScssFormatter
 
         # COLDFUSION
         opts = self.settings.get('codeformatter_coldfusion_options')
