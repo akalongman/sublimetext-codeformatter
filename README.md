@@ -9,7 +9,7 @@ CodeFormatter has support for the following languages:
 
 * PHP - By phpfmt
 * JavaScript/JSON - By JSBeautifier
-* HTML - By JSBeautifier
+* HTML - By [Custom fork of BeautifulSoup](https://github.com/akalongman/python-beautifulsoup)
 * CSS - By JSBeautifier
 * SCSS - By Nishutosh Sharma
 * Python - By PythonTidy (only ST2)
