@@ -86,9 +86,6 @@ class Beautifier:
         self.removed_js = []
         self.removed_comments = []
 
-    def remove_newlines(self,str):
-        return re.sub(r'\n\s*',r'',str.group(1))
-
     def expand_tag(self,str):
         _str = str.group(0) # cache the original string in a variable for faster access
         s = re.findall(r'([\w\-]+(?:=(?:"[^"]*"|\'[^\']*\'))?)',_str)
@@ -166,7 +163,6 @@ class Beautifier:
         raw = re.sub(r'(<[^! ]|(?<!/\*|//)\]\]>|(?<!<!\[endif\])--->)',r'\n\1',raw)
         raw = re.sub(r'(>|(?<!/\*|//)<!\[CDATA\[|<!---(?!\[if .+?\]>))',r'\1\n',raw)
 
-
         # Fix AngularJS/Blade/etc brace ({{}}, {{::}}, etc) templates that will have been broken into multiple lines
         raw = re.sub(r'(\{{2,}(?:::)?)\s?(.*?)\s?(\}{2,})',r'\1 \2 \3',re.sub(r'\{(?:\s*\{)+\s?[\s\S]*?\s?\}(?:\s*\})+',self.remove_newlines(),raw))
 
@@ -202,10 +198,6 @@ class Beautifier:
         # If the end of the document is not at the same indentation as the beginning, the tags aren't matched
         if not self.indent_level == 0 and self.exception_on_tag_mismatch:
             raise Exception("Mismatched tags")
-
-        # Put all matched start/end tags with no content between them on the same line and return
-        if self.reduce_empty_tags:
-            beautiful = re.sub(r'<([\w\-]+)([^>]*)>\s+</\1>',r'<\1\2></\1>',beautiful)
 
         # Put all matched start/end tags with no content between them on the same line and return
         if self.reduce_empty_tags:
