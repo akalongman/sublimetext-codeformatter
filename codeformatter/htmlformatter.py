@@ -15,14 +15,14 @@ libs_path = os.path.join(libs_path, "htmlbeautifier")
 
 if libs_path not in sys.path:
     sys.path.append(libs_path)
-
+    
+import htmlbeautifier
 use_bs4 = True
 try:
     from bs4 import BeautifulSoup
     use_bs4 = False
 except:
     use_bs4 = False
-    import htmlbeautifier
 
 class HtmlFormatter:
     def __init__(self, formatter):
