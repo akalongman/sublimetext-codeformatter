@@ -74,7 +74,7 @@ class Beautifier:
             self.tab_size = sublime.load_settings('Preferences.sublime-settings').get('tab_size',4)
         self.indent_level = 0
         # These are the tags that are currently defined as being void by the HTML5 spec, and should be self-closing (a.k.a. singletons)
-        self.singletons = r'<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|cf(?:abort|admin|applet|argument|associate|authenticate|break|content|continue|cookie|directory|document|documentitem|documentsection|dump|error|execute|exit|file|flush|header|httpparam|import|include|index|invoke|invokeargument|ldap|location|log|mailparam|object|objectcache|param|processingdirective|property|queryparam|rethrow|return|retry|schedule|set|setting|thread|throw)<%= custom %>)([^>]*)>'
+        self.singletons = r'<(area|base|br|col|command|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|cf(?:abort|admin|applet|argument|associate|authenticate|break|content|continue|cookie|directory|document|documentitem|documentsection|dump|error|execute|exit|file|flush|header|httpparam|import|include|index|invoke|invokeargument|ldap|location|log|mailparam|object|objectcache|param|processingdirective|property|queryparam|rethrow|return|retry|schedule|set|setting|thread|throw)<%= custom %>)([^>]*?)/?>(?:\s*?</\1>)?'
         if not opts.custom_singletons == '':
             self.singletons = re.sub(r'<%= custom %>','|' + opts.custom_singletons,self.singletons)
         else:
@@ -181,7 +181,7 @@ class Beautifier:
             if l == '': continue                                        # If the line has no content, skip
 
             # If the line starts with </, or an end CDATA/block comment tag, reduce indentation
-            if re.match(r'</|]]>|(?:<!\[endif\])?--->',l): self.indent_level -= 1
+            if re.match(r'</|]]>|(?:<!\[endif\])?--->',l) or re.search(self.midle_tags,l): self.indent_level -= 1
 
             beautiful += (self.indent_char * self.indent_level * self.indent_size)
             if self.expand_tags:
@@ -191,6 +191,7 @@ class Beautifier:
             beautiful += '\n'
 
             if self.singletons.search(l): pass                          # If the tag is a singleton, indentation stays the same
+            elif re.search(self.midle_tags,l): self.indent_level += 1
             else:
                 # If the line starts with a begin CDATA/block comment tag or a tag, indent the next line
                 if re.match(r'<!---|<!\[CDATA\[|<[^/?! ]',l): self.indent_level += 1
