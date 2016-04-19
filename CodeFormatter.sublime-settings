@@ -173,7 +173,7 @@
         "indent_char": " ", // Indentation character
         "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
         "exception_on_tag_mismatch": false, // If the last closing tag is not at the same indentation level as the first opening tag, there's probably a tag mismatch in the file
-        "expand_javascript": false, // Expand JavaScript inside of <script> tags (also affects CSS purely by coincidence)
+        "expand_javascript": false, // (Under construction) Expand JavaScript inside of <script> tags (also affects CSS purely by coincidence)
         "expand_tags": false, // Expand tag attributes onto new lines
         "minimum_attribute_count": 2, // Minimum number of attributes needed before tag attributes are expanded to new lines
         "first_attribute_on_new_line": false, // Put all attributes on separate lines from the tag (only uses 1 indentation unit as opposed to lining all attributes up with the first)
