@@ -140,7 +140,7 @@ class Beautifier:
 
     def getNextFrom(self,_list):
         it = iter(_list)
-        return lambda match: self.reindent(it.next(),match)
+        return lambda match: self.reindent(next(it),match)
 
     def replace(self,pattern,replaceList,raw): return re.compile(r'(?<=\n)(\s*?)' + pattern,re.S|re.I).sub(self.getNextFrom(replaceList),raw)
     def replace_comments(self,raw): return self.replace(r'/\* COMMENT \*/',self.removed_comments,raw)
