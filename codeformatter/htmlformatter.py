@@ -20,7 +20,6 @@ import htmlbeautifier
 use_bs4 = True
 try:
     from bs4 import BeautifulSoup
-    use_bs4 = False
 except:
     use_bs4 = False
 
