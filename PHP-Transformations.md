@@ -845,6 +845,26 @@ function a() {}
 </tr>
 </table>
 
+### PSR2IndentWithSpace
+<table>
+<tr>
+<td>Before</td>
+<td>After</td>
+</tr>
+<tr>
+<td>
+<pre>
+    $codeAlignedWithTabs = true
+</pre>
+</td>
+<td>
+<pre>
+    $codeAlignedWithTabs = false
+</pre>
+</td>
+</tr>
+</table>
+
 
 ### PSR2MultilineFunctionParams
 <table>
