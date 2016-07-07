@@ -8,6 +8,9 @@ import sys
 import re
 import sublime
 import subprocess
+import os.path
+from os.path import dirname, realpath
+
 
 class PhpFormatter:
     def __init__(self, formatter):
@@ -63,13 +66,20 @@ class PhpFormatter:
         if ("excludes" in self.opts and self.opts["excludes"]):
             excludes = self.opts["excludes"]
 
+        formatter_path = os.path.join(dirname(realpath(sublime.packages_path())), "Packages", "CodeFormatter", "codeformatter", "lib", "phpbeautifier", "fmt.phar")
 
         cmd = []
         cmd.append(str(php_path))
+
+        cmd.append("-ddisplay_errors=stderr")
+        cmd.append("-dshort_open_tag=On")
+
         if php55_compat:
-            cmd.append(sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.8.9.0.phar")
+            formatter_path = os.path.join(dirname(realpath(sublime.packages_path())), "Packages", "CodeFormatter", "codeformatter", "lib", "phpbeautifier", "fmt-php55.phar")
         else:
-            cmd.append(sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar")
+            formatter_path = os.path.join(dirname(realpath(sublime.packages_path())), "Packages", "CodeFormatter", "codeformatter", "lib", "phpbeautifier", "fmt.phar")
+
+        cmd.append(formatter_path)
 
         if psr1:
             cmd.append("--psr1")
@@ -100,16 +110,12 @@ class PhpFormatter:
         if len(excludes) > 0:
             cmd.append("--exclude="+','.join(excludes))
 
-        if not php55_compat:
-            cmd.append("--dry-run")
-
-        cmd.append("--no-backup")
         cmd.append("-")
 
         stderr = ""
         stdout = ""
 
-        print(cmd)
+        #print(cmd)
 
         try:
             if (self.formatter.platform == "windows"):
