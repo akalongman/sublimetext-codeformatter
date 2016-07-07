@@ -87,7 +87,7 @@ class Beautifier:
 
 	def expand_tag(self,str):
 		_str = str.group(0) # cache the original string in a variable for faster access
-		s = re.findall(r'([\w\-]+(?:=(?:"[^"]*"|\'[^\']*\'))?)',_str)
+		s = re.findall(r'(<[\S]+(?:=(?:"[^"]*"|\'[^\']*\'))?)',_str)
 		# If the tag has fewer than "minimum_attribute_count" attributes, leave it alone
 		if len(s) <= self.minimum_attribute_count: return _str
 		tagEnd = re.search(r'/?>$',_str)
