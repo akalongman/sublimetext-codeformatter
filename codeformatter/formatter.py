@@ -139,7 +139,7 @@ class Formatter:
         if (not self.exists()):
             return False
         formatter = self.classmap[self.syntax](self)
-        return formatter.formatOnSaveEnabled()
+        return formatter.formatOnSaveEnabled(self.file_name)
 
 
 
