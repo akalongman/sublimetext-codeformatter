@@ -147,6 +147,7 @@ Language specific options:
         "minimum_attribute_count": 2, // Minimum number of attributes needed before tag attributes are expanded to new lines
         "first_attribute_on_new_line": false, // Put all attributes on separate lines from the tag (only uses 1 indentation unit as opposed to lining all attributes up with the first)
         "reduce_empty_tags": false, // Put closing tags on same line as opening tag if there is no content between them
+        "reduce_whole_word_tags": false, // Put closing tags on same line as opening tag if there is whole word between them
         "custom_singletons": "" // Custom singleton tags for various template languages outside of the HTML5 spec
     }
 ```
@@ -288,6 +289,7 @@ Language specific options:
         "minimum_attribute_count": 2, // Minimum number of attributes needed before tag attributes are expanded to new lines
         "first_attribute_on_new_line": false // Put all attributes on separate lines from the tag (only uses 1 indentation unit as opposed to lining all attributes up with the first)
         "reduce_empty_tags": false, // Put closing tags on same line as opening tag if there is no content between them
+        "reduce_whole_word_tags": false, // Put closing tags on same line as opening tag if there is whole word between them
         "custom_singletons": "" // Custom singleton tags for various template languages outside of the HTML5 spec
     }
 ```

@@ -47,6 +47,9 @@ class ColdfusionFormatter:
         if "reduce_empty_tags" in self.opts:
             options.reduce_empty_tags = self.opts["reduce_empty_tags"]
 
+        if "reduce_whole_word_tags" in self.opts:
+            options.reduce_whole_word_tags = self.opts["reduce_whole_word_tags"]
+
         if "exception_on_tag_mismatch" in self.opts:
             options.exception_on_tag_mismatch = self.opts["exception_on_tag_mismatch"]
 
