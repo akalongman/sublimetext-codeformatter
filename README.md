@@ -77,7 +77,7 @@ Language specific options:
     {
         "syntaxes": "php", // Syntax names which must process PHP formatter
         "php_path": "", // Path for PHP executable, e.g. "/usr/lib/php" or "C:/Program Files/PHP/php.exe". If empty, uses command "php" from system environments
-        "format_on_save": false, // Format on save
+        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
         "psr1": false, // Activate PSR1 style
         "psr1_naming": false, // Activate PSR1 style - Section 3 and 4.3 - Class and method names case
         "psr2": true, // Activate PSR2 style
@@ -106,7 +106,7 @@ Language specific options:
     "codeformatter_js_options":
     {
         "syntaxes": "javascript,json", // Syntax names which must process JS formatter
-        "format_on_save": false, // Format on save
+        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
         "indent_size": 4, // indentation size
         "indent_char": " ", // Indent character
         "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
@@ -137,7 +137,7 @@ Language specific options:
     "codeformatter_html_options":
     {
         "syntaxes": "html,asp,xml", // Syntax names which must process HTML formatter
-        "format_on_save": false, // Format on save
+        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
         "indent_size": 4, // indentation size
         "indent_char": " ", // Indentation character
         "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
@@ -159,7 +159,7 @@ Language specific options:
     "codeformatter_css_options":
     {
         "syntaxes": "css,less", // Syntax names which must process CSS formatter
-        "format_on_save": false, // Format on save
+        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
         "indent_size": 4, // Indentation size
         "indent_char": " ", // Indentation character
         "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
@@ -178,7 +178,7 @@ Language specific options:
     {
         "syntaxes": "scss", // Indentation size
         "indent_size": 2, // Indentation size
-        "format_on_save": false, // Format on save
+        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
         "indent_char": " ", // Indentation character
         "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
         "selector_separator_newline": true, // Add new lines after selector separators
@@ -194,7 +194,7 @@ Language specific options:
     "codeformatter_python_options":
     {
         "syntaxes": "python", // Syntax names which must process Python formatter
-        "format_on_save": false, // Format on save
+        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
         "indent_size": 1, // indentation size
         "indent_with_tabs": true, // Indent with tabs or spaces
         "max_char": 80, // Width of output lines in characters.
@@ -259,7 +259,7 @@ Language specific options:
     "codeformatter_vbscript_options":
     {
         "syntaxes": "vbscript", // Syntax names which must process VBScript formatter
-        "format_on_save": false, // Format on save
+        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
         "indent_size": 1, // indentation size
         "indent_char": "\t", // Indentation character
         "indent_with_tabs": true, // Indent with one tab (overrides indent_size and indent_char options)
@@ -278,7 +278,7 @@ Language specific options:
     "codeformatter_coldfusion_options":
     {
         "syntaxes": "coldfusion,cfm,cfml", // Syntax names which must process Coldfusion Markup Language formatter
-        "format_on_save": false, // Format on save
+        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
         "indent_size": 2, // indentation size
         "indent_char": " ", // Indentation character
         "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
