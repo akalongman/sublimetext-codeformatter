@@ -1,12 +1,13 @@
 from __future__ import print_function
 import sys
 import re
+import copy
 from cssbeautifier.__version__ import __version__
 
 #
 # The MIT License (MIT)
 
-# Copyright (c) 2013 Einar Lielmanis and contributors.
+# Copyright (c) 2007-2017 Einar Lielmanis, Liam Newman, and contributors.
 
 # Permission is hereby granted, free of charge, to any person
 # obtaining a copy of this software and associated documentation files
@@ -37,7 +38,26 @@ class BeautifierOptions:
         self.selector_separator_newline = True
         self.end_with_newline = False
         self.newline_between_rules = True
-        self.eol = '\n'
+        self.space_around_combinator = False
+        self.eol = 'auto'
+
+        self.css = None
+        self.js = None
+        self.html = None
+
+        # deprecated
+        self.space_around_selector_separator = False
+
+    def mergeOpts(self, targetType):
+        finalOpts = copy.copy(self)
+
+        local = getattr(finalOpts, targetType)
+        if (local):
+            delattr(finalOpts, targetType)
+            for key in local:
+                setattr(finalOpts, key, local[key])
+
+        return finalOpts
 
 
     def __repr__(self):
@@ -48,8 +68,10 @@ indent_with_tabs = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
 newline_between_rules = [%s]
+space_around_combinator = [%s]
 """ % (self.indent_size, self.indent_char, self.indent_with_tabs,
-       self.selector_separator_newline, self.end_with_newline, self.newline_between_rules)
+       self.selector_separator_newline, self.end_with_newline, self.newline_between_rules,
+       self.space_around_combinator)
 
 
 def default_options():
@@ -164,17 +186,21 @@ class Beautifier:
     def __init__(self, source_text, opts=default_options()):
         # This is not pretty, but given how we did the version import
         # it is the only way to do this without having setup.py fail on a missing six dependency.
-        #self.six = __import__("six")
-        self.six = __import__("jsbeautifier.six", globals(), locals(), ["object"], 0)        # This section of code was translated to python from acorn (javascript).
+        self.six = __import__("six")
+
+        # in javascript, these two differ
+        # in python they are the same, different methods are called on them
+        self.lineBreak = re.compile(self.six.u("\r\n|[\n\r\u2028\u2029]"))
+        self.allLineBreaks = self.lineBreak
 
         if not source_text:
             source_text = ''
 
-        # HACK: newline parsing inconsistent. This brute force normalizes the input newlines.
-        lineBreak = re.compile(self.six.u("\r\n|[\r\u2028\u2029]"))
-        source_text = re.sub(lineBreak, '\n', source_text)
+        opts = opts.mergeOpts('css')
 
-        self.source_text = source_text
+        # Continue to accept deprecated option
+        opts.space_around_combinator = opts.space_around_combinator or opts.space_around_selector_separator
+
         self.opts = opts
         self.indentSize = opts.indent_size
         self.indentChar = opts.indent_char
@@ -185,7 +211,15 @@ class Beautifier:
             self.indentChar = "\t"
             self.indentSize = 1
 
+        if self.opts.eol == 'auto':
+            self.opts.eol = '\n'
+            if self.lineBreak.search(source_text or ''):
+                self.opts.eol = self.lineBreak.search(source_text).group()
+
         self.opts.eol = self.opts.eol.replace('\\r', '\r').replace('\\n', '\n')
+
+        # HACK: newline parsing inconsistent. This brute force normalizes the input newlines.
+        self.source_text = re.sub(self.allLineBreaks, '\n', source_text)
 
         # https://developer.mozilla.org/en-US/docs/Web/CSS/At-rule
         # also in CONDITIONAL_GROUP_RULE below
@@ -398,15 +432,21 @@ class Beautifier:
             elif self.ch == ":":
                 self.eatWhitespace()
                 if (insideRule or enteringConditionalGroup) and \
-                        not (self.lookBack('&') or self.foundNestedPseudoClass()):
+                        not (self.lookBack('&') or self.foundNestedPseudoClass()) and \
+                        not self.lookBack('('):
                     # 'property: value' delimiter
                     # which could be in a conditional group query
-                    insidePropertyValue = True
                     printer.push(":")
-                    printer.singleSpace()
+                    if not insidePropertyValue:
+                        insidePropertyValue = True
+                        printer.singleSpace()
                 else:
                     # sass/less parent reference don't use a space
                     # sass nested pseudo-class don't use a space
+
+                    # preserve space before pseudoclasses/pseudoelements, as it means "in any child"
+                    if (self.lookBack(' ')) and (printer.output[-1] != ' '):
+                        printer.push(" ")
                     if self.peek() == ":":
                         # pseudo-element
                         self.next()
@@ -446,6 +486,19 @@ class Beautifier:
                     printer.newLine()
                 else:
                     printer.singleSpace()
+            elif (self.ch == '>' or self.ch == '+' or self.ch == '~') and \
+                not insidePropertyValue and parenLevel < 1:
+                # handle combinator spacing
+                if self.opts.space_around_combinator:
+                    printer.singleSpace()
+                    printer.push(self.ch)
+                    printer.singleSpace()
+                else:
+                    printer.push(self.ch)
+                    self.eatWhitespace()
+                    # squash extra whitespace
+                    if self.ch and WHITE_RE.search(self.ch):
+                        self.ch = ''
             elif self.ch == ']':
                 printer.push(self.ch)
             elif self.ch == '[':
