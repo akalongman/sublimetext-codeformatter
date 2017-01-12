@@ -47,6 +47,9 @@ class ColdfusionFormatter:
         if "reduce_empty_tags" in self.opts:
             options.reduce_empty_tags = self.opts["reduce_empty_tags"]
 
+        if "reduce_whole_word_tags" in self.opts:
+            options.reduce_whole_word_tags = self.opts["reduce_whole_word_tags"]
+
         if "exception_on_tag_mismatch" in self.opts:
             options.exception_on_tag_mismatch = self.opts["exception_on_tag_mismatch"]
 
@@ -63,8 +66,10 @@ class ColdfusionFormatter:
 
         return stdout, stderr
 
-    def formatOnSaveEnabled(self):
+    def formatOnSaveEnabled(self, file_name):
         format_on_save = False
         if ("format_on_save" in self.opts and self.opts["format_on_save"]):
             format_on_save = self.opts["format_on_save"]
+        if (isinstance(format_on_save, str)):
+            format_on_save = re.search(format_on_save, file_name) != None
         return format_on_save
