@@ -1,3 +1,4 @@
 *.pyc
 /package-metadata.json
 .fuse_*
+.idea/
