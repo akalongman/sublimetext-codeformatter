@@ -15,7 +15,7 @@ libs_path = os.path.join(libs_path, "htmlbeautifier")
 
 if libs_path not in sys.path:
     sys.path.append(libs_path)
-    
+
 import htmlbeautifier
 use_bs4 = True
 try:
@@ -75,6 +75,9 @@ class HtmlFormatter:
 
             if "reduce_empty_tags" in self.opts:
                 options.reduce_empty_tags = self.opts["reduce_empty_tags"]
+
+            if "reduce_whole_word_tags" in self.opts:
+                options.reduce_whole_word_tags = self.opts["reduce_whole_word_tags"]
 
             if "exception_on_tag_mismatch" in self.opts:
                 options.exception_on_tag_mismatch = self.opts["exception_on_tag_mismatch"]
