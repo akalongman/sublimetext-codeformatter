@@ -77,7 +77,7 @@ class PhpFormatter:
         if php55_compat:
             formatter_path = os.path.join(dirname(realpath(sublime.packages_path())), "Packages", "CodeFormatter", "codeformatter", "lib", "phpbeautifier", "fmt-php55.phar")
         else:
-            formatter_path = os.path.join(dirname(realpath(sublime.packages_path())), "Packages", "CodeFormatter", "codeformatter", "lib", "phpbeautifier", "fmt-php7.phar")
+            formatter_path = os.path.join(dirname(realpath(sublime.packages_path())), "Packages", "CodeFormatter", "codeformatter", "lib", "phpbeautifier", "fmt.phar")
 
         cmd.append(formatter_path)
 
