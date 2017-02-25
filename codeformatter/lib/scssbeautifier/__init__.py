@@ -40,6 +40,7 @@ class BeautifierOptions:
         self.indent_char = ' '
         self.selector_separator_newline = True
         self.end_with_newline = True
+        self.newline_between_rules = True
 
     def __repr__(self):
         return \
@@ -47,8 +48,9 @@ class BeautifierOptions:
 indent_char = [%s]
 separate_selectors_newline = [%s]
 end_with_newline = [%s]
+newline_between_rules = [%s]
 """ % (self.indent_size, self.indent_char,
-       self.separate_selectors, self.end_with_newline)
+       self.separate_selectors, self.end_with_newline, self.newline_between_rules)
 
 
 def default_options():
@@ -259,6 +261,9 @@ class Beautifier:
                 if self.peek() == '}':
                     self.next()
                     printer.push(" {}")
+                    printer.newLine()
+                    if self.opts.newline_between_rules:
+                        printer.newLine(True)
                 else:
                     printer.indent()
                     printer.openBracket()
@@ -266,6 +271,8 @@ class Beautifier:
                 printer.outdent()
                 printer.closeBracket()
                 insideRule = False
+                if self.opts.newline_between_rules:
+                    printer.newLine(True)
             elif self.ch == ":":
                 self.eatWhitespace()
                 addWhitespace = not self.nextIsPseudoClass()
@@ -330,4 +337,3 @@ class Beautifier:
             sweet_code = sweet_code[:-1]
 
         return sweet_code
-

@@ -8,7 +8,7 @@ import re
 import sublime
 import subprocess
 
-import cssbeautifier
+import scssbeautifier
 
 class ScssFormatter:
     def __init__(self, formatter):
@@ -22,7 +22,7 @@ class ScssFormatter:
 
         stderr = ""
         stdout = ""
-        options = cssbeautifier.default_options()
+        options = scssbeautifier.default_options()
 
         if ("indent_size" in self.opts and self.opts["indent_size"]):
             options.indent_size = self.opts["indent_size"]
@@ -50,11 +50,16 @@ class ScssFormatter:
         else:
             options.end_with_newline = False
 
+        if ("newline_between_rules" in self.opts and self.opts["newline_between_rules"]):
+            options.newline_between_rules = True
+        else:
+            options.newline_between_rules = False
+
 
 
 
         try:
-              stdout = cssbeautifier.beautify(text, options)
+              stdout = scssbeautifier.beautify(text, options)
         except Exception as e:
              stderr = str(e)
 

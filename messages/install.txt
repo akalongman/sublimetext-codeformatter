@@ -178,6 +178,7 @@ Language specific options:
         "indent_char": " ", // Indentation character
         "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
         "selector_separator_newline": true, // Add new lines after selector separators
+        "newline_between_rules": true, // Add new line between rules
         "end_with_newline": true // Add new line of end in file
     }
 ```
