@@ -7,7 +7,7 @@ CodeFormatter is a Sublime Text 2/3 plugin that supports format (beautify) sourc
 
 CodeFormatter has support for the following languages:
 
-* PHP - By phpfmt
+* PHP - By [phpfmt](https://github.com/subins2000/phpfmt)
 * JavaScript/JSON - By JSBeautifier
 * HTML - By [Custom fork of BeautifulSoup](https://github.com/akalongman/python-beautifulsoup)
 * CSS - By JSBeautifier
@@ -60,11 +60,11 @@ The "Packages" directory is located at:
 ## Formatter-specific notes
 Following are notes specific to individual formatters that you should be aware of:
 ### PHP
-PHP - Used phpfmt (https://github.com/phpfmt/fmt) by Carlos Cirello and Shaked Klein Orbach.
+PHP - Used phpfmt (https://github.com/subins2000/phpfmt) by Carlos Cirello, Shaked Klein Orbach and Subin Siby.
 
 Getting and installing PHP - http://www.php.net/manual/en/install.general.php
 
-You must install 5.6 or above (https://github.com/phpfmt/fmt#requirements)
+You must install 5.6 or above (https://github.com/subins2000/phpfmt#requirements)
 
 On Linux/OSx after installation of package, you must set chmod +x to file fmt.phar in folder %PACKAGESDIR%/CodeFormatter/codeformatter/lib/phpbeautifier
 
