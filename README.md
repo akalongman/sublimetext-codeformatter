@@ -92,7 +92,7 @@ Language specific options:
         "passes": [],
 
         // Disable specific transformations
-        "exclude": []
+        "excludes": []
     }
 ```
 
