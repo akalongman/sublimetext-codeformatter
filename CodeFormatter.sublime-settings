@@ -20,7 +20,7 @@
         "passes": [],
 
         // Disable specific transformations
-        "exclude": []
+        "excludes": []
     },
 
     "codeformatter_js_options":
