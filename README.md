@@ -56,6 +56,19 @@ The "Packages" directory is located at:
         ST2: %APPDATA%/Sublime Text 2/Packages/
         ST3: %APPDATA%/Sublime Text 3/Packages/
 
+## Configuration
+
+To change the default configurations you have to update the **CodeFormatter - User Preferences** file. You can find this file in the Sublime Text menu bar under: `Sublime Text > Package Settings > CodeFormatter > Settings - User`. 
+
+Make sure that you wrap all the configurations into a single root object.
+
+```js
+{
+   "codeformatter_php_options": {...},
+   "codeformatter_js_options": {...},
+   ..
+}
+```
 
 ## Formatter-specific notes
 Following are notes specific to individual formatters that you should be aware of:
