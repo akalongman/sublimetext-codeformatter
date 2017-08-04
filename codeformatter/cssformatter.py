@@ -16,7 +16,6 @@ class CssFormatter:
         self.formatter = formatter
         self.opts = formatter.settings.get('codeformatter_css_options')
 
-
     def format(self, text):
         text = text.decode("utf-8")
 
@@ -39,7 +38,6 @@ class CssFormatter:
         else:
             options.indent_with_tabs = False
 
-
         if ("selector_separator_newline" in self.opts and self.opts["selector_separator_newline"]):
             options.selector_separator_newline = True
         else:
@@ -55,7 +53,6 @@ class CssFormatter:
         else:
             options.eol = "\n"
 
-
         try:
               stdout = cssbeautifier.beautify(text, options)
         except Exception as e:
@@ -65,13 +62,3 @@ class CssFormatter:
             stderr = "Formatting error!"
 
         return stdout, stderr
-
-    def formatOnSaveEnabled(self, file_name):
-        format_on_save = False
-        if ("format_on_save" in self.opts and self.opts["format_on_save"]):
-            format_on_save = self.opts["format_on_save"]
-        if (isinstance(format_on_save, str)):
-            format_on_save = re.search(format_on_save, file_name) != None
-        return format_on_save
-
-

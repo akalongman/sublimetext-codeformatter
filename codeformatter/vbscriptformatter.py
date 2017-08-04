@@ -16,10 +16,8 @@ class VbscriptFormatter:
         self.formatter = formatter
         self.opts = formatter.settings.get('codeformatter_vbscript_options')
 
-
     def format(self, text):
         text = text.decode("utf-8")
-
 
         stderr = ""
         stdout = ""
@@ -29,7 +27,6 @@ class VbscriptFormatter:
             options.indent_size = self.opts["indent_size"]
         else:
             options.indent_size = 1
-
 
         if ("indent_char" in self.opts and self.opts["indent_char"]):
             options.indent_char = str(self.opts["indent_char"])
@@ -69,13 +66,3 @@ class VbscriptFormatter:
             stderr = "Formatting error!"
 
         return stdout, stderr
-
-    def formatOnSaveEnabled(self, file_name):
-        format_on_save = False
-        if ("format_on_save" in self.opts and self.opts["format_on_save"]):
-            format_on_save = self.opts["format_on_save"]
-        if (isinstance(format_on_save, str)):
-            format_on_save = re.search(format_on_save, file_name) != None
-        return format_on_save
-
-

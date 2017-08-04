@@ -16,7 +16,6 @@ class JsFormatter:
         self.formatter = formatter
         self.opts = formatter.settings.get('codeformatter_js_options')
 
-
     def format(self, text):
         text = text.decode("utf-8")
         opts = self.formatter.settings.get('codeformatter_js_options')
@@ -25,12 +24,10 @@ class JsFormatter:
         stdout = ""
         options = jsbeautifier.default_options()
 
-
         if ("indent_size" in self.opts and self.opts["indent_size"]):
             options.indent_size = self.opts["indent_size"]
         else:
             options.indent_size = 4
-
 
         if ("indent_char" in self.opts and self.opts["indent_char"]):
             options.indent_char = str(self.opts["indent_char"])
@@ -46,7 +43,6 @@ class JsFormatter:
             options.eol = self.opts["eol"]
         else:
             options.eol = "\n"
-
 
         if ("preserve_newlines" in self.opts and self.opts["preserve_newlines"]):
             options.preserve_newlines = True
@@ -78,42 +74,35 @@ class JsFormatter:
         else:
             options.jslint_happy = False
 
-
         if ("brace_style" in self.opts and self.opts["brace_style"]):
             options.brace_style = self.opts["brace_style"]
         else:
             options.brace_style = 'collapse'
-
 
         if ("keep_array_indentation" in self.opts and self.opts["keep_array_indentation"]):
             options.keep_array_indentation = True
         else:
             options.keep_array_indentation = False
 
-
         if ("keep_function_indentation" in self.opts and self.opts["keep_function_indentation"]):
             options.keep_function_indentation = True
         else:
             options.keep_function_indentation = False
-
 
         if ("eval_code" in self.opts and self.opts["eval_code"]):
             options.eval_code = True
         else:
             options.eval_code = False
 
-
         if ("unescape_strings" in self.opts and self.opts["unescape_strings"]):
             options.unescape_strings = True
         else:
             options.unescape_strings = False
 
-
         if ("wrap_line_length" in self.opts and self.opts["wrap_line_length"]):
             options.wrap_line_length = self.opts["wrap_line_length"]
         else:
             options.wrap_line_length = 0
-
 
         if ("break_chained_methods" in self.opts and self.opts["break_chained_methods"]):
             options.break_chained_methods = True
@@ -135,30 +124,12 @@ class JsFormatter:
         else:
             options.space_after_anon_function = False
 
-
-
-
         try:
             stdout = jsbeautifier.beautify(text, options)
         except Exception as e:
              stderr = str(e)
 
-        #return "", ""
-
-
         if (not stderr and not stdout):
             stderr = "Formatting error!"
 
         return stdout, stderr
-
-    def formatOnSaveEnabled(self, file_name):
-        format_on_save = False
-        if ("format_on_save" in self.opts and self.opts["format_on_save"]):
-            format_on_save = self.opts["format_on_save"]
-        if (isinstance(format_on_save, str)):
-            format_on_save = re.search(format_on_save, file_name) != None
-        return format_on_save
-
-
-
-

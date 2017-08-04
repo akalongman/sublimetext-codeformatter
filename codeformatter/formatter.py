@@ -35,7 +35,7 @@ except (ValueError):
 
 
 class Formatter:
-    def __init__(self, view=False, file_name=False, syntax=False, saving=False):
+    def __init__(self, view=False, file_name=False, syntax=False, saving=False, debug_mode=False):
         self.platform = sublime.platform()
         self.classmap = {}
         self.st_version = 2
@@ -53,6 +53,7 @@ class Formatter:
             self.syntax = syntax
 
         self.saving = saving
+        self.debug_mode = debug_mode
 
         # PHP
         opts = self.settings.get('codeformatter_php_options')
@@ -80,7 +81,6 @@ class Formatter:
 
         # Python
         opts = self.settings.get('codeformatter_python_options')
-        print(opts)
         if ("syntaxes" in opts and opts["syntaxes"]):
             for _formatter in opts["syntaxes"].split(","):
                 self.classmap[_formatter.strip()] = PyFormatter
@@ -103,9 +103,6 @@ class Formatter:
             for _formatter in opts["syntaxes"].split(","):
                 self.classmap[_formatter.strip()] = ColdfusionFormatter
 
-
-
-
     def format(self, text):
         formatter = self.classmap[self.syntax](self)
         try:
@@ -115,7 +112,6 @@ class Formatter:
             stderr = str(e)
 
         return self.clean(stdout), self.clean(stderr)
-
 
     def exists(self):
         if self.syntax in self.classmap:
@@ -133,17 +129,19 @@ class Formatter:
                 break
         return found.lower()
 
-
-
-
     def formatOnSaveEnabled(self):
         if (not self.exists()):
             return False
         formatter = self.classmap[self.syntax](self)
-        return formatter.formatOnSaveEnabled(self.file_name)
-
-
-
+        format_on_save = False
+        if "format_on_save" in formatter.opts and formatter.opts["format_on_save"]:
+            format_on_save = formatter.opts["format_on_save"]
+        if isinstance(format_on_save, str):
+            search = re.search(format_on_save, self.file_name)
+            if self.debug_mode:
+                print('format_on_save?', search, format_on_save, self.file_name)
+            format_on_save = search != None
+        return format_on_save
 
     def clean(self, string):
         if hasattr(string, 'decode'):

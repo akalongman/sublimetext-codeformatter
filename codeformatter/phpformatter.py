@@ -11,13 +11,10 @@ import subprocess
 import os.path
 from os.path import dirname, realpath
 
-
 class PhpFormatter:
     def __init__(self, formatter):
         self.formatter = formatter
         self.opts = formatter.settings.get('codeformatter_php_options')
-
-
 
     def format(self, text):
 
@@ -44,7 +41,6 @@ class PhpFormatter:
         psr1_naming = False
         if ("psr1_naming" in self.opts and self.opts["psr1_naming"]):
             psr1_naming = self.opts["psr1_naming"]
-
 
         psr2 = False
         if ("psr2" in self.opts and self.opts["psr2"]):
@@ -115,8 +111,6 @@ class PhpFormatter:
         stderr = ""
         stdout = ""
 
-        #print(cmd)
-
         try:
             if (self.formatter.platform == "windows"):
                 startupinfo = subprocess.STARTUPINFO()
@@ -133,13 +127,3 @@ class PhpFormatter:
             stderr = "Formatting error!"
 
         return stdout, stderr
-
-
-
-    def formatOnSaveEnabled(self, file_name):
-        format_on_save = False
-        if ("format_on_save" in self.opts and self.opts["format_on_save"]):
-            format_on_save = self.opts["format_on_save"]
-        if (isinstance(format_on_save, str)):
-            format_on_save = re.search(format_on_save, file_name) != None
-        return format_on_save

@@ -8,7 +8,6 @@ import sys
 import re
 import sublime
 
-
 st_version = 2
 if sublime.version() == '' or int(sublime.version()) > 3000:
     st_version = 3
@@ -19,20 +18,16 @@ else:
     #from .pybeautifier import Beautifier
     print('CodeFormatter: formatting python files on ST3 not supported.')
 
-
 class PyFormatter:
     def __init__(self, formatter):
         self.formatter = formatter
         self.opts = formatter.settings.get('codeformatter_python_options')
-
-
 
     def format(self, text):
         if (self.formatter.st_version == 3):
             stdout = ""
             stderr = "formatting python files on ST3 not supported!"
             return stdout, stderr
-
 
         # Options
         options = {}
@@ -285,18 +280,7 @@ class PyFormatter:
             java_style_list_dedent = False
         options['JAVA_STYLE_LIST_DEDENT'] = java_style_list_dedent
 
-
-
         beautifier = Beautifier(self.formatter)
         stdout, stderr = beautifier.beautify(text, options)
 
-
         return stdout, stderr
-
-    def formatOnSaveEnabled(self, file_name):
-        format_on_save = False
-        if ("format_on_save" in self.opts and self.opts["format_on_save"]):
-            format_on_save = self.opts["format_on_save"]
-        if (isinstance(format_on_save, str)):
-            format_on_save = re.search(format_on_save, file_name) != None
-        return format_on_save

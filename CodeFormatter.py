@@ -38,18 +38,6 @@ debug_mode = False
 def plugin_loaded():
     cprint('CodeFormatter: Plugin Initialized')
 
-    settings = sublime.load_settings('CodeFormatter.sublime-settings')
-    debug_mode = settings.get('codeformatter_debug', False)
-
-    #if debug_mode:
-        #from pprint import pprint
-        #pprint(settings)
-        #debug_write("Debug mode enabled")
-        #debug_write("Platform "+sublime.platform()+" "+sublime.arch())
-        #debug_write("Sublime Version "+sublime.version())
-        #debug_write("Settings "+pprint(settings))
-
-
     if (sublime.platform() != "windows"):
         import stat
         path = sublime.packages_path()+"/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar"
@@ -76,7 +64,18 @@ class CodeFormatterCommand(sublime_plugin.TextCommand):
         # if not os.path.exists(file_name):
         #     return show_error("File "+file_name+" does not exist.")
 
-        formatter = Formatter(self.view, file_name, syntax, saving)
+        settings = sublime.load_settings('CodeFormatter.sublime-settings')
+        debug_mode = settings.get('codeformatter_debug', False)
+
+        #if debug_mode:
+            #from pprint import pprint
+            #pprint(settings)
+            #debug_write("Debug mode enabled")
+            #debug_write("Platform "+sublime.platform()+" "+sublime.arch())
+            #debug_write("Sublime Version "+sublime.version())
+            #debug_write("Settings "+pprint(settings))
+
+        formatter = Formatter(self.view, file_name, syntax, saving, debug_mode)
         if not formatter.exists():
             if saving:
                 return False
