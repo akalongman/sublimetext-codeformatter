@@ -14,7 +14,7 @@ if sublime.version() == '' or int(sublime.version()) > 3000:
 
 reload_mods = []
 for mod in sys.modules:
-    if mod[0:13].lower() == 'codeformatter' and sys.modules[mod] != None:
+    if mod[0:13].lower() == 'codeformatter' and sys.modules[mod] is not None:
         reload_mods.append(mod)
 
 
