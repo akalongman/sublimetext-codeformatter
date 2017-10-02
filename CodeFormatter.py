@@ -91,7 +91,7 @@ class CodeFormatterCommand(sublime_plugin.TextCommand):
         file_text = sublime.Region(0, self.view.size())
         file_text_utf = self.view.substr(file_text).encode('utf-8')
         if (len(file_text_utf) == 0):
-            return show_error('No code found.')
+            return
 
         stdout, stderr = formatter.format(file_text_utf)
 
