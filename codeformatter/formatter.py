@@ -84,7 +84,7 @@ class Formatter:
             for _formatter in opts['syntaxes'].split(','):
                 self.classmap[_formatter.strip()] = HtmlFormatter
 
-        # Python
+        # Python?
         opts = self.settings.get('codeformatter_python_options')
 
         if ('syntaxes' in opts and opts['syntaxes']):
