@@ -39,26 +39,20 @@ except (ValueError):
 
 class Formatter:
 
-    def __init__(
-        self, view=False, file_name=False, syntax=False, saving=False
-    ):
+    def __init__(self, view, syntax=None):
+
         self.platform = sublime.platform()
         self.classmap = {}
         self.st_version = 2
         if sublime.version() == '' or int(sublime.version()) > 3000:
             self.st_version = 3
 
-        self.file_name = file_name
+        self.file_name = view.file_name()
         self.settings = sublime.load_settings('CodeFormatter.sublime-settings')
         self.packages_path = sublime.packages_path()
 
         self.syntax_file = view.settings().get('syntax')
-        if syntax is False:
-            self.syntax = self.get_syntax()
-        else:
-            self.syntax = syntax
-
-        self.saving = saving
+        self.syntax = syntax or self.get_syntax()
 
         # PHP
         opts = self.settings.get('codeformatter_php_options')

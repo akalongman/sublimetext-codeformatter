@@ -3,7 +3,11 @@
 		"caption": "CodeFormatter: Format Code",
 		"command": "code_formatter"
 	},
-	{
+        {
+		"caption": "CodeFormatter: Format Open Tabs Code",
+		"command": "code_formatter_open_tabs"
+	},
+        {
 		"caption": "CodeFormatter: Format as PHP Syntax",
 		"command": "code_formatter",
 		"args": {

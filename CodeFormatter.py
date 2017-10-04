@@ -64,49 +64,22 @@ if st_version == 2:
 
 class CodeFormatterCommand(sublime_plugin.TextCommand):
 
-    def run(self, edit, syntax=False, saving=False):
+    def run(self, edit, syntax=None, saving=None):
+        run_formatter(self.view, edit, syntax=syntax, saving=saving)
 
-        if self.view.is_scratch():
-            return show_error('File is scratch')
 
-        file_name = self.view.file_name()
+class CodeFormatterOpenTabsCommand(sublime_plugin.TextCommand):
 
-        # if not file_name:
-        #     return show_error('File does not exist.')
-
-        # if not os.path.exists(file_name):
-        #     return show_error('File '+file_name+' does not exist.')
-
-        formatter = Formatter(self.view, file_name, syntax, saving)
-        if not formatter.exists():
-            if saving:
-                return False
-            return show_error(
-                'Formatter for this file type ({}) not found.'.format(
-                    formatter.syntax))
-
-        if (saving and not formatter.format_on_save_enabled()):
-            return False
-
-        file_text = sublime.Region(0, self.view.size())
-        file_text_utf = self.view.substr(file_text).encode('utf-8')
-        if (len(file_text_utf) == 0):
-            return
-
-        stdout, stderr = formatter.format(file_text_utf)
-
-        if len(stderr) == 0 and len(stdout) > 0:
-            self.view.replace(edit, file_text, stdout)
-        else:
-            show_error('Format error:\n' + stderr)
+    def run(self, edit, syntax=None):
+        window = sublime.active_window()
+        for view in window.views():
+            run_formatter(view, edit, quiet=True)
 
 
 class CodeFormatterEventListener(sublime_plugin.EventListener):
 
     def on_pre_save(self, view):
-        args = {}
-        args['saving'] = True
-        view.run_command('code_formatter', args)
+        view.run_command('code_formatter', {'saving': True})
 
 
 class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
@@ -166,6 +139,40 @@ class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
                 'show_panel', {'panel': 'output.paneltranformations'})
         else:
             show_error('Formatter error:\n' + stderr)
+
+
+def run_formatter(view, edit, *args, **kwargs):
+
+    if view.is_scratch():
+        show_error('File is scratch')
+        return
+
+    # default parameters
+    syntax = kwargs.get('syntax')
+    saving = kwargs.get('saving', False)
+    quiet = kwargs.get('quiet', False)
+
+    formatter = Formatter(view, syntax)
+    if not formatter.exists():
+        if not quiet:
+            show_error('Formatter for this file type ({}) not found.'.format(
+                formatter.syntax))
+        return
+
+    if (saving and not formatter.format_on_save_enabled()):
+        return
+
+    file_text = sublime.Region(0, view.size())
+    file_text_utf = view.substr(file_text).encode('utf-8')
+    if (len(file_text_utf) == 0):
+        return
+
+    stdout, stderr = formatter.format(file_text_utf)
+
+    if len(stderr) == 0 and len(stdout) > 0:
+        view.replace(edit, file_text, stdout)
+    elif not quiet:
+        show_error('Format error:\n' + stderr)
 
 
 def console_write(text, prefix=False):
