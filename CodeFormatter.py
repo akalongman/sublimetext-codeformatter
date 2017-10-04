@@ -154,7 +154,7 @@ def run_formatter(view, edit, *args, **kwargs):
 
     formatter = Formatter(view, syntax)
     if not formatter.exists():
-        if not quiet:
+        if not quiet and not saving:
             show_error('Formatter for this file type ({}) not found.'.format(
                 formatter.syntax))
         return
