@@ -1,0 +1,12 @@
+language: python
+
+python:
+  - 2.7
+
+cache: pip
+
+install:
+  - pip install -r dev-requirements.pip
+
+script:
+  - pytest
