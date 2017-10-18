@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/akalongman/sublimetext-codeformatter.svg?branch=master)](https://travis-ci.org/akalongman/sublimetext-codeformatter)
+
 CodeFormatter
 =============
 
