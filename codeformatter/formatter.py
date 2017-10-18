@@ -68,7 +68,7 @@ class Formatter:
 
         for name, _class in map_settings_formatter:
             syntaxes = self.settings.get(name, {}).get('syntaxes')
-            if not syntaxes or not isinstance(syntaxes, basestring):
+            if not syntaxes or not isinstance(syntaxes, str):
                 continue
             for _formatter in syntaxes.split(','):
                 self.classmap[_formatter.strip()] = _class
