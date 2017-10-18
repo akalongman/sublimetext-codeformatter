@@ -54,54 +54,24 @@ class Formatter:
         self.syntax_file = view.settings().get('syntax')
         self.syntax = syntax or self.get_syntax()
 
-        # PHP
-        opts = self.settings.get('codeformatter_php_options')
-        if ('syntaxes' in opts and opts['syntaxes']):
-            for _formatter in opts['syntaxes'].split(','):
-                self.classmap[_formatter.strip()] = PhpFormatter
+        # map of settings names with related class
+        map_settings_formatter = [
+            ('codeformatter_php_options', PhpFormatter),
+            ('codeformatter_js_options', JsFormatter),
+            ('codeformatter_css_options', CssFormatter),
+            ('codeformatter_html_options', HtmlFormatter),
+            ('codeformatter_python_options', PyFormatter),
+            ('codeformatter_vbscript_options', VbscriptFormatter),
+            ('codeformatter_scss_options', ScssFormatter),
+            ('codeformatter_coldfusion_options', ColdfusionFormatter),
+        ]
 
-        # Javascript
-        opts = self.settings.get('codeformatter_js_options')
-        if ('syntaxes' in opts and opts['syntaxes']):
-            for _formatter in opts['syntaxes'].split(','):
-                self.classmap[_formatter.strip()] = JsFormatter
-
-        # CSS
-        opts = self.settings.get('codeformatter_css_options')
-        if ('syntaxes' in opts and opts['syntaxes']):
-            for _formatter in opts['syntaxes'].split(','):
-                self.classmap[_formatter.strip()] = CssFormatter
-
-        # HTML
-        opts = self.settings.get('codeformatter_html_options')
-        if ('syntaxes' in opts and opts['syntaxes']):
-            for _formatter in opts['syntaxes'].split(','):
-                self.classmap[_formatter.strip()] = HtmlFormatter
-
-        # Python
-        opts = self.settings.get('codeformatter_python_options')
-
-        if ('syntaxes' in opts and opts['syntaxes']):
-            for _formatter in opts['syntaxes'].split(','):
-                self.classmap[_formatter.strip()] = PyFormatter
-
-        # VBScript
-        opts = self.settings.get('codeformatter_vbscript_options')
-        if ('syntaxes' in opts and opts['syntaxes']):
-            for _formatter in opts['syntaxes'].split(','):
-                self.classmap[_formatter.strip()] = VbscriptFormatter
-
-        # SCSS
-        opts = self.settings.get('codeformatter_scss_options')
-        if ('syntaxes' in opts and opts['syntaxes']):
-            for _formatter in opts['syntaxes'].split(','):
-                self.classmap[_formatter.strip()] = ScssFormatter
-
-        # COLDFUSION
-        opts = self.settings.get('codeformatter_coldfusion_options')
-        if ('syntaxes' in opts and opts['syntaxes']):
-            for _formatter in opts['syntaxes'].split(','):
-                self.classmap[_formatter.strip()] = ColdfusionFormatter
+        for name, _class in map_settings_formatter:
+            syntaxes = self.settings.get(name, {}).get('syntaxes')
+            if not syntaxes or not isinstance(syntaxes, basestring):
+                continue
+            for _formatter in syntaxes.split(','):
+                self.classmap[_formatter.strip()] = _class
 
     def format(self, text):
         formatter = self.classmap[self.syntax](self)
@@ -114,24 +84,19 @@ class Formatter:
         return self.clean(stdout), self.clean(stderr)
 
     def exists(self):
-        if self.syntax in self.classmap:
-            return True
-        else:
-            return False
+        return self.syntax in self.classmap
 
     def get_syntax(self):
         pattern = re.compile(
             r'Packages/.*/(.+?).(?=tmLanguage|sublime-syntax)')
         m = pattern.search(self.syntax_file)
         found = ''
-        if (m):
-            for s in m.groups():
-                found = s
-                break
+        if m and len(m.groups()) > 0:
+            found = m.groups()[0]
         return found.lower()
 
     def format_on_save_enabled(self):
-        if (not self.exists()):
+        if not self.exists():
             return False
         formatter = self.classmap[self.syntax](self)
         return formatter.format_on_save_enabled(self.file_name)
