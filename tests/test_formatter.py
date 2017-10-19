@@ -1,5 +1,5 @@
-from mock import Mock, call
-
+import pytest
+from unittest.mock import Mock, call
 
 # mocked formatters
 mf_php = Mock()
@@ -11,36 +11,8 @@ mf_py = Mock()
 mf_vbscript = Mock()
 mf_coldfusion = Mock()
 
-def setup_test():
-    mocked_sublime = Mock()
-    mocked_sublime.version = Mock(return_value=2000)
-    import sys
-    sys.modules['sublime'] = mocked_sublime
 
-
-def mocked_view():
-    mview = Mock()
-    mview.return_value.settings = Mock(return_value={'syntax': 'Packages/User/PHP.sublime-syntax'})
-    mview.return_value.file_name = Mock(return_value='test_file_name')
-    return mview()
-
-
-def default_settings():
-    settings = {
-        'codeformatter_php_options': {'syntaxes': 'php'},
-        'codeformatter_js_options': {'syntaxes': 'javascript,json'},
-        'codeformatter_css_options': {'syntaxes': 'css,less'},
-        'codeformatter_html_options': {'syntaxes': 'html,asp'},
-        'codeformatter_python_options': {'syntaxes': 'python'},
-        'codeformatter_vbscript_options': {'syntaxes': 'vbscript'},
-        'codeformatter_scss_options': {'syntaxes': 'scss'},
-        'codeformatter_coldfusion_options': {'syntaxes': 'coldfusion'}
-    }
-    return settings
-
-
-def fill_module_mocks(formatter):
-    settings = default_settings()
+def fill_module_mocks(formatter, settings):
     formatter.sublime.load_settings = Mock(return_value=settings)
     formatter.sublime.platform = Mock(return_value='platform_test')
     formatter.PhpFormatter = mf_php
@@ -53,17 +25,22 @@ def fill_module_mocks(formatter):
     formatter.ColdfusionFormatter = mf_coldfusion
 
 
+def setup_function(function):
+    mocked_sublime = Mock()
+    mocked_sublime.version = Mock(return_value=3001)
+    import sys
+    sys.modules['sublime'] = mocked_sublime
 
-def test_formatter_instance():
-    setup_test()
+
+def test_formatter_instance(default_settings, php_view):
     from codeformatter import formatter
-    fill_module_mocks(formatter)
+    fill_module_mocks(formatter, default_settings)
 
-    f_instance = formatter.Formatter(mocked_view())
-    assert f_instance.st_version == 2
+    f_instance = formatter.Formatter(php_view)
+    assert f_instance.st_version == 3
     assert f_instance.syntax == 'php'
     assert f_instance.platform == 'platform_test'
-    assert f_instance.file_name == 'test_file_name'
+    assert f_instance.file_name == 'php_file_name'
     assert len(f_instance.classmap.keys()) == 11
     assert f_instance.classmap['php'] is mf_php
     assert f_instance.classmap['javascript'] is mf_js
@@ -78,16 +55,15 @@ def test_formatter_instance():
     assert f_instance.classmap['coldfusion'] is mf_coldfusion
 
 
-def test_formatter_format():
-    setup_test()
+def test_formatter_format(default_settings, php_view):
     from codeformatter import formatter
-    fill_module_mocks(formatter)
+    fill_module_mocks(formatter, default_settings)
 
-    mf_format = Mock(side_effect=[('formated', 'no error'), Exception('fake_exception')])
+    mf_format = Mock(return_value=('formated', 'no error'))
     mf_clean = Mock()
     mf_php.return_value.format = mf_format
 
-    f_instance = formatter.Formatter(mocked_view())
+    f_instance = formatter.Formatter(php_view)
     f_instance.clean = mf_clean
     test_text = 'testing raw string to format'
     f_instance.format(test_text)
@@ -95,9 +71,91 @@ def test_formatter_format():
     mf_format.assert_called_once_with(test_text)
     mf_clean.assert_has_calls([call('formated'), call('no error')])
 
-    mf_clean.reset_mock()
-    f_instance = formatter.Formatter(mocked_view())
+
+def test_formatter_format_exception(default_settings, php_view):
+    from codeformatter import formatter
+    fill_module_mocks(formatter, default_settings)
+
+    mf_format = Mock(side_effect=Exception('fake_exception'))
+    mf_clean = Mock()
+    mf_php.return_value.format = mf_format
+
+    f_instance = formatter.Formatter(php_view)
     f_instance.clean = mf_clean
     f_instance.format('')
     mf_clean.assert_has_calls([call(''), call('fake_exception')])
 
+
+def test_formatter_exists(default_settings, php_view):
+    from codeformatter import formatter
+    fill_module_mocks(formatter, default_settings)
+    f_instance = formatter.Formatter(php_view)
+    assert f_instance.exists() is True
+
+    f_instance = formatter.Formatter(php_view, syntax='invalid_syntax')
+    assert f_instance.exists() is False
+
+
+def test_formatter_get_syntax(default_settings, php_view, invalid_syntax_view):
+    from codeformatter import formatter
+    fill_module_mocks(formatter, default_settings)
+
+    f_instance = formatter.Formatter(php_view)
+    assert f_instance.get_syntax() == 'php'
+
+    f_instance = formatter.Formatter(invalid_syntax_view)
+    assert f_instance.get_syntax() == ''
+
+
+def test_formatter_format_on_save_enabled(default_settings, php_view):
+    from codeformatter import formatter
+    fill_module_mocks(formatter, default_settings)
+
+    f_instance = formatter.Formatter(php_view)
+    f_instance.exists = Mock(return_value=True)
+
+    mocked_inner_formatter_call = Mock(return_value='returning_the_call')
+    type(mf_php.return_value).format_on_save_enabled = mocked_inner_formatter_call
+
+    res = f_instance.format_on_save_enabled()
+
+    assert res == 'returning_the_call'
+    mocked_inner_formatter_call.assert_called_once_with('php_file_name')
+
+
+def test_formatter_format_on_save_enabled_false(default_settings, php_view):
+    from codeformatter import formatter
+    fill_module_mocks(formatter, default_settings)
+    f_instance = formatter.Formatter(php_view)
+    f_instance.exists = Mock(return_value=False)
+    assert f_instance.format_on_save_enabled() is False
+
+
+def test_formatter_format_clean(default_settings, php_view):
+    from codeformatter import formatter
+    fill_module_mocks(formatter, default_settings)
+    f_instance = formatter.Formatter(php_view)
+
+    mocked_string = Mock()
+    mocked_string.decode = Mock(return_value='mocked_testing')
+    res = f_instance.clean(mocked_string)
+
+    assert res == 'mocked_testing'
+    mocked_string.decode.assert_called_once_with('UTF-8', 'ignore')
+
+
+@pytest.mark.parametrize("string_input,expected", [
+    ('testing', 'testing'),
+    ('testing\r\n', 'testing\n'),
+    ('testing\r', 'testing\n'),
+])
+def test_formatter_format_clean_cases(string_input, expected, default_settings, php_view):
+    from codeformatter import formatter
+    fill_module_mocks(formatter, default_settings)
+    f_instance = formatter.Formatter(php_view)
+
+    mocked_string = Mock()
+    mocked_string.decode = Mock(return_value=string_input)
+    res = f_instance.clean(mocked_string)
+
+    assert res == expected
