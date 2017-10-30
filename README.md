@@ -9,7 +9,7 @@ CodeFormatter is a Sublime Text 2/3 plugin that supports format (beautify) sourc
 
 CodeFormatter has support for the following languages:
 
-* PHP - By [phpfmt](https://github.com/subins2000/phpfmt)
+* PHP - By [phpF](https://github.com/subins2000/phpF)
 * JavaScript/JSON - By JSBeautifier
 * HTML - By [Custom fork of BeautifulSoup](https://github.com/akalongman/python-beautifulsoup)
 * CSS - By JSBeautifier
