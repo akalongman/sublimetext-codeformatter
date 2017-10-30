@@ -67,14 +67,17 @@
 
     "codeformatter_scss_options":
     {
-        "syntaxes": "scss", // Indentation size
+        "syntaxes": "scss,sass", // Indentation size
         "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
-        "indent_size": 2, // Indentation size
+        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
+        "indent_size": 4, // Indentation size
         "indent_char": " ", // Indentation character
         "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
-        "selector_separator_newline": true, // Add new lines after selector separators
-        "newline_between_rules": true, // Add new line between rules
-        "end_with_newline": true // Add new line of end in file
+        "selector_separator_newline": false, // Add new lines after selector separators
+        "end_with_newline": false, // Add new line of end in file
+        "newline_between_rules": false, // Add new line between rules
+        "space_around_combinator": false, // Space around combinator
+        "eol": "\n" // EOL symbol
     },
 
     "codeformatter_html_options":
