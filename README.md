@@ -75,11 +75,11 @@ Make sure that you wrap all the configurations into a single root object.
 ## Formatter-specific notes
 Following are notes specific to individual formatters that you should be aware of:
 ### PHP
-PHP - Used phpfmt (https://github.com/subins2000/phpfmt) by Carlos Cirello, Shaked Klein Orbach and Subin Siby.
+PHP - Used [phpF](https://github.com/subins2000/phpF) by [@subins2000](https://github.com/subins2000)
 
 Getting and installing PHP - http://www.php.net/manual/en/install.general.php
 
-You must install 5.6 or above (https://github.com/subins2000/phpfmt#requirements)
+You must install 5.6 or above (https://github.com/subins2000/phpF#requirements)
 
 On Linux/OSx after installation of package, you must set chmod +x to file fmt.phar in folder %PACKAGESDIR%/CodeFormatter/codeformatter/lib/phpbeautifier
 
