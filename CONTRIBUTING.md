@@ -11,6 +11,14 @@ or your own fork. If you do this, you can run the following commands to check if
 
 Which should give you no failures or errors. You can ignore any skipped tests as these are for external tools.
 
+If you have installed python 2 and 3 versions together, its recommended to use virtualenv:
+
+1. Install virtualenv `sudo apt install python3-virtualenv`
+2. Create a virtualenv for python3 `virtualenv --python=python3 env_py3`
+3. Activate the virtualenv `source ./env_py3/bin/activate`
+4. Install pytest `pip install pytest`
+5. Now using this virtualenv try to run tests
+
 Pushing
 -------
 
