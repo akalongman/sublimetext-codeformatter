@@ -103,7 +103,7 @@ class PhpFormatter:
                 'codeformatter',
                 'lib',
                 'phpbeautifier',
-                'fmt.phar'
+                'phpf.phar'
             )
 
         cmd.append(formatter_path)
@@ -142,7 +142,7 @@ class PhpFormatter:
         stderr = ''
         stdout = ''
 
-        # print(cmd)
+        print(cmd)
 
         try:
             if (self.formatter.platform == 'windows'):
