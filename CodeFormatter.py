@@ -98,12 +98,27 @@ class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
         if ('php_path' in opts and opts['php_path']):
             php_path = opts['php_path']
 
+        php55_compat = False
+        if ('php55_compat' in opts and opts['php55_compat']):
+            php55_compat = opts['php55_compat']
+
+
         cmd = []
         cmd.append(str(php_path))
-        cmd.append(
-            '{}/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar'.format(
-                sublime.packages_path()))
+
+        if php55_compat:
+            cmd.append(
+                '{}/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar'.format(
+                    sublime.packages_path()))
+        else:
+            cmd.append(
+                '{}/CodeFormatter/codeformatter/lib/phpbeautifier/phpf.phar'.format(
+                    sublime.packages_path()))
+
+
         cmd.append('--list')
+
+        #print(cmd)
 
         stderr = ''
         stdout = ''
