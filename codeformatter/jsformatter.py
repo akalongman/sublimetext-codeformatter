@@ -141,6 +141,19 @@ class JsFormatter:
         else:
             options.space_after_anon_function = False
 
+        if (
+            'unindent_chained_methods' in self.opts and
+            self.opts['unindent_chained_methods']
+        ):
+            options.unindent_chained_methods = True
+        else:
+            options.unindent_chained_methods = False
+
+        if ('operator_position' in self.opts and self.opts['operator_position']):
+            options.operator_position = self.opts['operator_position']
+        else:
+            options.operator_position = 'before-newline'
+
         try:
             stdout = jsbeautifier.beautify(text, options)
         except Exception as e:

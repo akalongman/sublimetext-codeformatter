@@ -51,7 +51,6 @@
         "operator_position": "before-newline" // Operator position: before-newline, after-newline, preserve-newline
     },
 
-
     "codeformatter_css_options":
     {
         "syntaxes": "css,less", // Syntax names which must process CSS formatter
