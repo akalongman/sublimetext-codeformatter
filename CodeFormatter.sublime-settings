@@ -61,6 +61,7 @@
         "selector_separator_newline": false, // Add new lines after selector separators
         "end_with_newline": false, // Add new line of end in file
         "newline_between_rules": false, // Add new line between rules
+        "space_around_combinator": false, // Space around combinator
         "eol": "\n" // EOL symbol
     },
 
@@ -93,7 +94,6 @@
         "reduce_whole_word_tags": false, // Put closing tags on same line as opening tag if there is whole word between them
         "custom_singletons": "" // Custom singleton tags for various template languages outside of the HTML5 spec
     },
-
 
     "codeformatter_python_options":
     {

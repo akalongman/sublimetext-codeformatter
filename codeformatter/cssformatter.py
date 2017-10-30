@@ -53,6 +53,16 @@ class CssFormatter:
         else:
             options.eol = '\n'
 
+        if ('space_around_combinator' in self.opts and self.opts['space_around_combinator']):
+            options.space_around_combinator = True
+        else:
+            options.space_around_combinator = False
+
+        if ('newline_between_rules' in self.opts and self.opts['newline_between_rules']):
+            options.newline_between_rules = True
+        else:
+            options.newline_between_rules = False
+
         try:
             stdout = cssbeautifier.beautify(text, options)
         except Exception as e:
