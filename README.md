@@ -316,15 +316,26 @@ Tools -> Command Palette (`Cmd+Shift+P` or `Ctrl+Shift+P`) and type `Format Code
 
 You can set up your own key combo for this, by going to Preferences -> Key Bindings - User, and adding a command in that huge array: `{ "keys": ["ctrl+alt+f"], "command": "code_formatter" },`. Default keybinding is `ctrl+alt+f`. You can use any other key you want, thought most of them are already taken.
 
-TODO
------
+## TODO
+
 Add other languages support:
 * Python (for ST3)
 * Perl
 * Ruby
 
-Pull requests are welcome.
+Add tests
 
-Troubleshooting
----------------
+## Troubleshooting
+
 If you like living on the edge, please report any bugs you find on the [CodeFormatter issues](https://github.com/akalongman/sublimetext-codeformatter/issues) page.
+
+## Contributing
+
+Pull requests are welcome.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for information.
+
+## License
+
+Please see the [LICENSE](LICENSE.md) included in this repository for a full copy of the MIT license,
+which this project is licensed under.
+
