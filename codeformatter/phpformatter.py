@@ -69,16 +69,6 @@ class PhpFormatter:
         if ('excludes' in self.opts and self.opts['excludes']):
             excludes = self.opts['excludes']
 
-        formatter_path = os.path.join(
-            dirname(realpath(sublime.packages_path())),
-            'Packages',
-            'CodeFormatter',
-            'codeformatter',
-            'lib',
-            'phpbeautifier',
-            'fmt.phar'
-        )
-
         cmd = []
         cmd.append(str(php_path))
 
@@ -103,7 +93,7 @@ class PhpFormatter:
                 'codeformatter',
                 'lib',
                 'phpbeautifier',
-                'fmt.phar'
+                'phpf.phar'
             )
 
         cmd.append(formatter_path)
@@ -142,7 +132,7 @@ class PhpFormatter:
         stderr = ''
         stdout = ''
 
-        # print(cmd)
+        #print(cmd)
 
         try:
             if (self.formatter.platform == 'windows'):
