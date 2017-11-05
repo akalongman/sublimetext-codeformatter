@@ -56,7 +56,8 @@ def test_coldfusion_formatter_instance_options(coldfusionbeautifier, options):
     for k, v in options:
         curr_options[k] = v
 
-    mocked_formatter.settings = {'codeformatter_coldfusion_options': curr_options}
+    mocked_formatter.settings = {
+        'codeformatter_coldfusion_options': curr_options}
 
     cff = ColdfusionFormatter(mocked_formatter)
     cff.format('test'.encode('utf8'))
@@ -73,8 +74,7 @@ def test_coldfusion_formatter_instance_options(coldfusionbeautifier, options):
 @patch('codeformatter.coldfusionformatter.coldfusionbeautifier')
 def test_coldfusion_formatter_format(coldfusionbeautifier):
 
-    fake_options = type('fake_obj', (object,), {})
-    coldfusionbeautifier.default_options = Mock(return_value=fake_options)
+    coldfusionbeautifier.default_options = Mock(return_value={})
     coldfusionbeautifier.beautify = Mock(return_value='beautified text')
     from codeformatter.coldfusionformatter import ColdfusionFormatter
 
@@ -86,7 +86,8 @@ def test_coldfusion_formatter_format(coldfusionbeautifier):
     cff = ColdfusionFormatter(mocked_formatter)
     out, err = cff.format(input_text)
 
-    assert coldfusionbeautifier.beautify.called_with(call(input_text.decode('utf-8'), fake_options))
+    assert coldfusionbeautifier.beautify.called_with(
+        call(input_text.decode('utf-8'), {}))
     assert out == 'beautified text'
     assert err == ''
 
@@ -94,9 +95,8 @@ def test_coldfusion_formatter_format(coldfusionbeautifier):
 @patch('codeformatter.coldfusionformatter.coldfusionbeautifier')
 def test_coldfusion_formatter_format_exception(coldfusionbeautifier):
 
-    fake_options = type('fake_obj', (object,), {})
-    coldfusionbeautifier.default_options = Mock(return_value=fake_options)
-    coldfusionbeautifier.beautify = Mock(side_effect=Exception('something is wrong'))
+    coldfusionbeautifier.beautify = Mock(
+        side_effect=Exception('something is wrong'))
     from codeformatter.coldfusionformatter import ColdfusionFormatter
 
     mocked_formatter = Mock()
@@ -114,8 +114,6 @@ def test_coldfusion_formatter_format_exception(coldfusionbeautifier):
 @patch('codeformatter.coldfusionformatter.coldfusionbeautifier')
 def test_coldfusion_formatter_format_empty_exception(coldfusionbeautifier):
 
-    fake_options = type('fake_obj', (object,), {})
-    coldfusionbeautifier.default_options = Mock(return_value=fake_options)
     coldfusionbeautifier.beautify = Mock(side_effect=Exception(''))
     from codeformatter.coldfusionformatter import ColdfusionFormatter
 
@@ -129,3 +127,51 @@ def test_coldfusion_formatter_format_empty_exception(coldfusionbeautifier):
     out, err = cff.format(input_text)
     assert out == ''
     assert err == 'Formatting error!'
+
+
+def test_coldfusion_formatter_format_on_save_enabled_true():
+    from codeformatter.coldfusionformatter import ColdfusionFormatter
+
+    mocked_formatter = Mock()
+    mocked_formatter.settings = {
+        'codeformatter_coldfusion_options': {'format_on_save': True}}
+
+    cff = ColdfusionFormatter(mocked_formatter)
+    res = cff.format_on_save_enabled('test')
+    assert res is True
+
+
+def test_coldfusion_formatter_format_on_save_enabled_false():
+    from codeformatter.coldfusionformatter import ColdfusionFormatter
+
+    mocked_formatter = Mock()
+    mocked_formatter.settings = {
+        'codeformatter_coldfusion_options': {'format_on_save': False}}
+
+    cff = ColdfusionFormatter(mocked_formatter)
+    res = cff.format_on_save_enabled('test')
+    assert res is False
+
+
+def test_coldfusion_formatter_format_on_save_enabled_re_not_match():
+    from codeformatter.coldfusionformatter import ColdfusionFormatter
+
+    mocked_formatter = Mock()
+    mocked_formatter.settings = {
+        'codeformatter_coldfusion_options': {'format_on_save': '$.test^'}}
+
+    cff = ColdfusionFormatter(mocked_formatter)
+    res = cff.format_on_save_enabled('test.txt')
+    assert res is False
+
+
+def test_coldfusion_formatter_format_on_save_enabled_re_match():
+    from codeformatter.coldfusionformatter import ColdfusionFormatter
+
+    mocked_formatter = Mock()
+    mocked_formatter.settings = {
+        'codeformatter_coldfusion_options': {'format_on_save': '.test$'}}
+
+    cff = ColdfusionFormatter(mocked_formatter)
+    res = cff.format_on_save_enabled('file.test')
+    assert res is True
