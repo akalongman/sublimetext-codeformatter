@@ -69,7 +69,6 @@
     {
         "syntaxes": "scss,sass", // Indentation size
         "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
-        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
         "indent_size": 4, // Indentation size
         "indent_char": " ", // Indentation character
         "indent_with_tabs": false, // Indent with one tab (overrides indent_size and indent_char options)
