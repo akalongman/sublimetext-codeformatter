@@ -1,8 +1,7 @@
-import sys
 import pytest
 from unittest.mock import patch, Mock, call
 
-sys.modules['coldfusionbeautifier'] = Mock()
+from .scenarios import format_on_save_scenarios
 
 
 @patch('codeformatter.coldfusionformatter.coldfusionbeautifier')
@@ -129,15 +128,6 @@ def test_coldfusion_formatter_format_empty_exception(coldfusionbeautifier):
     out, err = cff.format(input_text)
     assert out == ''
     assert err == 'Formatting error!'
-
-
-format_on_save_scenarios = [
-    ({}, '', False),
-    ({'format_on_save': True}, '', True),
-    ({'format_on_save': False}, '', False),
-    ({'format_on_save': '.test$'}, 'file.txt', False),
-    ({'format_on_save': '.test$'}, 'file.test', True)
-]
 
 
 @pytest.mark.parametrize('options,filename,expected', format_on_save_scenarios)
