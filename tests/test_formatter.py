@@ -25,13 +25,6 @@ def fill_module_mocks(formatter, settings):
     formatter.ColdfusionFormatter = mf_coldfusion
 
 
-def setup_function(function):
-    mocked_sublime = Mock()
-    mocked_sublime.version = Mock(return_value=3001)
-    import sys
-    sys.modules['sublime'] = mocked_sublime
-
-
 def test_formatter_instance(default_settings, php_view):
     from codeformatter import formatter
     fill_module_mocks(formatter, default_settings)

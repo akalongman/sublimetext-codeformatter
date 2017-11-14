@@ -1,5 +1,18 @@
+import os
+import sys
 import pytest
 from unittest.mock import Mock
+
+# mocking sublime
+mocked_sublime = Mock()
+mocked_sublime.version = Mock(return_value=3001)
+sys.modules['sublime'] = mocked_sublime
+
+# adding lib folder to syspath
+directory = os.path.dirname(os.path.realpath(__file__))
+libs_path = os.path.join(directory, '..', 'codeformatter', 'lib')
+if libs_path not in sys.path:
+    sys.path.append(libs_path)
 
 
 @pytest.fixture
