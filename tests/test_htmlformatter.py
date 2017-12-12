@@ -1,6 +1,7 @@
 import pytest
 from unittest.mock import patch, Mock, call
 
+import sublime
 from .scenarios import format_on_save_scenarios
 
 
@@ -22,7 +23,7 @@ def test_html_formatter_instance_creation(htmlbeautifier):
 
 
 # keys verified in the formatter
-options_scenarios = []
+options_values = []
 
 # generic pair of initial value and expected results
 generic_pairs = [(10, 10), ('hi', 'hi'), (False, False), (True, True)]
@@ -41,15 +42,15 @@ options = [
 ]
 for option in options:
     for value, expected in generic_pairs:
-        options_scenarios.append((option, value, expected))
+        options_values.append((option, value, expected))
 
 # indent_char pairs of value and expected result
 ic_pairs = [(10, '10'), ('hi', 'hi'), (True, 'True'), (False, 'False')]
 for value, expected in ic_pairs:
-    options_scenarios.append(('indent_char', value, expected))
+    options_values.append(('indent_char', value, expected))
 
 
-@pytest.mark.parametrize('option,value,expected', options_scenarios)
+@pytest.mark.parametrize('option,value,expected', options_values)
 @patch('codeformatter.htmlformatter.htmlbeautifier')
 def test_html_formatter_fill_custom_options_values(
     htmlbeautifier, option, value, expected
@@ -69,10 +70,19 @@ def test_html_formatter_fill_custom_options_values(
     assert getattr(fake_options, option) == expected
 
 
-@pytest.mark.parametrize('option,value,expected', options_scenarios)
+options_presence = []
+for option in options:
+    curr_options = []
+    if len(options_presence) > 0:
+        curr_options = options_presence[-1].copy()
+    curr_options.append((option, 'test_value'))
+    options_presence.append(curr_options)
+
+
+@pytest.mark.parametrize('current_options', options_presence)
 @patch('codeformatter.htmlformatter.htmlbeautifier')
 def test_html_formatter_fill_custom_options_keys_presence(
-    htmlbeautifier, option, value, expected
+    htmlbeautifier, current_options
 ):
 
     fake_options = type('fake_obj', (object,), {})
@@ -80,115 +90,97 @@ def test_html_formatter_fill_custom_options_keys_presence(
     from codeformatter.htmlformatter import HtmlFormatter
 
     curr_option = {}
-    curr_option[option] = value
+    for option, value in current_options:
+        curr_option[option] = value
     mocked_formatter = Mock()
     mocked_formatter.settings = {
         'codeformatter_html_options': curr_option}
     HtmlFormatter(mocked_formatter)
 
-    assert getattr(fake_options, option) == expected
+    option_in = []
+    for option, value in current_options:
+        assert hasattr(fake_options, option)
+        option_in.append(option)
+    for option in options:
+        if option in option_in:
+            continue
+        assert not hasattr(fake_options, option)
 
 
-# # scenarios with full the values
-# full_options_1, full_options_2, full_options_3 = [], [], []
-# for key, t1, t2, t3, _ in options_to_test:
-#     full_options_1.append((key, t1[0], t1[1]))
-#     full_options_2.append((key, t2[0], t2[1]))
-#     full_options_3.append((key, t3[0], t3[1]))
-# options_scenarios_full = [full_options_1, full_options_2, full_options_3]
+@patch('codeformatter.htmlformatter.htmlbeautifier')
+def test_html_formatter_format_option_bs4(htmlbeautifier):
+
+    fake_options = type('fake_obj', (object,), {'formatter_version': 'bs4'})
+    htmlbeautifier.default_options = Mock(return_value=fake_options)
+    from codeformatter import htmlformatter
+
+    mocked_formatter = Mock()
+    mocked_formatter.settings = {'codeformatter_css_options': {}}
+
+    with patch.object(htmlformatter.HtmlFormatter, 'format_with_bs4', return_value=('from_bs4', '')) as mocked_bs4, patch.object(htmlformatter.HtmlFormatter, 'format_with_beautifier', return_value=('from_beautifier', '')) as mocked_beautifier:  # noqa
+
+        input_text = 'test'.encode('utf8')
+
+        htmlformatter.use_bs4 = False
+        cff = htmlformatter.HtmlFormatter(mocked_formatter)
+        out, err = cff.format(input_text)
+
+        sublime.error_message.assert_called_once_with(
+            u'CodeFormatter\n\nUnable to load BeautifulSoup HTML '
+            u'formatter. The old RegExp-based formatter was '
+            u'automatically used for you instead.'
+        )
+        mocked_beautifier.assert_called_once_with(input_text.decode('utf-8'))
+        assert out == 'from_beautifier'
+        assert err == ''
+
+        sublime.reset_mock()
+        mocked_bs4.reset_mock()
+        mocked_beautifier.reset_mock()
+
+        htmlformatter.use_bs4 = True
+        cff = htmlformatter.HtmlFormatter(mocked_formatter)
+        out, err = cff.format(input_text)
+
+        assert not sublime.error_message.called
+        mocked_bs4.assert_called_once_with(input_text.decode('utf-8'))
+        assert out == 'from_bs4'
+        assert err == ''
 
 
-# @pytest.mark.parametrize('full_options', options_scenarios_full)
-# @patch('codeformatter.htmlformatter.htmlbeautifier')
-# def test_html_formatter_fill_custom_options_full(
-#     htmlbeautifier, full_options
-# ):
-#     fake_options = type('fake_obj', (object,), {})
-#     htmlbeautifier.default_options = Mock(return_value=fake_options)
-#     from codeformatter.htmlformatter import htmlformatter
+@patch('codeformatter.htmlformatter.htmlbeautifier')
+def test_html_formatter_format_not_option_bs4(htmlbeautifier):
 
-#     mocked_formatter = Mock()
-#     curr_values = {}
-#     curr_expected = []
-#     for key, value, expected in full_options:
-#         curr_values[key] = value
-#         curr_expected.append((key, expected))
+    fake_options = type('fake_obj', (object,), {'formatter_version': '-_-'})
+    htmlbeautifier.default_options = Mock(return_value=fake_options)
+    from codeformatter import htmlformatter
 
-#     mocked_formatter.settings = {'codeformatter_css_options': curr_values}
+    mocked_formatter = Mock()
+    mocked_formatter.settings = {'codeformatter_css_options': {}}
 
-#     htmlformatter(mocked_formatter)
-#     for key, expected in curr_expected:
-#         assert getattr(fake_options, key, None) == expected
+    with patch.object(htmlformatter.HtmlFormatter, 'format_with_bs4', return_value=('from_bs4', '')) as mocked_bs4, patch.object(htmlformatter.HtmlFormatter, 'format_with_beautifier', return_value=('from_beautifier', '')) as mocked_beautifier:  # noqa
 
+        htmlformatter.use_bs4 = False
+        input_text = 'test'.encode('utf8')
+        cff = htmlformatter.HtmlFormatter(mocked_formatter)
+        out, err = cff.format(input_text)
 
-# @patch('codeformatter.htmlformatter.htmlbeautifier')
-# def test_html_formatter_format(htmlbeautifier):
+        assert not sublime.error_message.called
+        assert not mocked_bs4.called
+        mocked_beautifier.assert_called_once_with(input_text.decode('utf-8'))
+        assert out == 'from_beautifier'
+        assert err == ''
 
-#     htmlbeautifier.default_options = Mock(return_value={})
-#     htmlbeautifier.beautify = Mock(return_value='graham nash')
-#     from codeformatter.htmlformatter import htmlformatter
+        sublime.reset_mock()
+        mocked_bs4.reset_mock()
+        mocked_beautifier.reset_mock()
 
-#     mocked_formatter = Mock()
-#     mocked_formatter.settings = {'codeformatter_css_options': {}}
+        htmlformatter.use_bs4 = True
+        cff = htmlformatter.HtmlFormatter(mocked_formatter)
+        out, err = cff.format(input_text)
 
-#     input_text = 'test'.encode('utf8')
-#     cff = htmlformatter(mocked_formatter)
-#     out, err = cff.format(input_text)
-
-#     assert htmlbeautifier.beautify.called_with(
-#         call(input_text.decode('utf-8'), {}))
-#     assert out == 'graham nash'
-#     assert err == ''
-
-
-# @patch('codeformatter.htmlformatter.htmlbeautifier')
-# def test_html_formatter_format_exception(htmlbeautifier):
-
-#     htmlbeautifier.beautify = Mock(
-#         side_effect=Exception('looks like it failed'))
-#     from codeformatter.htmlformatter import htmlformatter
-
-#     mocked_formatter = Mock()
-#     mocked_formatter.settings = {'codeformatter_css_options': {}}
-
-#     input_text = 'test'.encode('utf8')
-#     cff = htmlformatter(mocked_formatter)
-
-#     out, err = cff.format(input_text)
-#     assert out == ''
-#     assert err == 'looks like it failed'
-
-
-# @patch('codeformatter.htmlformatter.htmlbeautifier')
-# def test_html_formatter_format_empty_exception(htmlbeautifier):
-
-#     htmlbeautifier.beautify = Mock(side_effect=Exception(''))
-#     from codeformatter.htmlformatter import htmlformatter
-
-#     mocked_formatter = Mock()
-#     mocked_formatter.settings = {'codeformatter_css_options': {}}
-
-#     input_text = 'test'.encode('utf8')
-#     cff = htmlformatter(mocked_formatter)
-
-#     out, err = cff.format(input_text)
-#     assert out == ''
-#     assert err == 'Formatting error!'
-
-
-# @pytest.mark.parametrize('options,filename,expected', format_on_save_scenarios)
-# @patch('codeformatter.htmlformatter.htmlbeautifier')
-# def test_html_formatter_format_on_save_enabled(
-#     htmlbeautifier, options, filename, expected
-# ):
-
-#     fake_options = type('fake_obj', (object,), {})
-#     htmlbeautifier.default_options = Mock(return_value=fake_options)
-#     from codeformatter.htmlformatter import htmlformatter
-
-#     mocked_formatter = Mock()
-#     mocked_formatter.settings = {'codeformatter_css_options': options}
-
-#     cff = htmlformatter(mocked_formatter)
-#     res = cff.format_on_save_enabled(filename)
-#     assert res is expected
+        assert not sublime.error_message.called
+        assert not mocked_bs4.called
+        mocked_beautifier.assert_called_once_with(input_text.decode('utf-8'))
+        assert out == 'from_beautifier'
+        assert err == ''
