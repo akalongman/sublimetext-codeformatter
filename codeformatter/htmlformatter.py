@@ -95,7 +95,7 @@ class HtmlFormatter:
     def format(self, text):
         text = text.decode('utf-8')
 
-        formatter = getattr(self.options.formatter_version)
+        formatter = getattr(self.options, 'formatter_version')
         if formatter == 'bs4':
             if not use_bs4:
                 sublime.error_message(
