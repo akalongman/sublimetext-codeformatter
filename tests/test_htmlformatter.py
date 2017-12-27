@@ -115,7 +115,7 @@ def test_html_formatter_format_option_bs4(htmlbeautifier):
     from codeformatter import htmlformatter
 
     mocked_formatter = Mock()
-    mocked_formatter.settings = {'codeformatter_css_options': {}}
+    mocked_formatter.settings = {'codeformatter_html_options': {}}
 
     with patch.object(htmlformatter.HtmlFormatter, 'format_with_bs4', return_value=('from_bs4', '')) as mocked_bs4, patch.object(htmlformatter.HtmlFormatter, 'format_with_beautifier', return_value=('from_beautifier', '')) as mocked_beautifier:  # noqa
 
@@ -156,7 +156,7 @@ def test_html_formatter_format_not_option_bs4(htmlbeautifier):
     from codeformatter import htmlformatter
 
     mocked_formatter = Mock()
-    mocked_formatter.settings = {'codeformatter_css_options': {}}
+    mocked_formatter.settings = {'codeformatter_html_options': {}}
 
     with patch.object(htmlformatter.HtmlFormatter, 'format_with_bs4', return_value=('from_bs4', '')) as mocked_bs4, patch.object(htmlformatter.HtmlFormatter, 'format_with_beautifier', return_value=('from_beautifier', '')) as mocked_beautifier:  # noqa
 
@@ -184,3 +184,129 @@ def test_html_formatter_format_not_option_bs4(htmlbeautifier):
         mocked_beautifier.assert_called_once_with(input_text.decode('utf-8'))
         assert out == 'from_beautifier'
         assert err == ''
+
+
+bs4_options_scenarios = [
+    ({}, 4),
+    ({'another_option': 1}, 4),
+    ({'indent_size': 2}, 2),
+    ({'indent_size': 3}, 3),
+]
+
+
+@pytest.mark.parametrize('current_options,expected', bs4_options_scenarios)
+@patch('codeformatter.htmlformatter.BeautifulSoup')
+@patch('codeformatter.htmlformatter.htmlbeautifier')
+def test_html_formatter_format_with_bs4_valid(
+    htmlbeautifier, mocked_bs4, current_options, expected
+):
+
+    fake_options = type('fake_obj', (object,), {})
+    htmlbeautifier.default_options = Mock(return_value=fake_options)
+    from codeformatter import htmlformatter
+
+    mocked_formatter = Mock()
+    mocked_formatter.settings = {'codeformatter_html_options': current_options}
+
+    mocked_bs4_instance = mocked_bs4.return_value
+    mocked_bs4_instance.prettify = Mock(return_value='returned value')
+
+    formatter = htmlformatter.HtmlFormatter(mocked_formatter)
+    res = formatter.format_with_bs4('testing_call')
+
+    mocked_bs4.assert_called_once_with('testing_call', 'html.parser')
+    mocked_bs4_instance.prettify.assert_called_once_with(
+        formatter=None, indent_size=expected)
+    assert res == ('returned value', '')
+
+
+@patch('codeformatter.htmlformatter.BeautifulSoup')
+@patch('codeformatter.htmlformatter.htmlbeautifier')
+def test_html_formatter_format_with_bs4_exception(htmlbeautifier, mocked_bs4):
+
+    fake_options = type('fake_obj', (object,), {})
+    htmlbeautifier.default_options = Mock(return_value=fake_options)
+    mocked_bs4.side_effect = Exception('some error')
+    from codeformatter import htmlformatter
+
+    mocked_formatter = Mock()
+    mocked_formatter.settings = {'codeformatter_html_options': {}}
+
+    formatter = htmlformatter.HtmlFormatter(mocked_formatter)
+    res = formatter.format_with_bs4('testing')
+
+    assert res == ('', 'some error')
+
+
+beautifier_options_scenarios = [
+    ('good result', ('good result', '')),
+    ('another result', ('another result', '')),
+    ('', ('', 'Formatting error!')),
+]
+
+
+@pytest.mark.parametrize('result,expected', beautifier_options_scenarios)
+@patch('codeformatter.htmlformatter.htmlbeautifier')
+def test_html_formatter_format_with_beautifier_valid(
+    htmlbeautifier, result, expected
+):
+
+    fake_options = type('fake_obj', (object,), {})
+    htmlbeautifier.default_options = Mock(return_value=fake_options)
+    htmlbeautifier.beautify = Mock(return_value=result)
+    from codeformatter import htmlformatter
+
+    mocked_formatter = Mock()
+    mocked_formatter.settings = {'codeformatter_html_options': {}}
+
+    formatter = htmlformatter.HtmlFormatter(mocked_formatter)
+    res = formatter.format_with_beautifier('another one')
+
+    htmlbeautifier.beautify.assert_called_once_with(
+        'another one', fake_options)
+    assert res == expected
+
+
+beautifier_except_options_scenarios = [
+    ('some strange error', ('', 'some strange error')),
+    ('a very strange error', ('', 'a very strange error')),
+    ('', ('', 'Formatting error!')),
+]
+
+
+@pytest.mark.parametrize('text,expected', beautifier_except_options_scenarios)
+@patch('codeformatter.htmlformatter.htmlbeautifier')
+def test_html_formatter_format_with_beautifier_exception(
+    htmlbeautifier, text, expected
+):
+
+    fake_options = type('fake_obj', (object,), {})
+    htmlbeautifier.default_options = Mock(return_value=fake_options)
+    htmlbeautifier.beautify.side_effect = Exception(text)
+    from codeformatter import htmlformatter
+
+    mocked_formatter = Mock()
+    mocked_formatter.settings = {'codeformatter_html_options': {}}
+
+    formatter = htmlformatter.HtmlFormatter(mocked_formatter)
+    res = formatter.format_with_beautifier('out of words')
+
+    assert res == expected
+
+
+@pytest.mark.parametrize('options,filename,expected', format_on_save_scenarios)
+@patch('codeformatter.htmlformatter.htmlbeautifier')
+def test_html_formatter_format_on_save_enabled(
+    htmlbeautifier, options, filename, expected
+):
+
+    fake_options = type('fake_obj', (object,), {})
+    htmlbeautifier.default_options = Mock(return_value=fake_options)
+    from codeformatter import htmlformatter
+
+    mocked_formatter = Mock()
+    mocked_formatter.settings = {'codeformatter_html_options': options}
+
+    formatter = htmlformatter.HtmlFormatter(mocked_formatter)
+    res = formatter.format_on_save_enabled(filename)
+    assert res is expected
