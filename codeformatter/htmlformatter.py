@@ -10,8 +10,7 @@ import htmlbeautifier
 import sublime
 
 directory = os.path.dirname(os.path.realpath(__file__))
-libs_path = os.path.join(directory, 'lib')
-libs_path = os.path.join(libs_path, 'htmlbeautifier')
+libs_path = os.path.join(directory, 'lib', 'htmlbeautifier')
 
 if libs_path not in sys.path:
     sys.path.append(libs_path)
@@ -27,91 +26,90 @@ class HtmlFormatter:
 
     def __init__(self, formatter):
         self.formatter = formatter
-        self.opts = formatter.settings.get('codeformatter_html_options')
+        self.options = htmlbeautifier.default_options()
+
+        # fill custom options
+        custom_options = formatter.settings.get('codeformatter_html_options')
+        self.fill_custom_options(custom_options)
+
+    def fill_custom_options(self, options):
+
+        if not options:
+            return
+
+        custom_options = [
+            'formatter_version',
+            'indent_size',
+            'indent_char',
+            'minimum_attribute_count',
+            'first_attribute_on_new_line',
+            'indent_with_tabs',
+            'expand_tags',
+            'reduce_empty_tags',
+            'reduce_whole_word_tags',
+            'exception_on_tag_mismatch',
+            'custom_singletons',
+            'format_on_save'
+        ]
+
+        casters = {'indent_char': str}
+
+        for key in custom_options:
+
+            value = options.get(key)
+            if value is None:
+                continue
+
+            cast = casters.get(key)
+            if cast:
+                value = cast(value)
+
+            setattr(self.options, key, value)
+
+    def format_with_bs4(self, text):
+        stdout, stderr = '', ''
+
+        p_indent_size = getattr(self.options, 'indent_size', 4)
+
+        try:
+            soup = BeautifulSoup(text, 'html.parser')
+            stdout = soup.prettify(formatter=None, indent_size=p_indent_size)
+        except Exception as e:
+            stderr = str(e)
+
+        return stdout, stderr
+
+    def format_with_beautifier(self, text):
+        stdout, stderr = '', ''
+
+        try:
+            stdout = htmlbeautifier.beautify(text, self.options)
+        except Exception as e:
+            stderr = str(e)
+
+        if (not stderr and not stdout):
+            stderr = 'Formatting error!'
+
+        return stdout, stderr
 
     def format(self, text):
         text = text.decode('utf-8')
-        stderr = ''
-        stdout = ''
 
-        formatter = ''
-
-        if 'formatter_version' in self.opts:
-            formatter = self.opts['formatter_version']
-            if use_bs4 is False and self.opts['formatter_version'] == 'bs4':
-                formatter = 'regexp'
+        formatter = getattr(self.options, 'formatter_version')
+        if formatter == 'bs4':
+            if not use_bs4:
                 sublime.error_message(
                     u'CodeFormatter\n\nUnable to load BeautifulSoup HTML '
                     u'formatter. The old RegExp-based formatter was '
                     u'automatically used for you instead.'
                 )
+            else:
+                return self.format_with_bs4(text)
 
-        if formatter == 'bs4' and use_bs4:
-            p_indent_size = 4
-            if 'indent_size' in self.opts:
-                p_indent_size = self.opts['indent_size']
-
-            try:
-                soup = BeautifulSoup(text, 'html.parser')
-                stdout = soup.prettify(
-                    formatter=None, indent_size=p_indent_size)
-            except Exception as e:
-                stderr = str(e)
-        else:
-            options = htmlbeautifier.default_options()
-
-            if 'indent_size' in self.opts:
-                options.indent_size = self.opts['indent_size']
-
-            if 'indent_char' in self.opts:
-                options.indent_char = str(self.opts['indent_char'])
-
-            if 'minimum_attribute_count' in self.opts:
-                options.minimum_attribute_count = (
-                    self.opts['minimum_attribute_count']
-                )
-
-            if 'first_attribute_on_new_line' in self.opts:
-                options.first_attribute_on_new_line = (
-                    self.opts['first_attribute_on_new_line']
-                )
-
-            if 'indent_with_tabs' in self.opts:
-                options.indent_with_tabs = self.opts['indent_with_tabs']
-
-            if 'expand_tags' in self.opts:
-                options.expand_tags = self.opts['expand_tags']
-
-            if 'reduce_empty_tags' in self.opts:
-                options.reduce_empty_tags = self.opts['reduce_empty_tags']
-
-            if 'reduce_whole_word_tags' in self.opts:
-                options.reduce_whole_word_tags = (
-                    self.opts['reduce_whole_word_tags']
-                )
-
-            if 'exception_on_tag_mismatch' in self.opts:
-                options.exception_on_tag_mismatch = (
-                    self.opts['exception_on_tag_mismatch']
-                )
-
-            if 'custom_singletons' in self.opts:
-                options.custom_singletons = self.opts['custom_singletons']
-
-            try:
-                stdout = htmlbeautifier.beautify(text, options)
-            except Exception as e:
-                stderr = str(e)
-
-            if (not stderr and not stdout):
-                stderr = 'Formatting error!'
-
-        return stdout, stderr
+        return self.format_with_beautifier(text)
 
     def format_on_save_enabled(self, file_name):
-        format_on_save = False
-        if ('format_on_save' in self.opts and self.opts['format_on_save']):
-            format_on_save = self.opts['format_on_save']
-        if (isinstance(format_on_save, str)):
+        format_on_save = getattr(self.options, 'format_on_save', False)
+        if isinstance(format_on_save, str):
             format_on_save = re.search(format_on_save, file_name) is not None
         return format_on_save
