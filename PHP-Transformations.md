@@ -434,9 +434,9 @@ class A {
 
 class A {
   /**
-   * @param Someclass $a
-   * @return int
-   */
+   \* @param Someclass $a
+   \* @return int
+   \*/
   function a(Someclass $a) {
     return 1;
   }
@@ -593,8 +593,8 @@ namespace A;
 <pre>
 
 /**
- * @param int $myInt
- */
+ \* @param int $myInt
+ \*/
 
 function a($myInt){
 }
@@ -605,8 +605,8 @@ function a($myInt){
 <pre>
 
 /**
- * @param int $myInt
- */
+ \* @param int $myInt
+ \*/
 function a($myInt){
 }
 
@@ -754,10 +754,10 @@ class A {
 <pre>
 
 /**
- * @param int $a
- * @param int $b
- * @return int
- */
+ \* @param int $a
+ \* @param int $b
+ \* @return int
+ \*/
 function abc($a = 10, $b = 20, $c) {
 
 }
@@ -768,10 +768,10 @@ function abc($a = 10, $b = 20, $c) {
 <pre>
 
 /**
- * @param int $a
- * @param int $b
- * @return int
- */
+ \* @param int $a
+ \* @param int $b
+ \* @return int
+ \*/
 function abc(int $a = 10, int $b = 20, $c): int {
 
 }
@@ -793,10 +793,10 @@ function abc(int $a = 10, int $b = 20, $c): int {
 <pre>
 
 /**
- * some description.
- * @param array $b
- * @param LongTypeName $c
- */
+ \* some description.
+ \* @param array $b
+ \* @param LongTypeName $c
+ \*/
 function A(array $b, LongTypeName $c) {
 }
 
@@ -806,10 +806,10 @@ function A(array $b, LongTypeName $c) {
 <pre>
 
 /**
- * some description.
- * @param array        $b
- * @param LongTypeName $c
- */
+ \* some description.
+ \* @param array        $b
+ \* @param LongTypeName $c
+ \*/
 function A(array $b, LongTypeName $c) {
 }
 
