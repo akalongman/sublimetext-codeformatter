@@ -6,18 +6,18 @@
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = new SomeClass;
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a = new SomeClass();
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -31,20 +31,20 @@ $a = new SomeClass();
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = join(',', $arr);
 die("done");
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a = implode(',', $arr);
 exit("done");
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -58,26 +58,26 @@ exit("done");
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = [
   1 => 1,
   22 => 22,
   333 => 333,
 ];
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a = [
   1   => 1,
   22  => 22,
   333 => 333,
 ];
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -91,23 +91,22 @@ $a = [
 </tr>
 <tr>
 <td>
-<pre>
 
-
+```php
 $a = 1; // Comment 1
 $bb = 22;  // Comment 2
 $ccc = 333;  // Comment 3
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a = 1;      // Comment 1
 $bb = 22;    // Comment 2
 $ccc = 333;  // Comment 3
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -120,22 +119,22 @@ $ccc = 333;  // Comment 3
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = 1;
 $bb = 22;
 $ccc = 333;
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a   = 1;
 $bb  = 22;
 $ccc = 333;
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -149,8 +148,8 @@ $ccc = 333;
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = [
   1 => 1,
   22 => 22,
@@ -158,12 +157,12 @@ $a = [
   333 => 333,
   4444 => 4444,
 ];
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a = [
   1  => 1,
   22 => 22,
@@ -171,9 +170,8 @@ $a = [
   333  => 333,
   4444 => 4444,
 ];
+```
 
-
-</pre>
 </td>
 </tr>
 </table>
@@ -187,8 +185,8 @@ $a = [
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 function a(
   TypeA $a,
   TypeBB $bb,
@@ -198,12 +196,12 @@ function a(
 ){
   noop();
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 function a(
   TypeA     $a,
   TypeBB    $bb,
@@ -213,8 +211,8 @@ function a(
 ){
   noop();
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -228,23 +226,23 @@ function a(
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 if ($a) {
 
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 if ($a)
 {
 
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -258,18 +256,18 @@ if ($a)
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = new SomeClass()
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a = new SomeClass();
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -283,28 +281,28 @@ $a = new SomeClass();
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 class A {
   const constant = 1;
   function b(){
     A::constant;
   }
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 class A {
   const constant = 1;
   function b(){
     self::constant;
   }
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -318,28 +316,28 @@ class A {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 class A {
   const constant = 1;
   function b(){
     A::constant;
   }
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 class A {
   const constant = 1;
   function b(){
     static::constant;
   }
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -349,12 +347,15 @@ class A {
 
 ##### Before
 
-`<?="Hello World?>`
+```php
+<?="Hello World"?>
+```
 
 ##### After
 
-`<?php echo "Hello World ?>`
-
+```php
+<?php echo "Hello World" ?>
+```
 
 ### DoubleToSingleQuote
 <table>
@@ -364,18 +365,18 @@ class A {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = "";
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a = '';
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -389,23 +390,23 @@ $a = '';
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 namespace NS1;
 class A {
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 namespace NS1 {
   class A {
   }
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -419,19 +420,19 @@ namespace NS1 {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 class A {
   function a(Someclass $a) {
     return 1;
   }
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 class A {
   /**
    * @param Someclass $a
@@ -441,8 +442,8 @@ class A {
     return 1;
   }
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -456,24 +457,24 @@ class A {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = ($b)
 ? $c
 : $d
 ;
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a = ($b)
   ? $c
   : $d
 ;
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -487,18 +488,18 @@ $a = ($b)
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = join(',', $arr);
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a = implode(',', $arr);
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -512,18 +513,18 @@ $a = implode(',', $arr);
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = [$a, $b];
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $b = array($b, $c);
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -537,26 +538,26 @@ $b = array($b, $c);
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 if($a){
 
 } else if($b) {
 
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 if($a){
 
 } elseif($b) {
 
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -566,7 +567,7 @@ if($a){
 
 ##### Before
 
-```
+```php
 <?php
 
 namespace A;
@@ -575,7 +576,7 @@ namespace A;
 
 ##### After
 
-```
+```php
 <?php
 namespace A;
 ?>
@@ -590,27 +591,27 @@ namespace A;
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 /**
  * @param int $myInt
  */
 
 function a($myInt){
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 /**
  * @param int $myInt
  */
 function a($myInt){
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -624,8 +625,8 @@ function a($myInt){
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 use C;
 use B;
 
@@ -634,12 +635,12 @@ class D {
     new B();
   }
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 use B;
 use C;
 
@@ -648,8 +649,8 @@ class D {
     new B();
   }
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -663,8 +664,8 @@ class D {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 use C;
 use B;
 
@@ -673,12 +674,12 @@ class D {
     new B();
   }
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 use B;
 
 class D {
@@ -686,8 +687,8 @@ class D {
     new B();
   }
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -701,8 +702,8 @@ class D {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 class A {
   public function d(){}
   protected function b(){}
@@ -713,12 +714,12 @@ class A {
   const B = 0;
   const A = 0;
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 class A {
   const A = 0;
 
@@ -736,8 +737,8 @@ class A {
 
   private function c(){}
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -751,8 +752,8 @@ class A {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 /**
  * @param int $a
  * @param int $b
@@ -761,12 +762,12 @@ class A {
 function abc($a = 10, $b = 20, $c) {
 
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 /**
  * @param int $a
  * @param int $b
@@ -775,8 +776,8 @@ function abc($a = 10, $b = 20, $c) {
 function abc(int $a = 10, int $b = 20, $c): int {
 
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -790,8 +791,8 @@ function abc(int $a = 10, int $b = 20, $c): int {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 /**
  * some description.
  * @param array $b
@@ -799,12 +800,12 @@ function abc(int $a = 10, int $b = 20, $c): int {
  */
 function A(array $b, LongTypeName $c) {
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 /**
  * some description.
  * @param array        $b
@@ -812,8 +813,8 @@ function A(array $b, LongTypeName $c) {
  */
 function A(array $b, LongTypeName $c) {
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -827,20 +828,20 @@ function A(array $b, LongTypeName $c) {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 // PSR2 Mode - From
 function a()
 {}
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 function a() {}
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -853,14 +854,18 @@ function a() {}
 </tr>
 <tr>
 <td>
-<pre>
+
+```php
     $codeAlignedWithTabs = true
-</pre>
+```
+
 </td>
 <td>
-<pre>
+
+```php
     $codeAlignedWithTabs = false
-</pre>
+```
+
 </td>
 </tr>
 </table>
@@ -874,23 +879,23 @@ function a() {}
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 function a($a, $b, $c)
 {}
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 function a(
   $a,
   $b,
   $c
 ) {}
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -904,20 +909,20 @@ function a(
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $aaaaa->b
 ->c;
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $aaaaa->b
       ->c;
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -931,24 +936,24 @@ $aaaaa->b
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 switch ($a) {
 case 1:
   echo 'a';
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 switch ($a) {
   case 1:
     echo 'a';
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -962,18 +967,18 @@ switch ($a) {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 require_once("file.php");
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 require_once "file.php";
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -987,22 +992,22 @@ require_once "file.php";
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 function xxx() {
     // code
 };
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 function xxx() {
     // code
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1016,28 +1021,28 @@ function xxx() {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 namespace NS1;
 use \B;
 use \D;
 
 new B();
 new D();
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 namespace NS1;
 use B;
 use D;
 
 new B();
 new D();
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1051,18 +1056,18 @@ new D();
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 if ($a and $b or $c) {...}
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 if ($a && $b || $c) {...}
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1076,18 +1081,18 @@ if ($a && $b || $c) {...}
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 is_null($a);
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 null === $a;
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1101,22 +1106,22 @@ null === $a;
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 function a(){
   return null;
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 function a(){
   return;
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1130,18 +1135,18 @@ function a(){
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 echo array();
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 echo [];
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1155,20 +1160,20 @@ echo [];
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 if($a) echo array();
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 if($a) {
   echo array();
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1182,20 +1187,20 @@ if($a) {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 if ($a) {
 
 }
 if ($b) {
 
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 if ($a) {
 
 }
@@ -1203,8 +1208,8 @@ if ($a) {
 if ($b) {
 
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1218,18 +1223,18 @@ if ($b) {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 if (!true) foo();
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 if ( ! true) foo();
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1243,8 +1248,8 @@ if ( ! true) foo();
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 class A {
   function b(){
 
@@ -1253,12 +1258,12 @@ class A {
 
   }
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 class A {
   function b(){
 
@@ -1269,8 +1274,8 @@ class A {
   }
 
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1284,22 +1289,22 @@ class A {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 if($a){
 } elseif($b) {
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 if($a){
 } else if($b) {
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1313,8 +1318,8 @@ if($a){
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 array_search($needle, $haystack);
 base64_decode($str);
 in_array($needle, $haystack);
@@ -1324,12 +1329,12 @@ mb_detect_encoding($arr);
 
 array_keys($arr, [1]);
 mb_detect_encoding($arr, 'UTF8');
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 array_search($needle, $haystack, true);
 base64_decode($str, true);
 in_array($needle, $haystack, true);
@@ -1339,8 +1344,8 @@ mb_detect_encoding($arr, null, true);
 
 array_keys($arr, [1], true);
 mb_detect_encoding($arr, 'UTF8', true);
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1354,20 +1359,20 @@ mb_detect_encoding($arr, 'UTF8', true);
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 if($a == $b){}
 if($a != $b){}
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 if($a === $b){}
 if($a !== $b){}
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1381,20 +1386,20 @@ if($a !== $b){}
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = [$a, $b, ];
 $b = array($b, $c, );
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a = [$a, $b];
 $b = array($b, $c);
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1408,23 +1413,23 @@ $b = array($b, $c);
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 class A {
 
   protected $a;
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 class A {
   protected $a;
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1438,8 +1443,8 @@ class A {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 for ($a = 0; $a < 10; $a++){
 
   if($a){
@@ -1447,19 +1452,19 @@ for ($a = 0; $a < 10; $a++){
     // do something
   }
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 for ($a = 0; $a < 10; $a++){
   if($a){
     // do something
   }
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1473,19 +1478,19 @@ for ($a = 0; $a < 10; $a++){
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = [$a, $b];
 $b = array($b, $c);
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a=[$a,$b];$b=array($b,$c);
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1499,8 +1504,8 @@ $a=[$a,$b];$b=array($b,$c);
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 for ($a = 0; $a < 10; $a++){
 
   if($a){
@@ -1509,19 +1514,19 @@ for ($a = 0; $a < 10; $a++){
   }
 
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 for ($a = 0; $a < 10; $a++){
   if($a){
     // do something
   }
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1535,20 +1540,20 @@ for ($a = 0; $a < 10; $a++){
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $a = 'a' . 'b';
 $a = 'a' . 1 . 'b';
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $a = 'a'.'b';
 $a = 'a'. 1 .'b';
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1562,22 +1567,22 @@ $a = 'a'. 1 .'b';
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 $var = ereg("[A-Z]", $var);
 $var = eregi_replace("[A-Z]", "", $var)
 $var = spliti("[A-Z]", $var);
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 $var = preg_match("/[A-Z]/Di", $var);
 $var = preg_replace("/[A-Z]/Di", "", $var);
 $var = preg_split("/[A-Z]/Di", $var);
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1591,26 +1596,26 @@ $var = preg_split("/[A-Z]/Di", $var);
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 class A {
   function A(){
 
   }
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 class A {
   function __construct(){
 
   }
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
@@ -1624,22 +1629,22 @@ class A {
 </tr>
 <tr>
 <td>
-<pre>
 
+```php
 if($a == 1){
 
 }
+```
 
-</pre>
 </td>
 <td>
-<pre>
 
+```php
 if(1 == $a){
 
 }
+```
 
-</pre>
 </td>
 </tr>
 </table>
