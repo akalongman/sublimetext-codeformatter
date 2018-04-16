@@ -70,10 +70,11 @@ class PhpFormatter:
             excludes = self.opts['excludes']
 
         cmd = []
+
         cmd.append(str(php_path))
 
-        cmd.append('-ddisplay_errors=stderr')
-        cmd.append('-dshort_open_tag=On')
+        #cmd.append('-ddisplay_errors=stderr')
+        #cmd.append('-dshort_open_tag=On')
 
         if php55_compat:
             formatter_path = os.path.join(
@@ -96,46 +97,63 @@ class PhpFormatter:
                 'phpf.phar'
             )
 
+        formatter_path = os.path.join(
+            dirname(realpath(sublime.packages_path())),
+            'Packages',
+            'CodeFormatter',
+            'codeformatter',
+            'lib',
+            'phpbeautifier',
+            'php-cs-fixer.phar'
+        )
+
         cmd.append(formatter_path)
 
-        if psr1:
-            cmd.append('--psr1')
+        # if psr1:
+        #     cmd.append('--psr1')
+        #
+        # if psr1_naming:
+        #     cmd.append('--psr1-naming')
+        #
+        # if psr2:
+        #     cmd.append('--psr2')
+        #
+        # if indent_with_space is True:
+        #     cmd.append('--indent_with_space')
+        # elif indent_with_space > 0:
+        #     cmd.append('--indent_with_space=' + str(indent_with_space))
+        #
+        # if enable_auto_align:
+        #     cmd.append('--enable_auto_align')
+        #
+        # if visibility_order:
+        #     cmd.append('--visibility_order')
+        #
+        # if smart_linebreak_after_curly:
+        #     cmd.append('--smart_linebreak_after_curly')
+        #
+        # if len(passes) > 0:
+        #     cmd.append('--passes=' + ','.join(passes))
+        #
+        # if len(excludes) > 0:
+        #     cmd.append('--exclude=' + ','.join(excludes))
 
-        if psr1_naming:
-            cmd.append('--psr1-naming')
+        cmd.append('fix')
+        cmd.append('--quiet')
+        cmd.append('--no-interaction')
+        cmd.append('--show-progress=none')
+        cmd.append('--using-cache=no')
+        cmd.append(self.formatter.file_name)
 
-        if psr2:
-            cmd.append('--psr2')
-
-        if indent_with_space is True:
-            cmd.append('--indent_with_space')
-        elif indent_with_space > 0:
-            cmd.append('--indent_with_space=' + str(indent_with_space))
-
-        if enable_auto_align:
-            cmd.append('--enable_auto_align')
-
-        if visibility_order:
-            cmd.append('--visibility_order')
-
-        if smart_linebreak_after_curly:
-            cmd.append('--smart_linebreak_after_curly')
-
-        if len(passes) > 0:
-            cmd.append('--passes=' + ','.join(passes))
-
-        if len(excludes) > 0:
-            cmd.append('--exclude=' + ','.join(excludes))
-
-        cmd.append('-')
+        #cmd.append('-')
 
         stderr = ''
         stdout = ''
 
-        #print(cmd)
+        print(cmd)
 
         try:
-            if (self.formatter.platform == 'windows'):
+            if self.formatter.platform == 'windows':
                 startupinfo = subprocess.STARTUPINFO()
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 startupinfo.wShowWindow = subprocess.SW_HIDE
@@ -151,7 +169,7 @@ class PhpFormatter:
         except Exception as e:
             stderr = str(e)
 
-        if (not stderr and not stdout):
+        if not stderr and not stdout:
             stderr = 'Formatting error!'
 
         return stdout, stderr
