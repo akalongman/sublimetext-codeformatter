@@ -5,6 +5,8 @@
 
 import os
 import re
+import tempfile
+
 import sublime
 import subprocess
 import os.path
@@ -18,6 +20,10 @@ class PhpFormatter:
         self.opts = formatter.settings.get('codeformatter_php_options')
 
     def format(self, text):
+        # Create temp file
+        tmp_file = tempfile.NamedTemporaryFile()
+        tmp_file.write(text)
+        tmp_file.seek(0)
 
         php_path = 'php'
         if ('php_path' in self.opts and self.opts['php_path']):
@@ -70,32 +76,9 @@ class PhpFormatter:
             excludes = self.opts['excludes']
 
         cmd = []
-
         cmd.append(str(php_path))
-
-        #cmd.append('-ddisplay_errors=stderr')
-        #cmd.append('-dshort_open_tag=On')
-
-        if php55_compat:
-            formatter_path = os.path.join(
-                dirname(realpath(sublime.packages_path())),
-                'Packages',
-                'CodeFormatter',
-                'codeformatter',
-                'lib',
-                'phpbeautifier',
-                'fmt-php55.phar'
-            )
-        else:
-            formatter_path = os.path.join(
-                dirname(realpath(sublime.packages_path())),
-                'Packages',
-                'CodeFormatter',
-                'codeformatter',
-                'lib',
-                'phpbeautifier',
-                'phpf.phar'
-            )
+        cmd.append('-ddisplay_errors=stderr')
+        cmd.append('-dshort_open_tag=On')
 
         formatter_path = os.path.join(
             dirname(realpath(sublime.packages_path())),
@@ -143,12 +126,8 @@ class PhpFormatter:
         cmd.append('--no-interaction')
         cmd.append('--show-progress=none')
         cmd.append('--using-cache=no')
-        cmd.append(self.formatter.file_name)
-
-        #cmd.append('-')
-
-        stderr = ''
-        stdout = ''
+        cmd.append('--rules=@PSR2')
+        cmd.append(tmp_file.name)
 
         print(cmd)
 
@@ -165,19 +144,25 @@ class PhpFormatter:
                 p = subprocess.Popen(
                     cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
-            stdout, stderr = p.communicate(text)
+            stdout, stderr = p.communicate()
+            stdout = tmp_file.read()
         except Exception as e:
+            stdout = ''
             stderr = str(e)
 
-        if not stderr and not stdout:
-            stderr = 'Formatting error!'
+        # Close temp file
+        tmp_file.close()
 
         return stdout, stderr
 
     def format_on_save_enabled(self, file_name):
         format_on_save = False
-        if ('format_on_save' in self.opts and self.opts['format_on_save']):
+
+        if 'format_on_save' in self.opts and self.opts['format_on_save']:
             format_on_save = self.opts['format_on_save']
-        if (isinstance(format_on_save, str)):
+
+        if isinstance(format_on_save, str):
             format_on_save = re.search(format_on_save, file_name) is not None
+
         return format_on_save
+
