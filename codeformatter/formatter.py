@@ -14,38 +14,22 @@ libs_path = os.path.join(directory, 'lib')
 if libs_path not in sys.path:
     sys.path.append(libs_path)
 
-try:
-    # Python 3
-    from .phpformatter import PhpFormatter
-    from .jsformatter import JsFormatter
-    from .htmlformatter import HtmlFormatter
-    from .cssformatter import CssFormatter
-    from .scssformatter import ScssFormatter
-    from .pyformatter import PyFormatter
-    from .vbscriptformatter import VbscriptFormatter
-    from .coldfusionformatter import ColdfusionFormatter
-
-except (ValueError):
-    # Python 2
-    from phpformatter import PhpFormatter
-    from jsformatter import JsFormatter
-    from htmlformatter import HtmlFormatter
-    from cssformatter import CssFormatter
-    from scssformatter import ScssFormatter
-    from pyformatter import PyFormatter
-    from vbscriptformatter import VbscriptFormatter
-    from coldfusionformatter import ColdfusionFormatter
+from .phpformatter import PhpFormatter
+from .jsformatter import JsFormatter
+from .htmlformatter import HtmlFormatter
+from .cssformatter import CssFormatter
+from .scssformatter import ScssFormatter
+from .pyformatter import PyFormatter
+from .vbscriptformatter import VbscriptFormatter
+from .coldfusionformatter import ColdfusionFormatter
 
 
 class Formatter:
-
     def __init__(self, view, syntax=None):
 
         self.platform = sublime.platform()
         self.classmap = {}
-        self.st_version = 2
-        if sublime.version() == '' or int(sublime.version()) > 3000:
-            self.st_version = 3
+        self.st_version = 3
 
         self.file_name = view.file_name()
         self.settings = sublime.load_settings('CodeFormatter.sublime-settings')

@@ -1,12 +1,13 @@
-# @author             Avtandil Kikabidze
-# @copyright         Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
-# @link             http://longman.me
+# @author          Avtandil Kikabidze
+# @copyright       Copyright (c) 2008-2018, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
+# @link            https://longman.me
 # @license         The MIT License (MIT)
 
 import os
 import sys
 import sublime
 import sublime_plugin
+from .codeformatter.formatter import Formatter
 
 st_version = 2
 if sublime.version() == '' or int(sublime.version()) > 3000:
@@ -21,21 +22,12 @@ if st_version == 3:
 if reloader_name in sys.modules:
     reload(sys.modules[reloader_name])
 
-try:
-    # Python 3
-    from .codeformatter.formatter import Formatter
-except (ValueError):
-    # Python 2
-    from codeformatter.formatter import Formatter
-
 # fix for ST2
 cprint = globals()['__builtins__']['print']
 
 debug_mode = False
 
-
 def plugin_loaded():
-
     cprint('CodeFormatter: Plugin Initialized')
 
     # settings = sublime.load_settings('CodeFormatter.sublime-settings')
@@ -48,11 +40,11 @@ def plugin_loaded():
     #     debug_write('Sublime Version ' + sublime.version())
     #     debug_write('Settings ' + pprint(settings))
 
-    if (sublime.platform() != 'windows'):
+    if sublime.platform() != 'windows':
         import stat
         path = (
-            sublime.packages_path() +
-            '/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar'
+                sublime.packages_path() +
+                '/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar'
         )
         st = os.stat(path)
         os.chmod(path, st.st_mode | stat.S_IEXEC)
@@ -95,13 +87,12 @@ class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
         opts = settings.get('codeformatter_php_options')
 
         php_path = 'php'
-        if ('php_path' in opts and opts['php_path']):
+        if 'php_path' in opts and opts['php_path']:
             php_path = opts['php_path']
 
         php55_compat = False
-        if ('php55_compat' in opts and opts['php55_compat']):
+        if 'php55_compat' in opts and opts['php55_compat']:
             php55_compat = opts['php55_compat']
-
 
         cmd = []
         cmd.append(str(php_path))
@@ -115,15 +106,14 @@ class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
                 '{}/CodeFormatter/codeformatter/lib/phpbeautifier/phpf.phar'.format(
                     sublime.packages_path()))
 
-
         cmd.append('--list')
 
-        #print(cmd)
+        # print(cmd)
 
         stderr = ''
         stdout = ''
         try:
-            if (platform == 'windows'):
+            if platform == 'windows':
                 startupinfo = subprocess.STARTUPINFO()
                 startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
                 startupinfo.wShowWindow = subprocess.SW_HIDE
@@ -139,13 +129,13 @@ class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
         except Exception as e:
             stderr = str(e)
 
-        if (not stderr and not stdout):
+        if not stderr and not stdout:
             stderr = 'Error while gethering list of php transformations'
 
         if len(stderr) == 0 and len(stdout) > 0:
             text = stdout.decode('utf-8')
             text = re.sub(
-                'Usage:.*?PASSNAME', 'Available PHP Tranformations:', text)
+                'Usage:.*?PASSNAME', 'Available PHP Transformations:', text)
             window = self.view.window()
             pt = window.get_output_panel('paneltranformations')
             pt.set_read_only(False)
@@ -157,7 +147,6 @@ class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
 
 
 def run_formatter(view, edit, *args, **kwargs):
-
     if view.is_scratch():
         show_error('File is scratch')
         return
@@ -174,12 +163,12 @@ def run_formatter(view, edit, *args, **kwargs):
                 formatter.syntax))
         return
 
-    if (saving and not formatter.format_on_save_enabled()):
+    if saving and not formatter.format_on_save_enabled():
         return
 
     file_text = sublime.Region(0, view.size())
     file_text_utf = view.substr(file_text).encode('utf-8')
-    if (len(file_text_utf) == 0):
+    if len(file_text_utf) == 0:
         return
 
     stdout, stderr = formatter.format(file_text_utf)
