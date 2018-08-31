@@ -1,11 +1,13 @@
-# @author             Avtandil Kikabidze
-# @copyright         Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
-# @link             http://longman.me
+# @author          Avtandil Kikabidze
+# @copyright       Copyright (c) 2008-2015, Avtandil Kikabidze aka LONGMAN (akalongman@gmail.com)
+# @link            http://longman.me
 # @license         The MIT License (MIT)
 
 import os
 import re
 import tempfile
+
+import json
 
 import sublime
 import subprocess
@@ -21,7 +23,10 @@ class PhpFormatter:
 
     def format(self, text):
         # Create temp file
-        tmp_file = tempfile.NamedTemporaryFile()
+        if self.formatter.platform == 'windows':
+            tmp_file = tempfile.NamedTemporaryFile(delete=False)
+        else:
+            tmp_file = tempfile.NamedTemporaryFile()
         tmp_file.write(text)
         tmp_file.seek(0)
 
@@ -71,6 +76,10 @@ class PhpFormatter:
         if ('passes' in self.opts and self.opts['passes']):
             passes = self.opts['passes']
 
+        passes_option = []
+        if ('passes_option' in self.opts and self.opts['passes_option']):
+            passes_option = self.opts['passes_option']
+
         excludes = []
         if ('excludes' in self.opts and self.opts['excludes']):
             excludes = self.opts['excludes']
@@ -87,49 +96,50 @@ class PhpFormatter:
             'codeformatter',
             'lib',
             'phpbeautifier',
-            'php-cs-fixer.phar'
+            'php-cs-fixer.phar' if len(passes_option) > 0 else ('fmt-php55.phar' if php55_compat else 'phpf.phar')
         )
 
         cmd.append(formatter_path)
 
-        # if psr1:
-        #     cmd.append('--psr1')
-        #
-        # if psr1_naming:
-        #     cmd.append('--psr1-naming')
-        #
-        # if psr2:
-        #     cmd.append('--psr2')
-        #
-        # if indent_with_space is True:
-        #     cmd.append('--indent_with_space')
-        # elif indent_with_space > 0:
-        #     cmd.append('--indent_with_space=' + str(indent_with_space))
-        #
-        # if enable_auto_align:
-        #     cmd.append('--enable_auto_align')
-        #
-        # if visibility_order:
-        #     cmd.append('--visibility_order')
-        #
-        # if smart_linebreak_after_curly:
-        #     cmd.append('--smart_linebreak_after_curly')
-        #
-        # if len(passes) > 0:
-        #     cmd.append('--passes=' + ','.join(passes))
-        #
-        # if len(excludes) > 0:
-        #     cmd.append('--exclude=' + ','.join(excludes))
+        if len(passes_option) > 0:
+            cmd.append('fix')
+            cmd.append('--quiet')
+            cmd.append('--no-interaction')
+            cmd.append('--show-progress=none')
+            cmd.append('--using-cache=no')
+            cmd.append('--rules=' + json.dumps(passes_option))
+            cmd.append(tmp_file.name)
+        elif len(passes) > 0:
 
-        cmd.append('fix')
-        cmd.append('--quiet')
-        cmd.append('--no-interaction')
-        cmd.append('--show-progress=none')
-        cmd.append('--using-cache=no')
-        cmd.append('--rules=@PSR2')
-        cmd.append(tmp_file.name)
+            if psr1:
+                cmd.append('--psr1')
 
-        print(cmd)
+            if psr1_naming:
+                cmd.append('--psr1-naming')
+
+            if psr2:
+                cmd.append('--psr2')
+
+            if indent_with_space is True:
+                cmd.append('--indent_with_space')
+            elif indent_with_space > 0:
+                cmd.append('--indent_with_space=' + str(indent_with_space))
+
+            if enable_auto_align:
+                cmd.append('--enable_auto_align')
+
+            if visibility_order:
+                cmd.append('--visibility_order')
+
+            if smart_linebreak_after_curly:
+                cmd.append('--smart_linebreak_after_curly')
+
+            cmd.append('--passes=' + ','.join(passes))
+
+            if len(excludes) > 0:
+                cmd.append('--exclude=' + ','.join(excludes))
+
+            cmd.append('-')
 
         try:
             if self.formatter.platform == 'windows':
@@ -144,8 +154,13 @@ class PhpFormatter:
                 p = subprocess.Popen(
                     cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE)
-            stdout, stderr = p.communicate()
-            stdout = tmp_file.read()
+            stdout, stderr = p.communicate() if len(passes_option) > 0 else p.communicate(text)
+            if len(passes_option) > 0:
+                formatted_str = tmp_file.read()
+                if self.formatter.platform == 'windows':
+                    tmp_file.close()
+                    os.unlink(tmp_file.name)
+                stdout = formatted_str
         except Exception as e:
             stdout = ''
             stderr = str(e)

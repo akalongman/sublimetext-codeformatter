@@ -15,12 +15,22 @@
         "visibility_order": true, // Fixes visibility order for method in classes - PSR-2 4.2
         "smart_linebreak_after_curly": true, // Convert multistatement blocks into multiline blocks
 
-        // Enable specific transformations. Example: ["ConvertOpenTagWithEcho", "PrettyPrintDocBlocks"]
+        // Enable specific transformations - only if "passes_options" is empty
         // You can list all available transformations from command palette: CodeFormatter: Show PHP Transformations
+        // @deprecated
         "passes": [],
 
-        // Disable specific transformations
-        "excludes": []
+        // Disable specific transformations - only if "passes_options" is empty
+        // @deprecated
+        "excludes": [],
+        
+        // Define php-cs-fixer option as JSON object, 
+        // Fallbacks to phpf and uses "passes" and "excludes" option if not specified
+        // Check php-cs-fixer usage section for a list of available options
+        // @link https://github.com/FriendsOfPhp/PHP-CS-Fixer#readme
+        "passes_option": {
+            "@PSR2": true
+        }
     },
 
     "codeformatter_js_options":
