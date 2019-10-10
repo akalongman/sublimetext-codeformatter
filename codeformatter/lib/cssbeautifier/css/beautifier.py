@@ -3,7 +3,7 @@ import sys
 import re
 import copy
 from .options import BeautifierOptions
-from jsbeautifier.core.options import mergeOpts
+from jsbeautifier.core.options import _mergeOpts as mergeOpts
 from jsbeautifier.core.output import Output
 from jsbeautifier.__version__ import __version__
 
