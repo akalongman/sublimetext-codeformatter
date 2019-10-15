@@ -15,7 +15,7 @@ class GoFormatter:
 
         try:
             p = subprocess.Popen(
-                ['gofmta'],
+                ['gofmt'],
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE
