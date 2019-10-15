@@ -281,7 +281,7 @@ Currently no options are supported:
     "codeformatter_go_options":
     {
         "syntaxes": "go",
-        "format_on_save": false // Boolean
+        "format_on_save": false // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
     }
 ```
 

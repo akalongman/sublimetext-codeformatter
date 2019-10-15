@@ -1,3 +1,5 @@
+import re
+
 import sublime
 import subprocess
 
@@ -32,5 +34,7 @@ class GoFormatter:
     def format_on_save_enabled(self, _):
         format_on_save = False
         if ('format_on_save' in self.opts and self.opts['format_on_save']):
-            format_on_save = True
+            format_on_save = self.opts['format_on_save']
+        if (isinstance(format_on_save, str)):
+            format_on_save = re.search(format_on_save, file_name) is not None
         return format_on_save
