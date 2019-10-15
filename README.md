@@ -14,6 +14,7 @@ CodeFormatter has support for the following languages:
 * HTML - By [Custom fork of BeautifulSoup](https://github.com/akalongman/python-beautifulsoup)
 * CSS,LESS,SASS - By JSBeautifier
 * Python - By PythonTidy (only ST2)
+* Go - By [gofmt](https://golang.org/cmd/gofmt/)
 * Visual Basic/VBScript
 * Coldfusion/Railo/Lucee
 
@@ -271,6 +272,19 @@ Language specific options:
         "java_style_list_dedent": false
     }
 ```
+
+### Go
+Go - used [gofmt](https://golang.org/src/cmd/gofmt/gofmt.go)
+
+Currently no options are supported:
+```js
+    "codeformatter_go_options":
+    {
+        "syntaxes": "go",
+        "format_on_save": false // Boolean
+    }
+```
+
 ### Visual Basic/VBScript
 Visual Basic/VBScript - used custom approach using the HTML beautifier as a guide
 

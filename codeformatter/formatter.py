@@ -24,6 +24,7 @@ try:
     from .pyformatter import PyFormatter
     from .vbscriptformatter import VbscriptFormatter
     from .coldfusionformatter import ColdfusionFormatter
+    from .goformatter import GoFormatter
 
 except (ValueError):
     # Python 2
@@ -35,6 +36,7 @@ except (ValueError):
     from pyformatter import PyFormatter
     from vbscriptformatter import VbscriptFormatter
     from coldfusionformatter import ColdfusionFormatter
+    from goformatter import GoFormatter
 
 
 class Formatter:
@@ -64,6 +66,7 @@ class Formatter:
             ('codeformatter_vbscript_options', VbscriptFormatter),
             ('codeformatter_scss_options', ScssFormatter),
             ('codeformatter_coldfusion_options', ColdfusionFormatter),
+            ('codeformatter_go_options', GoFormatter),
         ]
 
         for name, _class in map_settings_formatter:
