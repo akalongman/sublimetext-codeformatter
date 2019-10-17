@@ -14,6 +14,7 @@ CodeFormatter has support for the following languages:
 * HTML - By [Custom fork of BeautifulSoup](https://github.com/akalongman/python-beautifulsoup)
 * CSS,LESS,SASS - By JSBeautifier
 * Python - By PythonTidy (only ST2)
+* Go - By [gofmt](https://golang.org/cmd/gofmt/)
 * Visual Basic/VBScript
 * Coldfusion/Railo/Lucee
 
@@ -139,7 +140,11 @@ Language specific options:
         "wrap_line_length": 0, // Wrap lines at next opportunity after N characters
         "break_chained_methods": false, // Break chained method calls across subsequent lines
         "end_with_newline": false, // Add new line at end of file
-        "comma_first": false // Add comma first
+        "comma_first": false, // Add comma first
+        "space_after_anon_function": false, // Add a space before an anonymous function's parens, ie. function ()
+        "space_after_named_function": false, // Add a space before a named function's parens, i.e. function example ()
+        "unindent_chained_methods": false, // Don't indent chained method calls
+        "operator_position": "before-newline" // Set operator position (before-newline|after-newline|preserve-newline) [before-newline]
     }
 ```
 
@@ -267,6 +272,19 @@ Language specific options:
         "java_style_list_dedent": false
     }
 ```
+
+### Go
+Go - used [gofmt](https://golang.org/src/cmd/gofmt/gofmt.go)
+
+Currently no options are supported:
+```js
+    "codeformatter_go_options":
+    {
+        "syntaxes": "go",
+        "format_on_save": false // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
+    }
+```
+
 ### Visual Basic/VBScript
 Visual Basic/VBScript - used custom approach using the HTML beautifier as a guide
 

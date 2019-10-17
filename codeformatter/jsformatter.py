@@ -142,6 +142,14 @@ class JsFormatter:
             options.space_after_anon_function = False
 
         if (
+            'space_after_named_function' in self.opts and
+            self.opts['space_after_named_function']
+        ):
+            options.space_after_named_function = True
+        else:
+            options.space_after_named_function = False
+
+        if (
             'unindent_chained_methods' in self.opts and
             self.opts['unindent_chained_methods']
         ):
