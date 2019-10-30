@@ -140,11 +140,7 @@ Language specific options:
         "wrap_line_length": 0, // Wrap lines at next opportunity after N characters
         "break_chained_methods": false, // Break chained method calls across subsequent lines
         "end_with_newline": false, // Add new line at end of file
-        "comma_first": false, // Add comma first
-        "space_after_anon_function": false, // Add a space before an anonymous function's parens, ie. function ()
-        "space_after_named_function": false, // Add a space before a named function's parens, i.e. function example ()
-        "unindent_chained_methods": false, // Don't indent chained method calls
-        "operator_position": "before-newline" // Set operator position (before-newline|after-newline|preserve-newline) [before-newline]
+        "comma_first": false // Add comma first
     }
 ```
 
