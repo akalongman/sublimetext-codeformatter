@@ -177,7 +177,7 @@ def run_formatter(view, edit, *args, **kwargs):
     if (saving and not formatter.format_on_save_enabled()):
         return
 
-    file_text = sublime.Region(0, view.size())
+    file_text = view.sel()[0] if view.sel()[0] else sublime.Region(0, view.size())
     file_text_utf = view.substr(file_text).encode('utf-8')
     if (len(file_text_utf) == 0):
         return
