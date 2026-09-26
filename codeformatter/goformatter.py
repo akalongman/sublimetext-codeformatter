@@ -31,7 +31,7 @@ class GoFormatter:
 
         return stdout, stderr
 
-    def format_on_save_enabled(self, _):
+    def format_on_save_enabled(self, file_name):
         format_on_save = False
         if ('format_on_save' in self.opts and self.opts['format_on_save']):
             format_on_save = self.opts['format_on_save']
