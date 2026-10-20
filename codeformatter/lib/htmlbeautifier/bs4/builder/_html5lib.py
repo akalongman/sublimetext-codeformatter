@@ -4,19 +4,19 @@ __all__ = [
 
 from pdb import set_trace
 import warnings
-from bs4.builder import (
+from . import (
     PERMISSIVE,
     HTML,
     HTML_5,
     HTMLTreeBuilder,
     )
-from bs4.element import (
+from ..element import (
     NamespacedAttribute,
     whitespace_re,
 )
 import html5lib
 from html5lib.constants import namespaces
-from bs4.element import (
+from ..element import (
     Comment,
     Doctype,
     NavigableString,

@@ -1,7 +1,7 @@
 from collections import defaultdict
 import itertools
 import sys
-from bs4.element import (
+from ..element import (
     CharsetMetaAttributeValue,
     ContentMetaAttributeValue,
     whitespace_re
@@ -291,7 +291,7 @@ class HTMLTreeBuilder(TreeBuilder):
 def register_treebuilders_from(module):
     """Copy TreeBuilders from the given module into this module."""
     # I'm fairly sure this is not the best way to do this.
-    this_module = sys.modules['bs4.builder']
+    this_module = sys.modules[__name__]
     for name in module.__all__:
         obj = getattr(module, name)
 
@@ -313,8 +313,9 @@ register_treebuilders_from(_htmlparser)
 try:
     from . import _html5lib
     register_treebuilders_from(_html5lib)
-except ImportError:
-    # They don't have html5lib installed.
+except (ImportError, AttributeError):
+    # They don't have html5lib installed, or have 1.0+, which renamed the
+    # treebuilders._base module this builder needs.
     pass
 try:
     from . import _lxml

@@ -320,12 +320,38 @@ def test_html_formatter_format_on_save_enabled(
 bundled_bs4_script = '''
 import json
 import sys
+import types
 from unittest.mock import Mock
 
-repo_root, libs_path, html = sys.argv[1:4]
+repo_root, libs_path, html, scenario = sys.argv[1:5]
 sys.path.insert(0, repo_root)
 sys.path.append(libs_path)
 sys.modules['sublime'] = Mock()
+
+foreign_bs4 = None
+if scenario == 'foreign_bs4':
+    # another package's upstream bs4, imported first
+    class BeautifulSoup(object):
+        def __init__(self, markup, features):
+            pass
+
+        def prettify(self, encoding=None, formatter='minimal'):
+            return 'foreign'
+
+    BeautifulSoup.__module__ = 'bs4'
+    foreign_bs4 = types.ModuleType('bs4')
+    foreign_bs4.__file__ = 'foreign/bs4/__init__.py'
+    foreign_bs4.BeautifulSoup = BeautifulSoup
+    sys.modules['bs4'] = foreign_bs4
+elif scenario == 'html5lib_1':
+    # html5lib 1.0 renamed treebuilders._base to treebuilders.base
+    html5lib = types.ModuleType('html5lib')
+    html5lib.constants = types.ModuleType('html5lib.constants')
+    html5lib.constants.namespaces = {}
+    html5lib.treebuilders = types.ModuleType('html5lib.treebuilders')
+    html5lib.treebuilders.base = types.ModuleType('html5lib.treebuilders.base')
+    sys.modules['html5lib'] = html5lib
+    sys.modules['html5lib.constants'] = html5lib.constants
 
 from codeformatter import htmlformatter
 
@@ -334,30 +360,35 @@ mocked_formatter.settings = {
     'codeformatter_html_options': {'formatter_version': 'bs4'}}
 out, err = htmlformatter.HtmlFormatter(mocked_formatter).format(
     html.encode('utf-8'))
-bs4 = sys.modules.get('bs4')
+soup = getattr(htmlformatter, 'BeautifulSoup', None)
+soup_module = sys.modules.get(soup.__module__) if soup else None
 print(json.dumps({
-    'bs4_file': bs4.__file__ if bs4 else None, 'out': out, 'err': err}))
+    'bs4_file': getattr(soup_module, '__file__', None),
+    'global_bs4_untouched': sys.modules.get('bs4') is foreign_bs4,
+    'out': out, 'err': err}))
 '''
 
 
-def test_html_formatter_format_with_bundled_bs4():
+@pytest.mark.parametrize('scenario', ['plugin_host', 'foreign_bs4', 'html5lib_1'])
+def test_html_formatter_format_with_bundled_bs4(scenario):
 
-    # Sublime's plugin host has no site-packages, so the bundled bs4 is the
-    # one that formats there; -I -S keeps a system bs4 from shadowing it
+    # Sublime's plugin host has no site-packages and shares sys.modules with
+    # every other package; -I -S keeps this machine's packages out
     repo_root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
     libs_path = os.path.join(repo_root, 'codeformatter', 'lib')
     html = '<div><p>hi</p><ul><li>a</li><li>b</li></ul></div>'
 
     proc = subprocess.run(
         [sys.executable, '-I', '-S', '-c', bundled_bs4_script,
-         repo_root, libs_path, html],
+         repo_root, libs_path, html, scenario],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
         universal_newlines=True)
     assert proc.returncode == 0, proc.stderr
     res = json.loads(proc.stdout)
 
     bundled_bs4 = os.path.join(libs_path, 'htmlbeautifier', 'bs4', '')
-    assert res['bs4_file'].startswith(bundled_bs4)
+    assert (res['bs4_file'] or '').startswith(bundled_bs4), res['bs4_file']
+    assert res['global_bs4_untouched']
     assert (res['out'], res['err']) == (
         '<div>\n'
         '    <p>\n'
