@@ -109,8 +109,9 @@ These would make the feature a failure even if it technically works:
 
 The buffer goes to stdin, the result comes from stdout. For a never-saved
 buffer (`file_name` is `None`), both `--force-exclude` and
-`--stdin-filename` are left out; ruff then uses its user-level configuration
-or its defaults **(default)**.
+`--stdin-filename` are left out; ruff then searches for configuration
+upward from Sublime Text's working directory, and falls back to its
+user-level configuration or its defaults **(default)**.
 
 These probes against ruff 0.17.1 (released 2026-10-15) back the choice:
 
@@ -122,14 +123,17 @@ These probes against ruff 0.17.1 (released 2026-10-15) back the choice:
 | same path without `--force-exclude` | 0 | formatted anyway | empty |
 | syntax error | 2 | empty | `error: Failed to parse <path>:1:5: Expected an identifier` |
 | config with a rule that conflicts with the formatter | 0 | formatted | `warning: The following rule may cause conflicts ...` |
-| whitespace-only buffer | 0 | a single newline | empty |
+| whitespace-only buffer ending in a newline | 0 | a single newline | empty |
+| whitespace-only buffer without a trailing newline (`"   "`) | 0 | empty | empty |
 
 ### Result handling
 
 - **Exit 0:** return ruff's stdout and an empty error, so CodeFormatter
   applies the result. Any stderr text (warnings) goes to the Sublime
   console with the `CodeFormatter: ` prefix, never to the dialog
-  **(default)**.
+  **(default)**. When stdout is empty (a buffer of only spaces or tabs
+  without a trailing newline), return the input unchanged instead, so the
+  buffer stays as it was and no dialog appears **(maintainer)**.
 - **Non-zero exit:** return empty output and ruff's stderr, stripped, as the
   error. If stderr is empty, the error is `ruff exited with code <N>`.
 - **ruff not found** (`Popen` raises `OSError`/`FileNotFoundError`): the
