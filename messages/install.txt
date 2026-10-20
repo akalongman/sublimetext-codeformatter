@@ -205,12 +205,12 @@ If you format Python files with another package, set `"syntaxes": ""` in `codefo
 Installing ruff:
 
 * macOS: `brew install ruff`
-* Debian/Ubuntu: `sudo apt install pipx`, then `pipx install ruff`
+* Debian/Ubuntu: `sudo apt install pipx`, then `pipx install ruff`, then `pipx ensurepath`, then log out and back in so that Sublime Text started from the desktop sees `~/.local/bin`
 * Other Linux: `curl -LsSf https://astral.sh/ruff/install.sh | sh`
 * Windows (PowerShell): `powershell -c "irm https://astral.sh/ruff/install.ps1 | iex"`
 * WSL: if Sublime Text runs inside WSL, install ruff inside WSL with the Linux steps. If Windows Sublime Text edits files under `\\wsl.localhost`, install ruff on Windows with the Windows steps.
 
-Sublime Text started from the macOS Dock does not see the shell's `PATH`, so it may not find ruff. In that case, or whenever CodeFormatter reports that ruff is not found, set `ruff_path` to the output of `which ruff` in a terminal (`where ruff` in the Windows Command Prompt).
+Sublime Text started from the macOS Dock may not see the same `PATH` as your terminal, so it may not find ruff. In that case, or whenever CodeFormatter reports that ruff is not found, set `ruff_path` to the output of `which ruff` in a terminal. On Windows, run `where.exe ruff` (in PowerShell or the Command Prompt) and use the first line it prints. Write that path with forward slashes or doubled backslashes, because a single backslash starts an escape sequence in the settings file: `"ruff_path": "C:/Users/you/.local/bin/ruff.exe"` or `"ruff_path": "C:\\Users\\you\\.local\\bin\\ruff.exe"`.
 
 ### Visual Basic/VBScript
 Visual Basic/VBScript - used custom approach using the HTML beautifier as a guide
