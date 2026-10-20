@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, Mock, call
+from unittest.mock import patch, Mock
 
 from .scenarios import format_on_save_scenarios
 
@@ -89,8 +89,8 @@ def test_coldfusion_formatter_format(coldfusionbeautifier):
     cff = ColdfusionFormatter(mocked_formatter)
     out, err = cff.format(input_text)
 
-    assert coldfusionbeautifier.beautify.called_with(
-        call(input_text.decode('utf-8'), {}))
+    coldfusionbeautifier.beautify.assert_called_once_with(
+        input_text.decode('utf-8'), {})
     assert out == 'beautified text'
     assert err == ''
 

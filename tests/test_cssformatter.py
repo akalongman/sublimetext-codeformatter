@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, Mock, call
+from unittest.mock import patch, Mock
 
 from .scenarios import format_on_save_scenarios
 
@@ -122,8 +122,8 @@ def test_css_formatter_format(cssbeautifier):
     cff = CssFormatter(mocked_formatter)
     out, err = cff.format(input_text)
 
-    assert cssbeautifier.beautify.called_with(
-        call(input_text.decode('utf-8'), {}))
+    cssbeautifier.beautify.assert_called_once_with(
+        input_text.decode('utf-8'), {})
     assert out == 'graham nash'
     assert err == ''
 
