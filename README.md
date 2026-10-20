@@ -13,7 +13,6 @@ CodeFormatter has support for the following languages:
 * JavaScript/JSON - By JSBeautifier
 * HTML - By [Custom fork of BeautifulSoup](https://github.com/akalongman/python-beautifulsoup)
 * CSS,LESS,SASS - By JSBeautifier
-* Python - By PythonTidy (only ST2)
 * Go - By [gofmt](https://golang.org/cmd/gofmt/)
 * Visual Basic/VBScript
 * Coldfusion/Railo/Lucee
@@ -200,72 +199,6 @@ Language specific options:
         "selector_separator_newline": true, // Add new lines after selector separators
         "newline_between_rules": true, // Add new line between rules
         "end_with_newline": true // Add new line of end in file
-    }
-```
-
-### Python
-Python - used [PythonTidy] (https://pypi.python.org/pypi/PythonTidy/) by Chuck Rhode
-
-Language specific options:
-```js
-    "codeformatter_python_options":
-    {
-        "syntaxes": "python", // Syntax names which must process Python formatter
-        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
-        "indent_size": 1, // indentation size
-        "indent_with_tabs": true, // Indent with tabs or spaces
-        "max_char": 80, // Width of output lines in characters.
-        "assignment": " = ", // This is how the assignment operator is to appear.
-        "function_param_assignment": "=", // This is how function-parameter assignment should appear.
-        "function_param_sep": ", ", // This is how function parameters are separated.
-        "list_sep": ", ", // This is how list items are separated.
-        "subscript_sep": "=", // This is how subscripts are separated.
-        "dict_colon": ": ", // This separates dictionary keys from values.
-        "slice_colon": ":", // this separates the start:end indices of slices.
-        "comment_prefix": "# ", // This is the sentinel that marks the beginning of a commentary string.
-        "shebang": "#!/usr/bin/env python", // Hashbang, a line-one comment naming the Python interpreter to Unix shells.
-        "boilerplate": "", // Standard code block (if any). This is inserted after the module doc string on output.
-        "blank_line": "", // This is how a blank line is to appear (up to the newline character).
-        "keep_blank_lines": true, // If true, preserve one blank where blank(s) are encountered.
-        "add_blank_lines_around_comments": true, // If true, set off comment blocks with blanks.
-        "add_blank_line_after_doc_string": true, // If true, add blank line after doc strings.
-        "max_seps_func_def": 3, // Split lines containing longer function definitions.
-        "max_seps_func_ref": 5, // Split lines containing longer function calls.
-        "max_seps_series": 5, // Split lines containing longer lists or tuples.
-        "max_seps_dict": 3, // Split lines containing longer dictionary definitions.
-        "max_lines_before_split_lit": 2, // Split string literals containing more newline characters.
-        "left_margin": "", // This is how the left margin is to appear.
-        "normalize_doc_strings": false, // If true, normalize white space in doc strings.
-        "leftjust_doc_strings": false, // If true, left justify doc strings.
-        "wrap_doc_strings": false, // If true, wrap doc strings to max_char.
-        "leftjust_comments": false, // If true, left justify comments.
-        "wrap_comments": false, // If true, wrap comments to max_char.
-        "double_quoted_strings": false, // If true, use quotes instead of apostrophes for string literals.
-        "single_quoted_strings": false, // If true, use apostrophes instead of quotes for string literals.
-        "can_split_strings": false, // If true, longer strings are split at the max_char.
-        "doc_tab_replacement": "....", // This literal replaces tab characters in doc strings and comments.
-
-        // Optionally preserve unassigned constants so that code to be tidied
-        // may contain blocks of commented-out lines that have been no-op'ed
-        // with leading and trailing triple quotes.  Python scripts may declare
-        // constants without assigning them to a variables, but CodeFormatter
-        // considers this wasteful and normally elides them.
-        "keep_unassigned_constants": false,
-
-        // Optionally omit parentheses around tuples, which are superfluous
-        // after all.  Normal CodeFormatter behavior will be still to include them
-        // as a sort of tuple display analogous to list displays, dict
-        // displays, and yet-to-come set displays.
-        "parenthesize_tuple_display": true,
-
-        // When CodeFormatter splits longer lines because max_seps
-        // are exceeded, the statement normally is closed before the margin is
-        // restored.  The closing bracket, brace, or parenthesis is placed at the
-        // current indent level.  This looks ugly to "C" programmers.  When
-        // java_style_list_dedent is True, the closing bracket, brace, or
-        // parenthesis is brought back left to the indent level of the enclosing
-        // statement.
-        "java_style_list_dedent": false
     }
 ```
 
