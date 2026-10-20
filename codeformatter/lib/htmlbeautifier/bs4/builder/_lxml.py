@@ -5,7 +5,7 @@ __all__ = [
 
 from io import BytesIO
 from io import StringIO
-import collections
+import collections.abc
 from lxml import etree
 from bs4.element import (
     Comment,
@@ -54,7 +54,7 @@ class LXMLTreeBuilderForXML(TreeBuilder):
         # Use the default parser.
         parser = self.default_parser(encoding)
 
-        if isinstance(parser, collections.Callable):
+        if isinstance(parser, collections.abc.Callable):
             # Instantiate the parser with default arguments
             parser = parser(target=self, strip_cdata=False, encoding=encoding)
         return parser

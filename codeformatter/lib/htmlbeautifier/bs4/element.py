@@ -1,7 +1,7 @@
 __license__ = "MIT"
 
 from pdb import set_trace
-import collections
+import collections.abc
 import re
 import sys
 import warnings
@@ -155,7 +155,7 @@ class PageElement(object):
 
     def format_string(self, s, formatter='minimal'):
         """Format the given string using the given formatter."""
-        if not isinstance(formatter, collections.Callable):
+        if not isinstance(formatter, collections.abc.Callable):
             formatter = self._formatter_for_name(formatter)
         if formatter is None:
             output = s
@@ -1077,7 +1077,7 @@ class Tag(PageElement):
 
         # First off, turn a string formatter into a function. This
         # will stop the lookup from happening over and over again.
-        if not isinstance(formatter, collections.Callable):
+        if not isinstance(formatter, collections.abc.Callable):
             formatter = self._formatter_for_name(formatter)
 
         attrs = []
@@ -1182,7 +1182,7 @@ class Tag(PageElement):
         """
         # First off, turn a string formatter into a function. This
         # will stop the lookup from happening over and over again.
-        if not isinstance(formatter, collections.Callable):
+        if not isinstance(formatter, collections.abc.Callable):
             formatter = self._formatter_for_name(formatter)
 
         pretty_print = (indent_level is not None)
@@ -1563,7 +1563,7 @@ class SoupStrainer(object):
     def _normalize_search_value(self, value):
         # Leave it alone if it's a Unicode string, a callable, a
         # regular expression, a boolean, or None.
-        if (isinstance(value, str) or isinstance(value, collections.Callable) or hasattr(value, 'match')
+        if (isinstance(value, str) or isinstance(value, collections.abc.Callable) or hasattr(value, 'match')
             or isinstance(value, bool) or value is None):
             return value
 
@@ -1603,7 +1603,7 @@ class SoupStrainer(object):
             markup = markup_name
             markup_attrs = markup
         call_function_with_tag_data = (
-            isinstance(self.name, collections.Callable)
+            isinstance(self.name, collections.abc.Callable)
             and not isinstance(markup_name, Tag))
 
         if ((not self.name)
@@ -1689,7 +1689,7 @@ class SoupStrainer(object):
             # True matches any non-None value.
             return markup is not None
 
-        if isinstance(match_against, collections.Callable):
+        if isinstance(match_against, collections.abc.Callable):
             return match_against(markup)
 
         # Custom callables take the tag as an argument, but all

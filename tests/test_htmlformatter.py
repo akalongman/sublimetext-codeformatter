@@ -1,3 +1,8 @@
+import json
+import os
+import subprocess
+import sys
+
 import pytest
 from unittest.mock import patch, Mock, call
 
@@ -310,3 +315,60 @@ def test_html_formatter_format_on_save_enabled(
     formatter = htmlformatter.HtmlFormatter(mocked_formatter)
     res = formatter.format_on_save_enabled(filename)
     assert res is expected
+
+
+bundled_bs4_script = '''
+import json
+import sys
+from unittest.mock import Mock
+
+repo_root, libs_path, html = sys.argv[1:4]
+sys.path.insert(0, repo_root)
+sys.path.append(libs_path)
+sys.modules['sublime'] = Mock()
+
+from codeformatter import htmlformatter
+
+mocked_formatter = Mock()
+mocked_formatter.settings = {
+    'codeformatter_html_options': {'formatter_version': 'bs4'}}
+out, err = htmlformatter.HtmlFormatter(mocked_formatter).format(
+    html.encode('utf-8'))
+bs4 = sys.modules.get('bs4')
+print(json.dumps({
+    'bs4_file': bs4.__file__ if bs4 else None, 'out': out, 'err': err}))
+'''
+
+
+def test_html_formatter_format_with_bundled_bs4():
+
+    # Sublime's plugin host has no site-packages, so the bundled bs4 is the
+    # one that formats there; -I -S keeps a system bs4 from shadowing it
+    repo_root = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
+    libs_path = os.path.join(repo_root, 'codeformatter', 'lib')
+    html = '<div><p>hi</p><ul><li>a</li><li>b</li></ul></div>'
+
+    proc = subprocess.run(
+        [sys.executable, '-I', '-S', '-c', bundled_bs4_script,
+         repo_root, libs_path, html],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+        universal_newlines=True)
+    assert proc.returncode == 0, proc.stderr
+    res = json.loads(proc.stdout)
+
+    bundled_bs4 = os.path.join(libs_path, 'htmlbeautifier', 'bs4', '')
+    assert res['bs4_file'].startswith(bundled_bs4)
+    assert (res['out'], res['err']) == (
+        '<div>\n'
+        '    <p>\n'
+        '        hi\n'
+        '    </p>\n'
+        '    <ul>\n'
+        '        <li>\n'
+        '            a\n'
+        '        </li>\n'
+        '        <li>\n'
+        '            b\n'
+        '        </li>\n'
+        '    </ul>\n'
+        '</div>', '')
