@@ -1,3 +1,4 @@
+import os
 import subprocess
 
 import pytest
@@ -34,8 +35,7 @@ def test_py_formatter_runs_ruff_on_the_file(popen):
 
     assert result == (b'x = 1\n', '')
     assert command(popen) == [
-        'ruff', 'format', '--color', 'never', '--force-exclude',
-        '--stdin-filename', FILE, '-']
+        'ruff', 'format', '--force-exclude', '--stdin-filename', FILE, '-']
     popen.return_value.communicate.assert_called_once_with(
         b'x=1\n', timeout=10)
     assert 'startupinfo' not in popen.call_args[1]
@@ -46,10 +46,25 @@ def test_py_formatter_runs_ruff_on_the_file(popen):
 
 
 @patch('codeformatter.pyformatter.subprocess.Popen')
+def test_py_formatter_drops_forced_color(popen, monkeypatch):
+    monkeypatch.setenv('FORCE_COLOR', '1')
+    monkeypatch.setenv('CLICOLOR_FORCE', '1')
+    monkeypatch.setenv('CODEFORMATTER_TEST_KEEP', 'kept')
+
+    run(popen, out=b'x = 1\n')
+
+    env = popen.call_args[1]['env']
+    assert 'FORCE_COLOR' not in env
+    assert 'CLICOLOR_FORCE' not in env
+    assert env['CODEFORMATTER_TEST_KEEP'] == 'kept'
+    assert os.environ['FORCE_COLOR'] == '1'
+
+
+@patch('codeformatter.pyformatter.subprocess.Popen')
 def test_py_formatter_unsaved_buffer(popen):
     run(popen, file_name=None, out=b'x = 1\n')
 
-    assert command(popen) == ['ruff', 'format', '--color', 'never', '-']
+    assert command(popen) == ['ruff', 'format', '-']
 
 
 @patch('codeformatter.pyformatter.subprocess.Popen')
@@ -60,9 +75,8 @@ def test_py_formatter_passes_paths_as_single_arguments(popen):
         out=b'x = 1\n')
 
     assert command(popen) == [
-        'C:\\Program Files\\ruff\\ruff.exe', 'format', '--color', 'never',
-        '--force-exclude', '--stdin-filename', '/home/u/my project/módulo.py',
-        '-']
+        'C:\\Program Files\\ruff\\ruff.exe', 'format', '--force-exclude',
+        '--stdin-filename', '/home/u/my project/módulo.py', '-']
 
 
 @patch('codeformatter.pyformatter.subprocess.Popen')

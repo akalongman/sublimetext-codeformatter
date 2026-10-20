@@ -104,7 +104,7 @@ These would make the feature a failure even if it technically works:
 ### Invocation
 
 ```
-<ruff_path or "ruff"> format --color never --force-exclude --stdin-filename <file_name> -
+<ruff_path or "ruff"> format --force-exclude --stdin-filename <file_name> -
 ```
 
 The buffer goes to stdin, the result comes from stdout. For a never-saved
@@ -112,6 +112,14 @@ buffer (`file_name` is `None`), both `--force-exclude` and
 `--stdin-filename` are left out; ruff then searches for configuration
 upward from Sublime Text's working directory, and falls back to its
 user-level configuration or its defaults **(default)**.
+
+ruff runs with Sublime Text's environment minus `FORCE_COLOR` and
+`CLICOLOR_FORCE`. Either one, inherited from a login shell, makes ruff
+color its stderr even when piped, and the error dialog would show the
+ANSI escape codes; `NO_COLOR` does not override them. The `--color never`
+flag would also work, but ruff before 0.15.0 (released 2026-02-03)
+rejects it with exit 2, which would break every format on an older ruff
+**(maintainer)**.
 
 These probes against ruff 0.17.1 (released 2026-10-15) back the choice:
 

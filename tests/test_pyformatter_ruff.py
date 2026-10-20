@@ -65,3 +65,15 @@ def test_ruff_reports_syntax_error(tmp_path, monkeypatch):
 
     assert out == ''
     assert err.startswith('error: Failed to parse')
+
+
+def test_ruff_error_is_plain_under_forced_color(tmp_path, monkeypatch):
+    monkeypatch.setenv('FORCE_COLOR', '1')
+    monkeypatch.setenv('CLICOLOR_FORCE', '1')
+
+    out, err = format_in_project(
+        tmp_path, monkeypatch, 'line-length = 20\n', 'pkg/m.py',
+        b'def (:\n')
+
+    assert out == ''
+    assert err.startswith('error: Failed to parse')

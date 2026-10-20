@@ -21,15 +21,20 @@ class PyFormatter:
         ruff_path = self.opts.get('ruff_path')
         ruff = os.path.expanduser(ruff_path) if ruff_path else 'ruff'
         file_name = self.formatter.file_name
-        # --color never: an inherited FORCE_COLOR or CLICOLOR_FORCE would
-        # otherwise put ANSI escape codes in the error dialog.
         if file_name is None:
-            cmd = [ruff, 'format', '--color', 'never', '-']
+            cmd = [ruff, 'format', '-']
         else:
-            cmd = [ruff, 'format', '--color', 'never', '--force-exclude',
-                   '--stdin-filename', file_name, '-']
+            cmd = [ruff, 'format', '--force-exclude', '--stdin-filename',
+                   file_name, '-']
 
-        popen_args = {}
+        # An inherited FORCE_COLOR or CLICOLOR_FORCE would put ANSI escape
+        # codes in the error dialog. Dropping them works on every ruff
+        # version; the --color flag only exists since ruff 0.15.0.
+        env = os.environ.copy()
+        env.pop('FORCE_COLOR', None)
+        env.pop('CLICOLOR_FORCE', None)
+
+        popen_args = {'env': env}
         if self.formatter.platform == 'windows':
             startupinfo = subprocess.STARTUPINFO()
             startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
