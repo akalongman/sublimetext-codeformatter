@@ -13,6 +13,7 @@ CodeFormatter has support for the following languages:
 * JavaScript/JSON - By JSBeautifier
 * HTML - By [Custom fork of BeautifulSoup](https://github.com/akalongman/python-beautifulsoup)
 * CSS,LESS,SASS - By JSBeautifier
+* Python - By [ruff](https://docs.astral.sh/ruff/formatter/)
 * Go - By [gofmt](https://golang.org/cmd/gofmt/)
 * Visual Basic/VBScript
 * Coldfusion/Railo/Lucee
@@ -202,6 +203,35 @@ Language specific options:
     }
 ```
 
+### Python
+Python - used [ruff](https://docs.astral.sh/ruff/formatter/)
+
+Language specific options:
+```js
+    "codeformatter_python_options":
+    {
+        "syntaxes": "python", // Syntax names which must process Python formatter
+        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
+        "ruff_path": "" // Path to the ruff executable. If empty, uses "ruff" from PATH
+    }
+```
+
+Style comes from the project's ruff configuration: the closest `.ruff.toml`, `ruff.toml` or `pyproject.toml` with a `[tool.ruff]` section above the file. CodeFormatter has no Python style options of its own. Files that this configuration excludes (its `exclude` and `extend-exclude` lists) are left unchanged.
+
+For a buffer that was never saved, ruff looks for a configuration upward from Sublime Text's working directory, which is usually not the project folder, and otherwise falls back to its user-level configuration or its defaults. Save the file inside the project to format it with the project's style.
+
+If you format Python files with another package, set `"syntaxes": ""` in `codeformatter_python_options` so CodeFormatter leaves them alone.
+
+Installing ruff:
+
+* macOS: `brew install ruff`
+* Debian/Ubuntu: `sudo apt install pipx`, then `pipx install ruff`
+* Other Linux: `curl -LsSf https://astral.sh/ruff/install.sh | sh`
+* Windows (PowerShell): `powershell -c "irm https://astral.sh/ruff/install.ps1 | iex"`
+* WSL: if Sublime Text runs inside WSL, install ruff inside WSL with the Linux steps. If Windows Sublime Text edits files under `\\wsl.localhost`, install ruff on Windows with the Windows steps.
+
+Sublime Text started from the macOS Dock does not see the shell's `PATH`, so it may not find ruff. In that case, or whenever CodeFormatter reports that ruff is not found, set `ruff_path` to the output of `which ruff` in a terminal (`where ruff` in the Windows Command Prompt).
+
 ### Go
 Go - used [gofmt](https://golang.org/src/cmd/gofmt/gofmt.go)
 
@@ -265,7 +295,6 @@ You can set up your own key combo for this, by going to Preferences -> Key Bindi
 ## TODO
 
 Add other languages support:
-* Python (for ST3)
 * Perl
 * Ruby
 
