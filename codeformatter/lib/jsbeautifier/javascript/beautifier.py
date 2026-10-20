@@ -174,7 +174,7 @@ class Beautifier:
             self.opts.brace_style = 'collapse,preserve-inline'
 
         #split always returns at least one value
-        split = re.compile("[^a-zA-Z0-9_\-]+").split(self.opts.brace_style)
+        split = re.compile(r"[^a-zA-Z0-9_\-]+").split(self.opts.brace_style)
         #preserve-inline in delimited string will trigger brace_preserve_inline
         #Everything else is considered a brace_style and the last one only will
         #have an effect

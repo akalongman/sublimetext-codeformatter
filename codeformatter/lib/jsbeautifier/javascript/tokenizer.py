@@ -50,16 +50,16 @@ class Tokenizer:
         self.opts = opts
         self.indent_string = indent_string
         #  /* ... */ comment ends with nearest */ or end of file
-        self.block_comment_pattern = re.compile('([\s\S]*?)((?:\*\/)|$)')
+        self.block_comment_pattern = re.compile(r'([\s\S]*?)((?:\*\/)|$)')
 
         # comment ends just before nearest linefeed or end of file
         self.comment_pattern = re.compile(self.acorn.six.u('([^\n\r\u2028\u2029]*)'))
 
-        self.directives_block_pattern = re.compile('\/\* beautify( \w+[:]\w+)+ \*\/')
-        self.directive_pattern = re.compile(' (\w+)[:](\w+)')
-        self.directives_end_ignore_pattern = re.compile('([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)')
+        self.directives_block_pattern = re.compile(r'\/\* beautify( \w+[:]\w+)+ \*\/')
+        self.directive_pattern = re.compile(r' (\w+)[:](\w+)')
+        self.directives_end_ignore_pattern = re.compile(r'([\s\S]*?)((?:\/\*\sbeautify\signore:end\s\*\/)|$)')
 
-        self.template_pattern = re.compile('((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)')
+        self.template_pattern = re.compile(r'((<\?php|<\?=)[\s\S]*?\?>)|(<%[\s\S]*?%>)')
 
     def tokenize(self):
         self.in_html_comment = False
@@ -248,7 +248,7 @@ class Tokenizer:
                 comment = '//' + comment_match.group(0)
                 return comment, 'TK_COMMENT'
 
-        startXmlRegExp = re.compile('<()([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
+        startXmlRegExp = re.compile('<()([-a-zA-Z:0-9_.]+|{[\\s\\S]+?}|!\\[CDATA\\[[\\s\\S]*?\\]\\])(\\s+{[\\s\\S]+?}|\\s+[-a-zA-Z:0-9_.]+|\\s+[-a-zA-Z:0-9_.]+\\s*=\\s*(\'[^\']*\'|"[^"]*"|{[\\s\\S]+?}))*\\s*(/?)\\s*>')
 
         self.has_char_escapes = False
 
@@ -288,7 +288,7 @@ class Tokenizer:
 
             elif self.opts.e4x and sep == '<':
                 # handle e4x xml literals
-                xmlRegExp = re.compile('[\s\S]*?<(\/?)([-a-zA-Z:0-9_.]+|{[\s\S]+?}|!\[CDATA\[[\s\S]*?\]\])(\s+{[\s\S]+?}|\s+[-a-zA-Z:0-9_.]+|\s+[-a-zA-Z:0-9_.]+\s*=\s*(\'[^\']*\'|"[^"]*"|{[\s\S]+?}))*\s*(/?)\s*>')
+                xmlRegExp = re.compile('[\\s\\S]*?<(\\/?)([-a-zA-Z:0-9_.]+|{[\\s\\S]+?}|!\\[CDATA\\[[\\s\\S]*?\\]\\])(\\s+{[\\s\\S]+?}|\\s+[-a-zA-Z:0-9_.]+|\\s+[-a-zA-Z:0-9_.]+\\s*=\\s*(\'[^\']*\'|"[^"]*"|{[\\s\\S]+?}))*\\s*(/?)\\s*>')
                 self.input.back()
                 xmlStr = ""
                 match = self.input.match(xmlRegExp)
@@ -317,7 +317,7 @@ class Tokenizer:
 
                     # if we didn't close correctly, keep unformatted.
                     if not match:
-                        xmlStr += self.input.match(re.compile('[\s\S]*')).group(0)
+                        xmlStr += self.input.match(re.compile(r'[\s\S]*')).group(0)
 
                     xmlStr = re.sub(self.acorn.allLineBreaks, '\n', xmlStr)
                     return xmlStr, 'TK_STRING'
@@ -428,7 +428,7 @@ class Tokenizer:
                 return c, 'TK_STRING'
 
 
-        if c == '<' and self.input.match(re.compile('\!--')):
+        if c == '<' and self.input.match(re.compile(r'\!--')):
             c = '<!--'
             while self.input.hasNext() and not self.input.testChar(self.acorn.newline):
                 c += self.input.next()

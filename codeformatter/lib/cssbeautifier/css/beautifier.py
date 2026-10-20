@@ -64,8 +64,8 @@ CSS beautifier (http://jsbeautifier.org/)
     else:
         return 0
 
-WHITE_RE = re.compile("^\s+$")
-WORD_RE = re.compile("[\w$\-_]")
+WHITE_RE = re.compile(r"^\s+$")
+WORD_RE = re.compile(r"[\w$\-_]")
 
 
 class Printer:
@@ -400,8 +400,8 @@ class Beautifier:
                     printer.print_string(self.ch)
                     self.eatWhitespace()
                     if self.next():
-                        if self.ch is not ')' and self.ch is not '"' \
-                        and self.ch is not '\'':
+                        if self.ch != ')' and self.ch != '"' \
+                        and self.ch != '\'':
                             printer.print_string(self.eatString(')'))
                         else:
                             self.pos = self.pos - 1
