@@ -196,7 +196,7 @@ Language specific options:
     }
 ```
 
-Style comes from the project's ruff configuration: the closest `.ruff.toml`, `ruff.toml` or `pyproject.toml` with a `[tool.ruff]` section above the file. CodeFormatter has no Python style options of its own. Files that this configuration excludes (its `exclude` and `extend-exclude` lists) are left unchanged.
+Style comes from the project's ruff configuration: the closest `.ruff.toml`, `ruff.toml` or `pyproject.toml` with a `[tool.ruff]` section above the file. CodeFormatter has no Python style options of its own. Files that this configuration excludes are left unchanged: its `exclude` list (by default ruff's own list, such as `.venv`, `dist` and `node_modules`), its `extend-exclude` list, and its `[tool.ruff.format] exclude` list (`[format]` in a `ruff.toml`).
 
 For a buffer that was never saved, ruff looks for a configuration upward from Sublime Text's working directory, which is usually not the project folder, and otherwise falls back to its user-level configuration or its defaults. Save the file inside the project to format it with the project's style.
 
@@ -208,9 +208,11 @@ Installing ruff:
 * Debian/Ubuntu: `sudo apt install pipx`, then `pipx install ruff`, then `pipx ensurepath`, then log out and back in so that Sublime Text started from the desktop sees `~/.local/bin`
 * Other Linux: `curl -LsSf https://astral.sh/ruff/install.sh | sh`
 * Windows (PowerShell): `powershell -c "irm https://astral.sh/ruff/install.ps1 | iex"`
-* WSL: if Sublime Text runs inside WSL, install ruff inside WSL with the Linux steps. If Windows Sublime Text edits files under `\\wsl.localhost`, install ruff on Windows with the Windows steps.
+* WSL: if Sublime Text runs inside WSL, install ruff inside WSL with the Linux steps. If Windows Sublime Text edits files under `\\wsl.localhost`, install ruff on Windows with the Windows steps. A ruff installed only inside WSL cannot be used by Windows Sublime Text.
 
-Sublime Text started from the macOS Dock may not see the same `PATH` as your terminal, so it may not find ruff. In that case, or whenever CodeFormatter reports that ruff is not found, set `ruff_path` to the output of `which ruff` in a terminal. On Windows, run `where.exe ruff` (in PowerShell or the Command Prompt) and use the first line it prints. Write that path with forward slashes or doubled backslashes, because a single backslash starts an escape sequence in the settings file: `"ruff_path": "C:/Users/you/.local/bin/ruff.exe"` or `"ruff_path": "C:\\Users\\you\\.local\\bin\\ruff.exe"`.
+Restart Sublime Text after installing ruff, and open a new terminal before running `which ruff` or `where.exe ruff` below, because a program that is already running keeps the `PATH` it started with.
+
+Sublime Text started from the macOS Dock may not see the same `PATH` as your terminal, so it may not find ruff. In that case, or whenever CodeFormatter reports that ruff is not found, set `ruff_path` to the output of `which ruff` in a terminal. On Windows, run `where.exe ruff` (in PowerShell or the Command Prompt) and use the first line it prints. Write that path with forward slashes or doubled backslashes, because a single backslash starts an escape sequence in the settings file: `"ruff_path": "C:/Users/you/.local/bin/ruff.exe"` or `"ruff_path": "C:\\Users\\you\\.local\\bin\\ruff.exe"`. Copy the whole `codeformatter_python_options` block into `Settings - User` and change `ruff_path` there, because a block that holds only `ruff_path` replaces the default block, which drops `syntaxes` and turns Python formatting off.
 
 ### Visual Basic/VBScript
 Visual Basic/VBScript - used custom approach using the HTML beautifier as a guide
