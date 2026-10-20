@@ -51,7 +51,9 @@ class PyFormatter:
         if p.returncode == 0:
             if stderr:
                 print('CodeFormatter: ' + stderr)
-            return stdout, ''
+            # ruff prints nothing for a buffer of only spaces or tabs, and
+            # the caller reports empty output as an error, so keep the text.
+            return stdout or text, ''
         return '', stderr or 'ruff exited with code %d' % p.returncode
 
     def format_on_save_enabled(self, file_name):

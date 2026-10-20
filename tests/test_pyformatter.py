@@ -76,6 +76,13 @@ def test_py_formatter_warning_goes_to_console(popen, capsys):
 
 
 @patch('codeformatter.pyformatter.subprocess.Popen')
+def test_py_formatter_empty_output_keeps_buffer(popen):
+    result = run(popen, out=b'', returncode=0)
+
+    assert result == (b'x=1\n', '')
+
+
+@patch('codeformatter.pyformatter.subprocess.Popen')
 def test_py_formatter_error_returns_stderr(popen):
     result = run(
         popen,
