@@ -1,7 +1,7 @@
 import subprocess
 
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, call, patch
 
 from .scenarios import format_on_save_scenarios
 
@@ -34,18 +34,22 @@ def test_py_formatter_runs_ruff_on_the_file(popen):
 
     assert result == (b'x = 1\n', '')
     assert command(popen) == [
-        'ruff', 'format', '--force-exclude', '--stdin-filename', FILE, '-']
+        'ruff', 'format', '--color', 'never', '--force-exclude',
+        '--stdin-filename', FILE, '-']
     popen.return_value.communicate.assert_called_once_with(
         b'x=1\n', timeout=10)
     assert 'startupinfo' not in popen.call_args[1]
     assert popen.call_args[1].get('shell') is not True
+    streams = [popen.call_args[1].get(name)
+               for name in ('stdin', 'stdout', 'stderr')]
+    assert streams == [subprocess.PIPE] * 3
 
 
 @patch('codeformatter.pyformatter.subprocess.Popen')
 def test_py_formatter_unsaved_buffer(popen):
     run(popen, file_name=None, out=b'x = 1\n')
 
-    assert command(popen) == ['ruff', 'format', '-']
+    assert command(popen) == ['ruff', 'format', '--color', 'never', '-']
 
 
 @patch('codeformatter.pyformatter.subprocess.Popen')
@@ -56,8 +60,9 @@ def test_py_formatter_passes_paths_as_single_arguments(popen):
         out=b'x = 1\n')
 
     assert command(popen) == [
-        'C:\\Program Files\\ruff\\ruff.exe', 'format', '--force-exclude',
-        '--stdin-filename', '/home/u/my project/módulo.py', '-']
+        'C:\\Program Files\\ruff\\ruff.exe', 'format', '--color', 'never',
+        '--force-exclude', '--stdin-filename', '/home/u/my project/módulo.py',
+        '-']
 
 
 @patch('codeformatter.pyformatter.subprocess.Popen')
@@ -65,6 +70,16 @@ def test_py_formatter_empty_ruff_path_uses_ruff(popen):
     run(popen, opts={'ruff_path': ''}, out=b'x = 1\n')
 
     assert command(popen)[0] == 'ruff'
+
+
+@patch('codeformatter.pyformatter.subprocess.Popen')
+def test_py_formatter_expands_home_in_ruff_path(popen, monkeypatch):
+    monkeypatch.setenv('HOME', '/home/u')
+    monkeypatch.setenv('USERPROFILE', '/home/u')
+
+    run(popen, opts={'ruff_path': '~/bin/ruff'}, out=b'x = 1\n')
+
+    assert command(popen)[0] == '/home/u/bin/ruff'
 
 
 @patch('codeformatter.pyformatter.subprocess.Popen')
@@ -124,17 +139,22 @@ def test_py_formatter_timeout_kills_ruff(popen):
     result = run(popen)
 
     assert result == ('', 'ruff did not finish in 10 seconds')
-    popen.return_value.kill.assert_called_once_with()
+    assert popen.return_value.mock_calls == [
+        call.communicate(b'x=1\n', timeout=10), call.kill(),
+        call.communicate()]
 
 
 @patch('codeformatter.pyformatter.subprocess.Popen')
 def test_py_formatter_hides_window_on_windows(popen):
+    startupinfo = Mock(dwFlags=0)
     with patch.multiple('codeformatter.pyformatter.subprocess', create=True,
-                        STARTUPINFO=Mock(return_value=Mock(dwFlags=0)),
+                        STARTUPINFO=Mock(return_value=startupinfo),
                         STARTF_USESHOWWINDOW=1, SW_HIDE=0):
         run(popen, platform='windows', out=b'x = 1\n')
 
-    assert 'startupinfo' in popen.call_args[1]
+    assert popen.call_args[1]['startupinfo'] is startupinfo
+    assert startupinfo.dwFlags & 1
+    assert startupinfo.wShowWindow == 0
 
 
 @pytest.mark.parametrize('options,filename,expected', format_on_save_scenarios)

@@ -3,6 +3,7 @@
 # @link             http://longman.me
 # @license         The MIT License (MIT)
 
+import os
 import re
 import subprocess
 
@@ -17,12 +18,15 @@ class PyFormatter:
         self.opts = formatter.settings.get('codeformatter_python_options')
 
     def format(self, text):
-        ruff = self.opts.get('ruff_path') or 'ruff'
+        ruff_path = self.opts.get('ruff_path')
+        ruff = os.path.expanduser(ruff_path) if ruff_path else 'ruff'
         file_name = self.formatter.file_name
+        # --color never: an inherited FORCE_COLOR or CLICOLOR_FORCE would
+        # otherwise put ANSI escape codes in the error dialog.
         if file_name is None:
-            cmd = [ruff, 'format', '-']
+            cmd = [ruff, 'format', '--color', 'never', '-']
         else:
-            cmd = [ruff, 'format', '--force-exclude',
+            cmd = [ruff, 'format', '--color', 'never', '--force-exclude',
                    '--stdin-filename', file_name, '-']
 
         popen_args = {}
