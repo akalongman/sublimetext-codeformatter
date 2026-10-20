@@ -104,7 +104,7 @@ These would make the feature a failure even if it technically works:
 ### Invocation
 
 ```
-<ruff_path or "ruff"> format --force-exclude --stdin-filename <file_name> -
+<ruff_path or "ruff"> format --color never --force-exclude --stdin-filename <file_name> -
 ```
 
 The buffer goes to stdin, the result comes from stdout. For a never-saved
@@ -139,8 +139,8 @@ These probes against ruff 0.17.1 (released 2026-10-15) back the choice:
 - **ruff not found** (`Popen` raises `OSError`/`FileNotFoundError`): the
   error says `ruff not found. Install ruff, or set ruff_path in
   codeformatter_python_options to its full path.` On macOS, Sublime Text
-  started from the Dock does not see the shell's `PATH`, so this is the
-  expected first-run problem there.
+  started from the Dock may not see the shell's `PATH`, so this is a
+  likely first-run problem there.
 - **Timeout:** 10 seconds **(default)**. The process is killed and the error
   says `ruff did not finish in 10 seconds`.
 - **Windows:** the child process starts with a hidden window, the way
