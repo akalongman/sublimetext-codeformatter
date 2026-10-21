@@ -37,12 +37,15 @@ def plugin(monkeypatch, request):
 
     known = set(sys.modules)
 
-    def forget_imported_submodules():
+    def restore_shared_state():
         for name in set(sys.modules) - known:
             if name.startswith(PACKAGE + '.'):
                 del sys.modules[name]
+        # the sublime mock is shared with the other test files, which
+        # assert on its call history
+        sublime.reset_mock()
 
-    request.addfinalizer(forget_imported_submodules)
+    request.addfinalizer(restore_shared_state)
 
     module = importlib.import_module(PACKAGE + '.CodeFormatter')
     sublime.reset_mock()
