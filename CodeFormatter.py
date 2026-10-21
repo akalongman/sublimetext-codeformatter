@@ -186,6 +186,12 @@ def run_formatter(view, edit, *args, **kwargs):
 
     if len(stderr) == 0 and len(stdout) > 0:
         view.replace(edit, file_text, stdout)
+    elif saving:
+        # a dialog on every save would stand in the way, so a format error
+        # goes to the status bar, with the full text in the console
+        first_line = (stderr.strip().splitlines() or [''])[0]
+        sublime.status_message('CodeFormatter: Format error: ' + first_line)
+        console_write('Format error:\n' + stderr, True)
     elif not quiet:
         show_error('Format error:\n' + stderr)
 
