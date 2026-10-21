@@ -242,7 +242,30 @@ def test_version_unreadable():
     assert run.call_count == 2
 
 
-CS_FIXER = ['php', '/proj/vendor/bin/php-cs-fixer']
+@pytest.mark.parametrize('tool,result', [
+    # Composer's platform check, with display_errors on stdout.
+    ('phpcbf', (255, b'PHP Fatal error:  Composer detected issues in your '
+                b'platform: Your Composer dependencies require a PHP '
+                b'version ">= 8.2.0". You are running 8.1.2.\n', '')),
+    # PHP-CS-Fixer's own environment check.
+    ('php-cs-fixer', (1, b'', 'PHP needs to be a minimum version of PHP '
+                              '7.4.0 and maximum version of PHP 8.1.*.')),
+], ids=['composer-platform-check', 'php-cs-fixer-env-check'])
+def test_version_failed_run(tool, result):
+    from codeformatter import phpfixer
+
+    with fake_run(result, result) as run:
+        for _ in range(2):
+            with pytest.raises(phpfixer.FixerError) as error:
+                tool_version(tool, [tool])
+            assert str(error.value) == (
+                'could not read the {} version'.format(tool))
+
+    # The number in the error text was not kept as the version.
+    assert run.call_count == 2
+
+
+CS_FIXER =['php', '/proj/vendor/bin/php-cs-fixer']
 LISTED = b"'./src/a.php'\n'./src/b.php'\n"
 
 
@@ -271,16 +294,15 @@ def test_covered_listed_file(proj):
 
 
 def test_covered_without_config_file(proj):
-    with fake_run((0, LISTED, '')) as run:
+    # Without a configuration there is no Finder that could exclude it.
+    with fake_run() as run:
         assert covered(proj, proj / 'src' / 'a.php', with_config=False) is True
-        # Kept without an mtime, the list serves the second call.
-        assert covered(proj, proj / 'src' / 'b.php', with_config=False) is True
 
-    run.assert_called_once_with(
-        CS_FIXER + ['list-files', '--no-ansi'], b'', str(proj), 'linux')
+    run.assert_not_called()
 
 
 def test_covered_excluded_refreshes_once(proj):
+    # Not on disk, so the misses are not remembered.
     legacy = proj / 'legacy' / 'l.php'
 
     with fake_run((0, LISTED, ''), (0, LISTED, '')) as run:
@@ -289,6 +311,73 @@ def test_covered_excluded_refreshes_once(proj):
         assert run.call_count == 1
 
         # Missing from the kept list, the file may be new: one refresh.
+        assert covered(proj, legacy) is False
+        assert run.call_count == 2
+
+
+def test_covered_remembers_excluded_file_on_disk(proj):
+    legacy = touch(proj / 'legacy' / 'l.php')
+
+    with fake_run((0, LISTED, ''), (0, LISTED, '')) as run:
+        assert covered(proj, proj / 'src' / 'a.php') is True
+        # The one refresh misses a file that is on disk: remembered.
+        assert covered(proj, legacy) is False
+        assert run.call_count == 2
+
+        assert covered(proj, legacy) is False
+        assert run.call_count == 2
+
+
+def test_covered_remembers_miss_of_a_first_read(proj):
+    legacy = touch(proj / 'legacy' / 'l.php')
+
+    with fake_run((0, LISTED, '')) as run:
+        # A list read by this call is as fresh as a refresh.
+        assert covered(proj, legacy) is False
+        assert covered(proj, legacy) is False
+
+    assert run.call_count == 1
+
+
+def test_covered_file_missing_from_disk_refreshes_again(proj):
+    # on_pre_save runs before Sublime Text writes a new file.
+    new = proj / 'legacy' / 'new.php'
+
+    with fake_run((0, LISTED, ''), (0, LISTED, ''), (0, LISTED, '')) as run:
+        assert covered(proj, proj / 'src' / 'a.php') is True
+        assert covered(proj, new) is False
+        assert run.call_count == 2
+
+        assert covered(proj, new) is False
+        assert run.call_count == 3
+
+
+def test_covered_excluded_file_listed_by_a_later_refresh(proj):
+    legacy = touch(proj / 'legacy' / 'l.php')
+    relisted = LISTED + b"'./src/c.php'\n'./legacy/l.php'\n"
+
+    with fake_run((0, LISTED, ''), (0, relisted, '')) as run:
+        assert covered(proj, legacy) is False
+        # A new file refreshes the list, which now holds legacy/l.php too.
+        assert covered(proj, proj / 'src' / 'c.php') is True
+        # The list is checked before the remembered exclusions.
+        assert covered(proj, legacy) is True
+
+    assert run.call_count == 2
+
+
+def test_covered_config_change_forgets_exclusions(proj):
+    config = str(proj / '.php-cs-fixer.dist.php')
+    legacy = touch(proj / 'legacy' / 'l.php')
+
+    with fake_run((0, LISTED, ''), (0, LISTED, '')) as run:
+        assert covered(proj, legacy) is False
+        assert covered(proj, legacy) is False
+        assert run.call_count == 1
+
+        mtime = os.path.getmtime(config)
+        os.utime(config, (mtime + 10, mtime + 10))
+
         assert covered(proj, legacy) is False
         assert run.call_count == 2
 

@@ -27,8 +27,9 @@ HUNK_HEADER = re.compile(
 
 # Kept for the session. tuple(argv) -> (major, minor, patch).
 _version_cache = {}
-# (config_dir, config_file) -> (mtime of config_file or None, set of the
-# normalized paths list-files printed).
+# (config_dir, config_file) -> (mtime of config_file, set of the normalized
+# paths list-files printed, set of the normalized paths remembered as
+# excluded). A new mtime starts a new entry, so it drops both sets.
 _coverage_cache = {}
 
 
@@ -123,10 +124,13 @@ def tool_version(tool, argv, cwd, platform):
     """
     key = tuple(argv)
     if key not in _version_cache:
-        _, stdout, stderr = process.run(
+        returncode, stdout, stderr = process.run(
             argv + ['--version'], b'', cwd, platform)
-        match = (VERSION.search(stdout.decode('utf-8', 'replace')) or
-                 VERSION.search(stderr))
+        # A failed run prints the versions it requires (">= 8.2.0"), which
+        # must not be taken for the tool's own.
+        match = returncode == 0 and (
+            VERSION.search(stdout.decode('utf-8', 'replace')) or
+            VERSION.search(stderr))
         if not match:
             raise FixerError('could not read the {} version'.format(tool))
         _version_cache[key] = tuple(int(n) for n in match.groups())
@@ -137,29 +141,46 @@ def covered_by_php_cs_fixer(argv, config_dir, config_file, file_name,
                             platform):
     """Tell whether the PHP-CS-Fixer configuration covers file_name.
 
-    The list-files output is kept per configuration directory and file
-    until the file's mtime changes. A file missing from a kept list
-    triggers one refresh, as it may be new. A failure keeps nothing.
-    process.Timeout and OSError propagate.
+    Without a configuration file there is no Finder that could exclude
+    the file, so it is covered and nothing runs. Otherwise the list-files
+    output is kept per configuration directory and file until the file's
+    mtime changes. A file missing from a kept list triggers one refresh,
+    as it may be new. A file that a list read during the call misses
+    while it is on disk is remembered as excluded until the mtime
+    changes. A failure keeps nothing. process.Timeout and OSError
+    propagate.
     """
+    if not config_file:
+        return True
+
     key = (config_dir, config_file)
-    mtime = os.path.getmtime(config_file) if config_file else None
+    mtime = os.path.getmtime(config_file)
     target = _normalize(file_name)
 
     kept = _coverage_cache.get(key)
-    if kept is not None and kept[0] == mtime and target in kept[1]:
-        return True
+    if kept is not None and kept[0] == mtime:
+        # The list comes first, so a refresh that lists a remembered
+        # file makes it covered again.
+        if target in kept[1]:
+            return True
+        if target in kept[2]:
+            return False
+        excluded = kept[2]
+    else:
+        excluded = set()
 
     files = _list_files(argv, config_dir, config_file, platform)
-    _coverage_cache[key] = (mtime, files)
+    # Only a miss for a file on disk is remembered: on_pre_save runs before
+    # Sublime Text writes a new file, and remembering that miss would keep
+    # the file excluded for the session.
+    if target not in files and os.path.isfile(file_name):
+        excluded.add(target)
+    _coverage_cache[key] = (mtime, files, excluded)
     return target in files
 
 
 def _list_files(argv, config_dir, config_file, platform):
-    cmd = argv + ['list-files', '--no-ansi']
-    if config_file:
-        cmd.append('--config=' + config_file)
-
+    cmd = argv + ['list-files', '--no-ansi', '--config=' + config_file]
     returncode, stdout, stderr = process.run(cmd, b'', config_dir, platform)
     if returncode != 0:
         raise FixerError(stderr or 'php-cs-fixer exited with code {}'.format(
