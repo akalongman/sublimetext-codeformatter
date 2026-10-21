@@ -1,5 +1,24 @@
+import os
+
 import pytest
 from unittest.mock import patch
+
+
+@pytest.fixture(autouse=True)
+def clear_caches():
+    from codeformatter import phpfixer
+    phpfixer._version_cache.clear()
+    phpfixer._coverage_cache.clear()
+    yield
+    phpfixer._version_cache.clear()
+    phpfixer._coverage_cache.clear()
+
+
+def fake_run(*results):
+    """Replace process.run; each result is (returncode, stdout, stderr), or
+    an exception to raise."""
+    return patch('codeformatter.phpfixer.process.run',
+                 side_effect=list(results))
 
 
 def touch(path):
@@ -164,3 +183,320 @@ def test_executable_missing(tmp_path):
     with patch('codeformatter.phpfixer.shutil.which', return_value=None):
         assert find_executable('php-cs-fixer', proj) is None
         assert find_executable('php-cs-fixer', None) is None
+
+
+def tool_version(tool, argv, cwd='/proj'):
+    from codeformatter import phpfixer
+    return phpfixer.tool_version(tool, argv, cwd, 'linux')
+
+
+def test_version_phpcbf():
+    out = (b'PHP_CodeSniffer version 4.0.4 (stable) by Squiz and '
+           b'PHPCSStandards\n')
+    phpcbf = ['php', '/proj/vendor/bin/phpcbf']
+
+    with fake_run((0, out, '')) as run:
+        assert tool_version('phpcbf', phpcbf) == (4, 0, 4)
+
+    run.assert_called_once_with(
+        ['php', '/proj/vendor/bin/phpcbf', '--version'], b'', '/proj',
+        'linux')
+
+
+def test_version_pint_cached():
+    pint = ['php', '/proj/vendor/bin/pint']
+
+    with fake_run((0, b'Pint 1.32.1\n', ''),
+                  (0, b'Pint 1.26.0\n', '')) as run:
+        assert tool_version('pint', pint) == (1, 32, 1)
+        assert tool_version('pint', pint, cwd='/other') == (1, 32, 1)
+        assert run.call_count == 1
+
+        # Another command line is another executable, read on its own.
+        assert tool_version('pint', ['/usr/local/bin/pint']) == (1, 26, 0)
+        assert run.call_count == 2
+
+
+@pytest.mark.parametrize('stdout,stderr,expected', [
+    (b'PHP CS Fixer 3.95.27 by Fabien Potencier, Dariusz Ruminski and '
+     b'contributors.\nPHP runtime: 8.5.4\n', 'Deprecated in 9.9.9',
+     (3, 95, 27)),
+    (b'Usage: phpcbf [options]\n', 'PHP_CodeSniffer version 3.13.6',
+     (3, 13, 6)),
+], ids=['stdout-first', 'stderr-when-stdout-has-none'])
+def test_version_stdout_then_stderr(stdout, stderr, expected):
+    with fake_run((0, stdout, stderr)):
+        assert tool_version('tool', ['tool']) == expected
+
+
+def test_version_unreadable():
+    from codeformatter import phpfixer
+
+    with fake_run((0, b'', ''), (0, b'', '')) as run:
+        for _ in range(2):
+            with pytest.raises(phpfixer.FixerError) as error:
+                tool_version('phpcbf', ['phpcbf'])
+            assert str(error.value) == 'could not read the phpcbf version'
+
+    # Nothing was kept, so the second call read the version again.
+    assert run.call_count == 2
+
+
+CS_FIXER = ['php', '/proj/vendor/bin/php-cs-fixer']
+LISTED = b"'./src/a.php'\n'./src/b.php'\n"
+
+
+@pytest.fixture
+def proj(tmp_path):
+    proj = tmp_path / 'proj'
+    touch(proj / '.php-cs-fixer.dist.php')
+    return proj
+
+
+def covered(proj, file_name, with_config=True):
+    from codeformatter import phpfixer
+    config_file = str(proj / '.php-cs-fixer.dist.php') if with_config else None
+    return phpfixer.covered_by_php_cs_fixer(
+        CS_FIXER, str(proj), config_file, str(file_name), 'linux')
+
+
+def test_covered_listed_file(proj):
+    with fake_run((0, LISTED, '')) as run:
+        assert covered(proj, proj / 'src' / 'a.php') is True
+
+    run.assert_called_once_with(
+        CS_FIXER + ['list-files', '--no-ansi',
+                    '--config=' + str(proj / '.php-cs-fixer.dist.php')],
+        b'', str(proj), 'linux')
+
+
+def test_covered_without_config_file(proj):
+    with fake_run((0, LISTED, '')) as run:
+        assert covered(proj, proj / 'src' / 'a.php', with_config=False) is True
+        # Kept without an mtime, the list serves the second call.
+        assert covered(proj, proj / 'src' / 'b.php', with_config=False) is True
+
+    run.assert_called_once_with(
+        CS_FIXER + ['list-files', '--no-ansi'], b'', str(proj), 'linux')
+
+
+def test_covered_excluded_refreshes_once(proj):
+    legacy = proj / 'legacy' / 'l.php'
+
+    with fake_run((0, LISTED, ''), (0, LISTED, '')) as run:
+        # A list read by this call is not read again.
+        assert covered(proj, legacy) is False
+        assert run.call_count == 1
+
+        # Missing from the kept list, the file may be new: one refresh.
+        assert covered(proj, legacy) is False
+        assert run.call_count == 2
+
+
+def test_covered_new_file_after_refresh(proj):
+    refreshed = LISTED + b"'./src/c.php'\n"
+
+    with fake_run((0, LISTED, ''), (0, refreshed, '')) as run:
+        assert covered(proj, proj / 'src' / 'a.php') is True
+        assert covered(proj, proj / 'src' / 'c.php') is True
+        assert covered(proj, proj / 'src' / 'c.php') is True
+
+    assert run.call_count == 2
+
+
+def test_covered_cache_and_config_change(proj):
+    config = str(proj / '.php-cs-fixer.dist.php')
+    a = proj / 'src' / 'a.php'
+
+    with fake_run((0, LISTED, ''), (0, LISTED, '')) as run:
+        assert covered(proj, a) is True
+        assert covered(proj, a) is True
+        assert run.call_count == 1
+
+        mtime = os.path.getmtime(config)
+        os.utime(config, (mtime + 10, mtime + 10))
+
+        assert covered(proj, a) is True
+        assert run.call_count == 2
+
+
+def test_covered_path_with_space(proj):
+    out = "'./my dir/módulo.php'\n".encode('utf-8')
+
+    with fake_run((0, out, '')):
+        assert covered(proj, proj / 'my dir' / 'módulo.php') is True
+
+
+@pytest.mark.parametrize('out,relative', [
+    # escapeshellarg on Windows: double quotes, and lines end with \r\n.
+    (b'"./src/a.php"\r\n', ['src', 'a.php']),
+    # escapeshellarg on POSIX writes an embedded ' as '\''.
+    (b"'./it'\\''s.php'\n", ["it's.php"]),
+], ids=['double-quoted', 'embedded-single-quote'])
+def test_covered_unquotes_each_form(proj, out, relative):
+    with fake_run((0, out, '')):
+        assert covered(proj, proj.joinpath(*relative)) is True
+
+
+def test_covered_error(proj):
+    from codeformatter import phpfixer
+
+    with fake_run((1, b'', 'boom')):
+        with pytest.raises(phpfixer.FixerError) as error:
+            covered(proj, proj / 'src' / 'a.php')
+
+    assert str(error.value) == 'boom'
+
+
+def test_covered_error_without_stderr(proj):
+    from codeformatter import phpfixer
+
+    with fake_run((255, b'PHP Fatal error: x\n', '')):
+        with pytest.raises(phpfixer.FixerError) as error:
+            covered(proj, proj / 'src' / 'a.php')
+
+    assert str(error.value) == 'php-cs-fixer exited with code 255'
+
+
+def test_covered_timeout(proj):
+    from codeformatter import phpfixer, process
+
+    with fake_run(process.Timeout()):
+        with pytest.raises(process.Timeout):
+            covered(proj, proj / 'src' / 'a.php')
+
+    assert phpfixer._coverage_cache == {}
+
+
+HEADERS = '--- php://stdin\n+++ php://stdin\n'
+
+
+def apply_diff(text, diff):
+    from codeformatter import phpfixer
+    return phpfixer.apply_unified_diff(text, diff)
+
+
+def test_diff_single_hunk():
+    diff = (HEADERS + '@@ -1,2 +1,2 @@\n'
+            ' <?php\n'
+            '-$a = [ 1,2 ];\n'
+            '+$a = array( 1, 2 );\n')
+
+    assert apply_diff('<?php\n$a = [ 1,2 ];\n', diff) == (
+        '<?php\n$a = array( 1, 2 );\n')
+
+
+TWELVE_LINES = ''.join('$v{0} = {0};\n'.format(n) for n in range(1, 13))
+TWO_HUNKS = (HEADERS + '@@ -1,5 +1,5 @@\n'
+             ' $v1 = 1;\n'
+             '-$v2 = 2;\n'
+             '+$v2 = 20;\n'
+             ' $v3 = 3;\n'
+             ' $v4 = 4;\n'
+             ' $v5 = 5;\n'
+             '@@ -7,6 +7,7 @@\n'
+             ' $v7 = 7;\n'
+             ' $v8 = 8;\n'
+             ' $v9 = 9;\n'
+             '-$v10 = 10;\n'
+             '+$v10 = 100;\n'
+             '+$v10b = 101;\n'
+             ' $v11 = 11;\n'
+             ' $v12 = 12;\n')
+
+
+def test_diff_two_hunks_and_insertions():
+    assert apply_diff(TWELVE_LINES, TWO_HUNKS) == (
+        '$v1 = 1;\n'
+        '$v2 = 20;\n'
+        '$v3 = 3;\n'
+        '$v4 = 4;\n'
+        '$v5 = 5;\n'
+        '$v6 = 6;\n'
+        '$v7 = 7;\n'
+        '$v8 = 8;\n'
+        '$v9 = 9;\n'
+        '$v10 = 100;\n'
+        '$v10b = 101;\n'
+        '$v11 = 11;\n'
+        '$v12 = 12;\n')
+
+
+def test_diff_no_final_newline():
+    new_side = (HEADERS + '@@ -1,2 +1,2 @@\n'
+                ' <?php\n'
+                '-$a=1;\n'
+                '+$a = 1;\n'
+                '\\ No newline at end of file\n')
+    old_side = (HEADERS + '@@ -1,2 +1,2 @@\n'
+                ' <?php\n'
+                '-$a=1;\n'
+                '\\ No newline at end of file\n'
+                '+$a = 1;\n')
+
+    assert apply_diff('<?php\n$a=1;\n', new_side) == '<?php\n$a = 1;'
+    assert apply_diff('<?php\n$a=1;', old_side) == '<?php\n$a = 1;\n'
+
+
+def test_diff_collapsed_range():
+    # A range of one line is written without its count.
+    diff = (HEADERS + '@@ -1 +1 @@\n'
+            '-<?php echo 1 ;\n'
+            '+<?php echo 1;\n')
+
+    assert apply_diff('<?php echo 1 ;\n', diff) == '<?php echo 1;\n'
+
+
+def test_diff_removed_line_like_a_header():
+    diff = (HEADERS + '@@ -1,2 +1,2 @@\n'
+            ' <?php\n'
+            '---$i;\n'
+            '+$i--;\n')
+
+    assert apply_diff('<?php\n--$i;\n', diff) == '<?php\n$i--;\n'
+
+
+@pytest.mark.parametrize('text,header,expected', [
+    # sebastian/diff gives the line the hunk starts at, also for count 0.
+    ('', '@@ -1,0 +1,2 @@', '<?php\n\n'),
+    ('', '@@ -0,0 +1,2 @@', '<?php\n\n'),
+    ('<?php\n\n$c = 1;\n', '@@ -3,0 +3,2 @@', '<?php\n\n<?php\n\n$c = 1;\n'),
+], ids=['empty-text', 'empty-text-zero-start', 'within-text'])
+def test_diff_hunk_that_removes_nothing(text, header, expected):
+    diff = HEADERS + header + '\n+<?php\n+\n'
+
+    assert apply_diff(text, diff) == expected
+
+
+def test_diff_splits_on_newline_only():
+    # \x0c, \u2028 and a lone \r end a line for str.splitlines, not for
+    # the diff.
+    text = '<?php\r\n$a = "x\x0cy\u2028z\rw";\r\n$b=1;\r\n'
+    diff = (HEADERS + '@@ -1,3 +1,3 @@\n'
+            ' <?php\r\n'
+            ' $a = "x\x0cy\u2028z\rw";\r\n'
+            '-$b=1;\r\n'
+            '+$b = 1;\r\n')
+
+    assert apply_diff(text, diff) == (
+        '<?php\r\n$a = "x\x0cy\u2028z\rw";\r\n$b = 1;\r\n')
+
+
+SINGLE_TEXT = '<?php\n$a = [ 1,2 ];\n'
+
+
+@pytest.mark.parametrize('text,diff', [
+    (SINGLE_TEXT, '@@ -1,2 +1,2 @@\n <?php\n-$a = [1, 2];\n+$a = 1;\n'),
+    (SINGLE_TEXT, '@@ -1,2 +1,2 @@\n <?PHP\n-$a = [ 1,2 ];\n+$a = 1;\n'),
+    (SINGLE_TEXT, '@@ -5,2 +5,2 @@\n <?php\n-$a = [ 1,2 ];\n+$a = 1;\n'),
+    (SINGLE_TEXT, '@@ -1,2 +1,2 @@\n <?php\n-$a = [ 1,2 ];\n'),
+    (SINGLE_TEXT, '@@ -1 +1 @@\n <?php\n-$a = [ 1,2 ];\n+$a = 1;\n'),
+    (SINGLE_TEXT, '@@ -2 +2 @@\n-$a = [ 1,2 ];\n+$a = 1;\n'
+                  '@@ -1 +1 @@\n-<?php\n+<?php \n'),
+    (TWELVE_LINES, TWO_HUNKS.replace(' $v11 = 11;', ' $v11 = 0;')),
+], ids=['removed-line', 'context-line', 'start-beyond-text',
+        'fewer-lines-than-counts', 'more-lines-than-counts',
+        'hunks-out-of-order', 'second-hunk'])
+def test_diff_mismatch_raises(text, diff):
+    with pytest.raises(ValueError):
+        apply_diff(text, HEADERS + diff)
