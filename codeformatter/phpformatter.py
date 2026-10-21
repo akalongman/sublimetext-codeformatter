@@ -3,12 +3,26 @@
 # @link             http://longman.me
 # @license         The MIT License (MIT)
 
-import os
+import json
 import re
-import sublime
-import subprocess
-import os.path
-from os.path import dirname, realpath
+
+from . import phpfixer
+from . import process
+
+
+REFUSAL = ('No PHP fixer is configured for this file. Add pint.json, '
+           '.php-cs-fixer.dist.php or phpcs.xml to the project, or set '
+           '"fixer" in codeformatter_php_options.')
+UNKNOWN_FIXER = ('Unknown fixer "{}" in codeformatter_php_options. Use '
+                 '"pint", "php-cs-fixer" or "phpcbf".')
+NOT_FOUND = ('{} not found. Run "composer require --dev {}" in the project, '
+             'or set fixer_path in codeformatter_php_options.')
+TIMED_OUT = '{} did not finish in {} seconds'
+PINT_MINIMUM = (1, 26, 0)
+PINT_TOO_OLD = ('Pint 1.26.0 or newer is needed to format from the editor. '
+                'Run "composer update laravel/pint" in the project.')
+BAD_DIFF = 'php-cs-fixer returned a diff that does not match the buffer'
+UNREADABLE = 'php-cs-fixer printed output that is not its JSON report'
 
 
 class PhpFormatter:
@@ -18,143 +32,40 @@ class PhpFormatter:
         self.opts = formatter.settings.get('codeformatter_php_options')
 
     def format(self, text):
+        # A user override may lack keys, and may still hold the retired
+        # phpF keys, which are not read.
+        forced = self.opts.get('fixer', '')
+        if forced and forced not in phpfixer.FIXERS:
+            return '', UNKNOWN_FIXER.format(forced)
 
-        php_path = 'php'
-        if ('php_path' in self.opts and self.opts['php_path']):
-            php_path = self.opts['php_path']
+        file_name = self.formatter.file_name
+        found = phpfixer.find_config(file_name, forced or None)
+        if not found:
+            return '', REFUSAL
+        fixer, config_dir, config_file = found
 
-        php55_compat = False
-        if ('php55_compat' in self.opts and self.opts['php55_compat']):
-            php55_compat = self.opts['php55_compat']
+        not_found = NOT_FOUND.format(fixer, phpfixer.PACKAGES[fixer])
+        argv = phpfixer.find_executable(
+            fixer, config_dir, self.opts.get('fixer_path', ''),
+            self.opts.get('php_path', ''))
+        if not argv:
+            return '', not_found
 
-        enable_auto_align = False
-        if (
-            'enable_auto_align' in self.opts and
-            self.opts['enable_auto_align']
-        ):
-            enable_auto_align = self.opts['enable_auto_align']
-
-        indent_with_space = False
-        if (
-            'indent_with_space' in self.opts and
-            self.opts['indent_with_space']
-        ):
-            indent_with_space = self.opts['indent_with_space']
-
-        psr1 = False
-        if ('psr1' in self.opts and self.opts['psr1']):
-            psr1 = self.opts['psr1']
-
-        psr1_naming = False
-        if ('psr1_naming' in self.opts and self.opts['psr1_naming']):
-            psr1_naming = self.opts['psr1_naming']
-
-        psr2 = False
-        if ('psr2' in self.opts and self.opts['psr2']):
-            psr2 = self.opts['psr2']
-
-        smart_linebreak_after_curly = False
-        if ('smart_linebreak_after_curly' in self.opts and self.opts['smart_linebreak_after_curly']):
-            smart_linebreak_after_curly = self.opts['smart_linebreak_after_curly']
-
-        visibility_order = False
-        if ('visibility_order' in self.opts and self.opts['visibility_order']):
-            visibility_order = self.opts['visibility_order']
-
-        passes = []
-        if ('passes' in self.opts and self.opts['passes']):
-            passes = self.opts['passes']
-
-        excludes = []
-        if ('excludes' in self.opts and self.opts['excludes']):
-            excludes = self.opts['excludes']
-
-        cmd = []
-        cmd.append(str(php_path))
-
-        cmd.append('-ddisplay_errors=stderr')
-        cmd.append('-dshort_open_tag=On')
-
-        if php55_compat:
-            formatter_path = os.path.join(
-                dirname(realpath(sublime.packages_path())),
-                'Packages',
-                'CodeFormatter',
-                'codeformatter',
-                'lib',
-                'phpbeautifier',
-                'fmt-php55.phar'
-            )
-        else:
-            formatter_path = os.path.join(
-                dirname(realpath(sublime.packages_path())),
-                'Packages',
-                'CodeFormatter',
-                'codeformatter',
-                'lib',
-                'phpbeautifier',
-                'phpf.phar'
-            )
-
-        cmd.append(formatter_path)
-
-        if psr1:
-            cmd.append('--psr1')
-
-        if psr1_naming:
-            cmd.append('--psr1-naming')
-
-        if psr2:
-            cmd.append('--psr2')
-
-        if indent_with_space is True:
-            cmd.append('--indent_with_space')
-        elif indent_with_space > 0:
-            cmd.append('--indent_with_space=' + str(indent_with_space))
-
-        if enable_auto_align:
-            cmd.append('--enable_auto_align')
-
-        if visibility_order:
-            cmd.append('--visibility_order')
-
-        if smart_linebreak_after_curly:
-            cmd.append('--smart_linebreak_after_curly')
-
-        if len(passes) > 0:
-            cmd.append('--passes=' + ','.join(passes))
-
-        if len(excludes) > 0:
-            cmd.append('--exclude=' + ','.join(excludes))
-
-        cmd.append('-')
-
-        stderr = ''
-        stdout = ''
-
-        #print(cmd)
-
+        run = {
+            'pint': self._pint,
+            'phpcbf': self._phpcbf,
+            'php-cs-fixer': self._php_cs_fixer,
+        }[fixer]
         try:
-            if (self.formatter.platform == 'windows'):
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                startupinfo.wShowWindow = subprocess.SW_HIDE
-                p = subprocess.Popen(
-                    cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE, startupinfo=startupinfo,
-                    shell=False, creationflags=subprocess.SW_HIDE)
-            else:
-                p = subprocess.Popen(
-                    cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
-            stdout, stderr = p.communicate(text)
-        except Exception as e:
-            stderr = str(e)
-
-        if (not stderr and not stdout):
-            stderr = 'Formatting error!'
-
-        return stdout, stderr
+            return run(argv, config_dir, config_file, file_name, text)
+        except phpfixer.FixerError as e:
+            return '', str(e)
+        except process.Timeout:
+            return '', TIMED_OUT.format(fixer, process.TIMEOUT)
+        except OSError:
+            # The fixer or PHP could not be started, or the configuration
+            # file went away while the list of covered files was read.
+            return '', not_found
 
     def format_on_save_enabled(self, file_name):
         format_on_save = False
@@ -163,3 +74,110 @@ class PhpFormatter:
         if (isinstance(format_on_save, str)):
             format_on_save = re.search(format_on_save, file_name) is not None
         return format_on_save
+
+    def _run(self, cmd, text, config_dir):
+        return process.run(cmd, text, config_dir, self.formatter.platform)
+
+    def _pint(self, argv, config_dir, config_file, file_name, text):
+        version = phpfixer.tool_version(
+            'pint', argv, config_dir, self.formatter.platform)
+        if version < PINT_MINIMUM:
+            return '', PINT_TOO_OLD
+
+        cmd = argv + ['--no-ansi']
+        if config_file:
+            cmd.append('--config=' + config_file)
+        if file_name:
+            cmd.append('--stdin-filename=' + file_name)
+        cmd.append('-')
+
+        returncode, stdout, stderr = self._run(cmd, text, config_dir)
+        if returncode != 0:
+            return '', _failed('pint', returncode, stderr)
+        return _formatted(stdout, text, stderr)
+
+    def _phpcbf(self, argv, config_dir, config_file, file_name, text):
+        # config_file is not passed (no --standard=): phpcbf reads its
+        # ruleset from the working directory, in its own order of names.
+        major = phpfixer.tool_version(
+            'phpcbf', argv, config_dir, self.formatter.platform)[0]
+
+        cmd = argv + ['-q', '--no-colors']
+        if file_name:
+            cmd.append('--stdin-path=' + file_name)
+        cmd.append('-')
+
+        returncode, stdout, stderr = self._run(cmd, text, config_dir)
+        if major >= 4:
+            if returncode in (0, 2):
+                # 2: issues remain that phpcbf cannot fix.
+                return _formatted(stdout, text, stderr)
+            if returncode == 16 and 'No files were checked' in stderr:
+                # The ruleset excludes the file.
+                return text, ''
+        else:
+            if returncode == 1:
+                return _formatted(stdout, text, stderr)
+            if returncode == 0:
+                # stdout is a report, not code: nothing to fix, or the
+                # ruleset excludes the file.
+                return _formatted(b'', text, stderr)
+        return '', _failed('phpcbf', returncode, stderr)
+
+    def _php_cs_fixer(self, argv, config_dir, config_file, file_name, text):
+        # PHP-CS-Fixer does not apply the Finder to stdin, so ask it which
+        # files the configuration covers. A never-saved buffer has no path
+        # to ask about.
+        if file_name and not phpfixer.covered_by_php_cs_fixer(
+                argv, config_dir, config_file, file_name,
+                self.formatter.platform):
+            return text, ''
+
+        cmd = argv + ['fix', '--no-ansi', '--using-cache=no', '--diff',
+                      '--format=json']
+        if config_file:
+            cmd.append('--config=' + config_file)
+        cmd.append('-')
+
+        returncode, stdout, stderr = self._run(cmd, text, config_dir)
+        if returncode == 0:
+            return _formatted(b'', text, stderr)
+        if returncode != 8:
+            return '', _failed('php-cs-fixer', returncode, stderr)
+
+        # Exit 8: the fix is a diff against the buffer, as it cannot print
+        # the fixed code for stdin.
+        diff = _report_diff(stdout)
+        if diff is None:
+            first = (stdout.decode('utf-8', 'replace').strip().splitlines() or
+                     [''])[0][:200]
+            return '', UNREADABLE + (': ' + first if first else '')
+        # The buffer reaches the formatter encoded as UTF-8.
+        buffer = text.decode('utf-8')
+        try:
+            fixed = phpfixer.apply_unified_diff(buffer, diff)
+        except ValueError:
+            return '', BAD_DIFF
+        return _formatted(fixed.encode('utf-8'), text, stderr)
+
+
+def _report_diff(stdout):
+    """Return files[0].diff of a PHP-CS-Fixer JSON report, or None."""
+    try:
+        diff = json.loads(stdout.decode('utf-8'))['files'][0]['diff']
+    except (ValueError, KeyError, IndexError, TypeError):
+        return None
+    return diff if isinstance(diff, str) else None
+
+
+def _formatted(stdout, text, stderr):
+    """The result of a successful run; its warnings go to the console."""
+    for line in stderr.splitlines():
+        print('CodeFormatter: ' + line)
+    # Empty output and an empty error would show an empty error dialog, so
+    # keep the text.
+    return stdout or text, ''
+
+
+def _failed(tool, returncode, stderr):
+    return stderr or '{} exited with code {}'.format(tool, returncode)
