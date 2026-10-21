@@ -360,16 +360,18 @@ def test_version_unreadable():
     assert run.call_count == 2
 
 
-@pytest.mark.parametrize('tool,result', [
+@pytest.mark.parametrize('tool,result,reason', [
     # Composer's platform check, with display_errors on stdout.
     ('phpcbf', (255, b'PHP Fatal error:  Composer detected issues in your '
                 b'platform: Your Composer dependencies require a PHP '
-                b'version ">= 8.2.0". You are running 8.1.2.\n', '')),
+                b'version ">= 8.2.0". You are running 8.1.2.\n', ''), ''),
     # PHP-CS-Fixer's own environment check.
     ('php-cs-fixer', (1, b'', 'PHP needs to be a minimum version of PHP '
-                              '7.4.0 and maximum version of PHP 8.1.*.')),
+                              '7.4.0 and maximum version of PHP 8.1.*.'),
+     ': PHP needs to be a minimum version of PHP 7.4.0 and maximum '
+     'version of PHP 8.1.*.'),
 ], ids=['composer-platform-check', 'php-cs-fixer-env-check'])
-def test_version_failed_run(tool, result):
+def test_version_failed_run(tool, result, reason):
     from codeformatter import phpfixer
 
     with fake_run(result, result) as run:
@@ -377,10 +379,27 @@ def test_version_failed_run(tool, result):
             with pytest.raises(phpfixer.FixerError) as error:
                 tool_version(tool, [tool])
             assert str(error.value) == (
-                'could not read the {} version'.format(tool))
+                'could not read the {} version'.format(tool) + reason)
 
     # The number in the error text was not kept as the version.
     assert run.call_count == 2
+
+
+@pytest.mark.parametrize('stderr,reason', [
+    # A fixer whose #!/usr/bin/env php line finds no PHP on PATH.
+    ('env: php: No such file or directory',
+     'env: php: No such file or directory'),
+    ('PHP Warning:  Module "mbstring" is already loaded\nPint 1.32.1',
+     'PHP Warning:  Module "mbstring" is already loaded'),
+    ('x' * 300, 'x' * 200),
+], ids=['env-without-php', 'first-line', 'capped'])
+def test_version_failed_run_gives_the_reason(stderr, reason):
+    from codeformatter import phpfixer
+
+    with fake_run((127, b'', stderr)):
+        with pytest.raises(phpfixer.FixerError) as error:
+            tool_version('pint', ['/usr/local/bin/pint'])
+    assert str(error.value) == 'could not read the pint version: ' + reason
 
 
 CS_FIXER = ['php', '/proj/vendor/bin/php-cs-fixer']

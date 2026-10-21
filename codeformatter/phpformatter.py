@@ -17,6 +17,8 @@ UNKNOWN_FIXER = ('Unknown fixer "{}" in codeformatter_php_options. Use '
                  '"pint", "php-cs-fixer" or "phpcbf".')
 NOT_FOUND = ('{} not found. Run "composer require --dev {}" in the project, '
              'or set fixer_path in codeformatter_php_options.')
+PHP_NOT_FOUND = ('{} not found. Set php_path in codeformatter_php_options '
+                 'to your PHP executable.')
 TIMED_OUT = '{} did not finish in {} seconds'
 PINT_MINIMUM = (1, 26, 0)
 PINT_TOO_OLD = ('Pint 1.26.0 or newer is needed to format from the editor. '
@@ -74,9 +76,13 @@ class PhpFormatter:
             return '', str(e)
         except process.Timeout:
             return '', TIMED_OUT.format(fixer, process.TIMEOUT)
-        except OSError:
-            # The fixer or PHP could not be started, or the configuration
-            # file went away while the list of covered files was read.
+        except OSError as e:
+            if (phpfixer.runs_through_php(argv) and
+                    phpfixer.names_program(e, argv[0])):
+                return '', PHP_NOT_FOUND.format(argv[0])
+            # The fixer or PHP could not be started (on Windows the error
+            # does not say which), or the configuration file went away
+            # while the list of covered files was read.
             return '', not_found
 
     def format_on_save_enabled(self, file_name):

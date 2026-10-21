@@ -1,3 +1,4 @@
+import errno
 import os
 import re
 import shutil
@@ -126,6 +127,26 @@ def _through_php(php, script):
     return [php, '-d', 'display_errors=stderr', script]
 
 
+def runs_through_php(argv):
+    """Tell whether argv runs a PHP script through PHP, so that argv[0] is
+    PHP and not the fixer."""
+    return argv == _through_php(argv[0], argv[-1])
+
+
+def names_program(error, program):
+    """Tell whether an OSError from starting program says that program
+    itself was not found, rather than the working directory or nothing.
+
+    Python 3.6 and newer set filename. Python 3.3 to 3.5 append
+    ": 'program'" to the message instead, and ": 'cwd'" for a missing
+    working directory. On Windows neither names the program.
+    """
+    if error.filename == program:
+        return True
+    return (error.errno == errno.ENOENT and error.strerror is not None and
+            error.strerror.endswith(': ' + repr(program)))
+
+
 def _unless_batch(path, php, platform):
     """Return the command line for path.
 
@@ -197,7 +218,14 @@ def tool_version(tool, argv, cwd, platform):
             VERSION.search(stdout.decode('utf-8', 'replace')) or
             VERSION.search(stderr))
         if not match:
-            raise FixerError('could not read the {} version'.format(tool))
+            message = 'could not read the {} version'.format(tool)
+            # A failed run says why on stderr ("env: php: No such file or
+            # directory" from a fixer whose first line names a PHP that is
+            # not on PATH). Add its first line, capped as phpformatter's
+            # _with_first_line caps stdout.
+            lines = stderr.strip().splitlines() if returncode != 0 else []
+            first = lines[0][:200].strip() if lines else ''
+            raise FixerError(message + (': ' + first if first else ''))
         _version_cache[key] = tuple(int(n) for n in match.groups())
     return _version_cache[key]
 

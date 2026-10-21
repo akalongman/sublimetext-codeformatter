@@ -17,6 +17,8 @@ PINT_NOT_FOUND = ('pint not found. Run "composer require --dev laravel/pint" '
 CS_FIXER_NOT_FOUND = ('php-cs-fixer not found. Run "composer require --dev '
                       'friendsofphp/php-cs-fixer" in the project, or set '
                       'fixer_path in codeformatter_php_options.')
+PHP_NOT_FOUND = ('{} not found. Set php_path in codeformatter_php_options '
+                 'to your PHP executable.')
 PINT_MINIMUM = ('Pint 1.26.0 or newer is needed to format from the editor. '
                 'Run "composer update laravel/pint" in the project.')
 BAD_DIFF = 'php-cs-fixer returned a diff that does not match the buffer'
@@ -153,6 +155,63 @@ def test_fixer_cannot_start(tmp_path, results):
         assert php_format(php) == ('', PINT_NOT_FOUND)
 
 
+# How Popen names the program it could not start: Python 3.6 and newer in
+# filename, Python 3.3 to 3.5 only at the end of the message.
+@pytest.mark.parametrize('error', [
+    OSError(2, 'No such file or directory', '/nope/php'),
+    OSError(2, "No such file or directory: '/nope/php'"),
+], ids=['python3.6', 'python3.3'])
+@pytest.mark.parametrize('before', [[], [PINT_VERSION]],
+                         ids=['version-read', 'fix'])
+def test_php_cannot_start(tmp_path, before, error):
+    proj, php = project(tmp_path, 'pint.json', 'vendor/bin/pint')
+
+    with fake_run(*(before + [error])):
+        assert php_format(php, php_path='/nope/php') == (
+            '', PHP_NOT_FOUND.format('/nope/php'))
+
+
+def test_php_from_path_cannot_start(tmp_path):
+    proj, php = project(tmp_path, 'pint.json', 'vendor/bin/pint')
+
+    with fake_run(OSError(2, 'No such file or directory', 'php')):
+        assert php_format(php) == ('', PHP_NOT_FOUND.format('php'))
+
+
+def without_strerror(cwd):
+    error = OSError(2, 'No such file or directory')
+    error.strerror = None
+    return error
+
+
+@pytest.mark.parametrize('make_error', [
+    lambda cwd: OSError(2, 'No such file or directory', cwd),
+    lambda cwd: OSError(2, 'No such file or directory: ' + repr(cwd)),
+    lambda cwd: OSError(2, 'The system cannot find the file specified'),
+    without_strerror,
+], ids=['python3.6-cwd', 'python3.3-cwd', 'windows', 'no-strerror'])
+def test_php_command_error_not_naming_php(tmp_path, make_error):
+    # Only an error that names PHP itself is about PHP: a missing working
+    # directory, or a host that names nothing, keeps the fixer message.
+    proj, php = project(tmp_path, 'pint.json', 'vendor/bin/pint')
+
+    with fake_run(make_error(str(proj))):
+        assert php_format(php, php_path='/nope/php') == ('', PINT_NOT_FOUND)
+
+
+@pytest.mark.parametrize('error', [
+    OSError(2, 'No such file or directory', '/nope/pint'),
+    OSError(2, "No such file or directory: '/nope/pint'"),
+], ids=['python3.6', 'python3.3'])
+def test_fixer_path_cannot_start(tmp_path, error):
+    # The fixer runs as given, so argv[0] is the fixer, not PHP.
+    proj, php = project(tmp_path, 'pint.json')
+
+    with fake_run(error):
+        assert php_format(php, fixer_path='/nope/pint',
+                          php_path='/nope/php') == ('', PINT_NOT_FOUND)
+
+
 def test_fixer_timeout(tmp_path):
     from codeformatter import process
     proj, php = project(tmp_path, 'pint.json', 'vendor/bin/pint')
@@ -168,6 +227,16 @@ def test_version_unreadable(tmp_path):
         assert php_format(php) == ('', 'could not read the pint version')
 
     assert run.call_count == 1
+
+
+def test_version_read_failed_with_reason(tmp_path):
+    # A global fixer whose #!/usr/bin/env php line finds no PHP on PATH.
+    proj, php = project(tmp_path, 'pint.json')
+
+    with fake_run((127, b'', 'env: php: No such file or directory')):
+        assert php_format(php, fixer_path='/usr/local/bin/pint') == (
+            '', 'could not read the pint version: env: php: No such file '
+                'or directory')
 
 
 def test_pint_formats(tmp_path):
