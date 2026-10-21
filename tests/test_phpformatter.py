@@ -375,6 +375,23 @@ def test_php_cs_fixer_clean(tmp_path):
         assert php_format(php) == (TEXT, '')
 
 
+def test_php_cs_fixer_syntax_error(tmp_path, capsys):
+    proj, php = project(tmp_path, '.php-cs-fixer.dist.php',
+                        'vendor/bin/php-cs-fixer')
+    # What PHP-CS-Fixer 3.95.27 prints for a buffer with a syntax error.
+    lint = ('Files that were not fixed due to errors reported during '
+            'linting before fixing:\n   1) stdin.php')
+
+    with fake_run((0, LISTED, ''), (4, b'{"files": []}', lint)):
+        assert php_format(php) == (TEXT, '')
+
+    # As for a clean buffer, its stderr goes to the console.
+    assert capsys.readouterr().out == (
+        'CodeFormatter: Files that were not fixed due to errors reported '
+        'during linting before fixing:\n'
+        'CodeFormatter:    1) stdin.php\n')
+
+
 def test_php_cs_fixer_excluded(tmp_path):
     proj, php = project(tmp_path, '.php-cs-fixer.dist.php',
                         'vendor/bin/php-cs-fixer')

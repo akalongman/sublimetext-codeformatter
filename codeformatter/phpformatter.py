@@ -152,7 +152,9 @@ class PhpFormatter:
         cmd.append('-')
 
         returncode, stdout, stderr = self._run(cmd, text, config_dir)
-        if returncode == 0:
+        if returncode in (0, 4):
+            # 0: the input is already clean. 4: it has a syntax error,
+            # which is left as it is, as Pint and phpcbf do.
             return _formatted(b'', text, stderr)
         if returncode != 8:
             return '', _failed('php-cs-fixer', returncode, stdout, stderr)
