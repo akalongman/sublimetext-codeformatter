@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/akalongman/sublimetext-codeformatter.svg?branch=master)](https://travis-ci.org/akalongman/sublimetext-codeformatter)
+[![Tests](https://github.com/akalongman/sublimetext-codeformatter/actions/workflows/tests.yml/badge.svg)](https://github.com/akalongman/sublimetext-codeformatter/actions/workflows/tests.yml)
 
 CodeFormatter
 =============
@@ -9,7 +9,7 @@ CodeFormatter is a Sublime Text 3/4 plugin that supports format (beautify) sourc
 
 CodeFormatter has support for the following languages:
 
-* PHP - By [phpF](https://github.com/subins2000/phpF)
+* PHP - By the project's own [Pint](https://laravel.com/docs/pint), [PHP-CS-Fixer](https://cs.symfony.com/) or phpcbf from [PHP_CodeSniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer)
 * JavaScript/JSON - By JSBeautifier
 * HTML - By [Custom fork of BeautifulSoup](https://github.com/akalongman/python-beautifulsoup)
 * CSS,LESS,SASS - By JSBeautifier
@@ -75,43 +75,73 @@ Make sure that you wrap all the configurations into a single root object.
 ## Formatter-specific notes
 Following are notes specific to individual formatters that you should be aware of:
 ### PHP
-PHP - Used [phpF](https://github.com/subins2000/phpF) by [@subins2000](https://github.com/subins2000)
-
-Getting and installing PHP - http://www.php.net/manual/en/install.general.php
-
-You must install 5.6 or above (https://github.com/subins2000/phpF#requirements)
-
-On Linux/OSx after installation of package, you must set chmod +x to file fmt.phar in folder %PACKAGESDIR%/CodeFormatter/codeformatter/lib/phpbeautifier
-
-You can list all available transformations from Command Palette: CodeFormatter: Show PHP Transformations
-Examples of many transformations can be found here: [PHP Transformation Examples](https://github.com/akalongman/sublimetext-codeformatter/blob/master/PHP-Transformations.md)
+PHP - used the project's own [Pint](https://laravel.com/docs/pint), [PHP-CS-Fixer](https://cs.symfony.com/) or phpcbf from [PHP_CodeSniffer](https://github.com/PHPCSStandards/PHP_CodeSniffer)
 
 Language specific options:
 ```js
-   "codeformatter_php_options":
+    "codeformatter_php_options":
     {
         "syntaxes": "php", // Syntax names which must process PHP formatter
-        "php_path": "", // Path for PHP executable, e.g. "/usr/lib/php" or "C:/Program Files/PHP/php.exe". If empty, uses command "php" from system environments
         "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
-        "psr1": false, // Activate PSR1 style
-        "psr1_naming": false, // Activate PSR1 style - Section 3 and 4.3 - Class and method names case
-        "psr2": true, // Activate PSR2 style
-        "indent_with_space": 4, // Use spaces instead of tabs for indentation
-        "enable_auto_align": true, // Enable auto align of = and =>
-        "visibility_order": true, // Fixes visibility order for method in classes - PSR-2 4.2
-        "smart_linebreak_after_curly": true, // Convert multistatement blocks into multiline blocks
-
-        // Enable specific transformations. Example: ["ConvertOpenTagWithEcho", "PrettyPrintDocBlocks"]
-        // You can list all available transformations from command palette: CodeFormatter: Show PHP Transformations
-        // You can also see examples of many transformations at https://github.com/akalongman/sublimetext-codeformatter/blob/master/PHP-Transformations.md
-        "passes": [],
-
-        // Disable specific transformations
-        "excludes": []
+        "fixer": "", // "pint", "php-cs-fixer" or "phpcbf" to force one. If empty, picks the fixer from the project's configuration file
+        "fixer_path": "", // Path to the fixer executable. If empty, uses the project's vendor/bin, then PATH
+        "php_path": "" // PHP used to run a fixer from vendor/bin. If empty, uses "php" from PATH
     }
 ```
 
+Style comes from the project's fixer configuration. CodeFormatter has no PHP style options of its own: the options `passes`, `excludes`, `indent_with_space`, `enable_auto_align`, `visibility_order`, `smart_linebreak_after_curly`, `php55_compat`, `psr1`, `psr1_naming` and `psr2` no longer apply, and are ignored if your user settings still hold them.
 
+CodeFormatter looks for one of these configuration files in the file's directory, then in each directory above it. The first directory that holds one decides the fixer, and the fixer runs in that directory:
+
+* `pint.json`: Pint
+* `.php-cs-fixer.php` or `.php-cs-fixer.dist.php`: PHP-CS-Fixer
+* `phpcs.xml`, `.phpcs.xml`, `phpcs.xml.dist` or `.phpcs.xml.dist`: phpcbf
+
+When one directory holds files for more than one fixer, the first in this list wins. When no configuration file is found, but the closest directory above the file that holds a `composer.json` also holds `vendor/bin/pint`, Pint formats the file with its default (Laravel) preset, as `./vendor/bin/pint` does in a Laravel project. Otherwise formatting stops with this error:
+
+    No PHP fixer is configured for this file. Add pint.json, .php-cs-fixer.dist.php or phpcs.xml to the project, or set "fixer" in codeformatter_php_options.
+
+To fix it, add the fixer's configuration file to the project, or set `fixer` to `"pint"`, `"php-cs-fixer"` or `"phpcbf"`. With `fixer` set, only that fixer's configuration files count: it runs in the closest directory above the file that holds one, else the closest that holds a `composer.json`, else the file's own directory, and it uses its own defaults when there is no configuration file. Any other value of `fixer` stops formatting with an error that names the three values.
+
+A buffer that was never saved is refused with the same error unless `fixer` is set. With `fixer` set, it is formatted by the fixer from `fixer_path` or `PATH`, run from Sublime Text's working directory, which is usually not the project folder, so the fixer usually runs with its defaults. Save the file inside the project to format it with the project's style.
+
+CodeFormatter runs the first of these that it finds:
+
+1. `fixer_path`, when it is set.
+2. The closest `vendor/bin/pint`, `vendor/bin/php-cs-fixer` or `vendor/bin/phpcbf` (for the fixer picked) in or above the directory the fixer runs in. Composer's `vendor/bin` files are PHP scripts, so CodeFormatter runs them through PHP: `php_path`, or `php` from `PATH`.
+3. `pint`, `php-cs-fixer` or `phpcbf` from `PATH`.
+
+When none is found, formatting stops with an error such as `pint not found. Run "composer require --dev laravel/pint" in the project, or set fixer_path in codeformatter_php_options.` The same error appears when PHP or the fixer cannot be started, for example when `php` is not on `PATH`, which `php_path` fixes.
+
+The fixer gets the buffer on standard input and 10 seconds to finish, after which it is stopped with an error such as `pint did not finish in 10 seconds`. When CodeFormatter runs a PHP script through PHP, it passes `-d display_errors=stderr`, so PHP notices never end up in the file. Warnings that a fixer prints while it succeeds go to the Sublime Text console. When a format on save fails, the error appears in the status bar, with the full text in the console, and the file is saved as it is; Format Code shows the error in a dialog.
+
+PHP-CS-Fixer does not apply its configuration's list of files (its Finder) to code it reads from standard input. So when the project has a PHP-CS-Fixer configuration file, CodeFormatter first asks `php-cs-fixer list-files` which files the configuration covers, and leaves a file that it does not cover unchanged. The list is kept until the configuration file changes, and read again when a file is missing from it. Format on save runs before Sublime Text writes the file, so the first save of a new file leaves it unchanged, because the list cannot hold the file yet; the next save formats it if the configuration covers it. Without a configuration file (with `"fixer": "php-cs-fixer"`), PHP-CS-Fixer formats any file.
+
+Pint 1.26.0 or newer is needed, which needs PHP 8.2 or newer. With an older Pint the error is `Pint 1.26.0 or newer is needed to format from the editor. Run "composer update laravel/pint" in the project.` PHP_CodeSniffer 3 and 4 are both supported.
+
+If you format PHP files with another package, set `"syntaxes": ""` in `codeformatter_php_options` so CodeFormatter leaves them alone.
+
+Installing a fixer: add it to the project with Composer, so that everyone working on the project uses the same version:
+
+* Pint: `composer require --dev laravel/pint`
+* PHP-CS-Fixer: `composer require --dev friendsofphp/php-cs-fixer`
+* phpcbf: `composer require --dev squizlabs/php_codesniffer`
+
+To install a fixer for all your projects instead, install PHP and Composer with the steps below, run `composer global require laravel/pint` (or `friendsofphp/php-cs-fixer`, or `squizlabs/php_codesniffer`), and put Composer's global bin directory, which `composer global config bin-dir --absolute` prints, on `PATH`. A global fixer is used only when the project's `vendor/bin` has none, and the project still needs the fixer's configuration file, or `fixer` must be set.
+
+* macOS: `brew install php composer`, then add the line `export PATH="<bin directory>:$PATH"` to `~/.zprofile`
+* Debian/Ubuntu: `sudo apt install php-cli php-xml php-mbstring composer`, then add the line `export PATH="<bin directory>:$PATH"` to `~/.profile`, then log out and back in so that Sublime Text started from the desktop sees it
+* Other Linux: install PHP with its `mbstring` and `xml` extensions from your distribution's packages, and Composer with the steps at https://getcomposer.org/download/, then add the bin directory to `PATH` in `~/.profile` as above
+* Windows (PowerShell): install Scoop with the steps at https://scoop.sh, then `scoop install php composer`. Scoop puts Composer's global bin directory on `PATH`. In a new terminal, run `php --ini`, and in the `php.ini` file it names, remove the `;` in front of `extension=openssl` and `extension=zip`, which Composer uses to download and unpack packages, and `extension=mbstring`, which Pint needs. If PHP does not start, install the Visual C++ Redistributable that Scoop suggests: `scoop bucket add extras`, then `scoop install vcredist2022`.
+* WSL: if Sublime Text runs inside WSL, install PHP and the fixer inside WSL with the Linux steps. If Windows Sublime Text edits files under `\\wsl.localhost`, install PHP on Windows with the Windows steps: CodeFormatter runs the project's `vendor/bin` fixer through the Windows PHP. A PHP or a fixer installed only inside WSL cannot be used by Windows Sublime Text.
+
+Restart Sublime Text after installing PHP or a fixer, and open a new terminal before running `which` or `where.exe` below, because a program that is already running keeps the `PATH` it started with.
+
+Sublime Text started from the macOS Dock may not see the same `PATH` as your terminal, so it may not find PHP or a global fixer. In that case, or whenever CodeFormatter reports that the fixer is not found, set `php_path` to the output of `which php` in a terminal, and for a global fixer `fixer_path` to the output of `which pint` (or `which php-cs-fixer`, `which phpcbf`).
+
+On Windows, run `where.exe php` and `where.exe pint` (in PowerShell or the Command Prompt). With `php_path` empty, CodeFormatter starts only a `php.exe` from `PATH`, not a `php.bat` that some PHP installers put there instead; in that case set `php_path` to the `php.exe` file. Composer installs a global fixer on Windows as a `.bat` file with a PHP script of the same name beside it, and CodeFormatter runs that script through PHP (`php_path`, or `php.exe` from `PATH`), whether it finds the `.bat` file on `PATH` or in `fixer_path`. So PHP must be found as well, and `fixer_path` takes the line that ends in `.bat`. A `.bat` file with no PHP script beside it runs through cmd.exe, which would misread some characters, so CodeFormatter refuses to run it when a path on its command line holds one of `& | < > ^ % !`. Write paths with forward slashes or doubled backslashes, because a single backslash starts an escape sequence in the settings file: `"php_path": "C:/php/php.exe"` or `"php_path": "C:\\php\\php.exe"`.
+
+Copy the whole `codeformatter_php_options` block into `Settings - User` and change `fixer`, `fixer_path` or `php_path` there, because a block that holds only those keys replaces the default block, which drops `syntaxes` and turns PHP formatting off.
 
 ### Javascript/JSON
 Javascript/JSON - used [JSBeautifier] (http://jsbeautifier.org/) by Einar Lielmanis
