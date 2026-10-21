@@ -265,7 +265,7 @@ def test_version_failed_run(tool, result):
     assert run.call_count == 2
 
 
-CS_FIXER =['php', '/proj/vendor/bin/php-cs-fixer']
+CS_FIXER = ['php', '/proj/vendor/bin/php-cs-fixer']
 LISTED = b"'./src/a.php'\n'./src/b.php'\n"
 
 
@@ -328,15 +328,20 @@ def test_covered_remembers_excluded_file_on_disk(proj):
         assert run.call_count == 2
 
 
-def test_covered_remembers_miss_of_a_first_read(proj):
+def test_covered_cold_read_remembers_nothing(proj):
     legacy = touch(proj / 'legacy' / 'l.php')
 
-    with fake_run((0, LISTED, '')) as run:
-        # A list read by this call is as fresh as a refresh.
+    with fake_run((0, LISTED, ''), (0, LISTED, '')) as run:
+        # A cold read is not a refresh, so its miss is not remembered.
         assert covered(proj, legacy) is False
-        assert covered(proj, legacy) is False
+        assert run.call_count == 1
 
-    assert run.call_count == 1
+        # The one refresh misses it too, and it is on disk: remembered.
+        assert covered(proj, legacy) is False
+        assert run.call_count == 2
+
+        assert covered(proj, legacy) is False
+        assert run.call_count == 2
 
 
 def test_covered_file_missing_from_disk_refreshes_again(proj):
@@ -352,34 +357,58 @@ def test_covered_file_missing_from_disk_refreshes_again(proj):
         assert run.call_count == 3
 
 
+def remember_excluded(proj, legacy, run):
+    """Warm the cache with src/a.php, then let the one refresh remember
+    legacy as excluded; two runs."""
+    assert covered(proj, proj / 'src' / 'a.php') is True
+    assert covered(proj, legacy) is False
+    assert covered(proj, legacy) is False
+    assert run.call_count == 2
+
+
 def test_covered_excluded_file_listed_by_a_later_refresh(proj):
     legacy = touch(proj / 'legacy' / 'l.php')
     relisted = LISTED + b"'./src/c.php'\n'./legacy/l.php'\n"
 
-    with fake_run((0, LISTED, ''), (0, relisted, '')) as run:
-        assert covered(proj, legacy) is False
+    with fake_run((0, LISTED, ''), (0, LISTED, ''),
+                  (0, relisted, '')) as run:
+        remember_excluded(proj, legacy, run)
         # A new file refreshes the list, which now holds legacy/l.php too.
         assert covered(proj, proj / 'src' / 'c.php') is True
         # The list is checked before the remembered exclusions.
         assert covered(proj, legacy) is True
 
-    assert run.call_count == 2
+    assert run.call_count == 3
+
+
+def test_covered_exclusions_survive_a_refresh_for_another_file(proj):
+    legacy = touch(proj / 'legacy' / 'l.php')
+    refreshed = LISTED + b"'./src/c.php'\n"
+
+    with fake_run((0, LISTED, ''), (0, LISTED, ''),
+                  (0, refreshed, '')) as run:
+        remember_excluded(proj, legacy, run)
+        assert covered(proj, proj / 'src' / 'c.php') is True
+        assert covered(proj, legacy) is False
+
+    assert run.call_count == 3
 
 
 def test_covered_config_change_forgets_exclusions(proj):
     config = str(proj / '.php-cs-fixer.dist.php')
     legacy = touch(proj / 'legacy' / 'l.php')
 
-    with fake_run((0, LISTED, ''), (0, LISTED, '')) as run:
-        assert covered(proj, legacy) is False
-        assert covered(proj, legacy) is False
-        assert run.call_count == 1
+    with fake_run(*[(0, LISTED, '')] * 4) as run:
+        remember_excluded(proj, legacy, run)
 
         mtime = os.path.getmtime(config)
         os.utime(config, (mtime + 10, mtime + 10))
 
         assert covered(proj, legacy) is False
-        assert run.call_count == 2
+        assert run.call_count == 3
+        # A read after an mtime change is not a refresh: nothing kept.
+        assert covered(proj, legacy) is False
+        assert run.call_count == 4
 
 
 def test_covered_new_file_after_refresh(proj):

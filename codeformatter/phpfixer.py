@@ -145,10 +145,10 @@ def covered_by_php_cs_fixer(argv, config_dir, config_file, file_name,
     the file, so it is covered and nothing runs. Otherwise the list-files
     output is kept per configuration directory and file until the file's
     mtime changes. A file missing from a kept list triggers one refresh,
-    as it may be new. A file that a list read during the call misses
-    while it is on disk is remembered as excluded until the mtime
-    changes. A failure keeps nothing. process.Timeout and OSError
-    propagate.
+    as it may be new. When that refresh misses it too while it is on
+    disk, it is remembered as excluded until the mtime changes. A cold
+    read, or a read after an mtime change, remembers nothing. A failure
+    keeps nothing. process.Timeout and OSError propagate.
     """
     if not config_file:
         return True
@@ -158,7 +158,8 @@ def covered_by_php_cs_fixer(argv, config_dir, config_file, file_name,
     target = _normalize(file_name)
 
     kept = _coverage_cache.get(key)
-    if kept is not None and kept[0] == mtime:
+    refreshing = kept is not None and kept[0] == mtime
+    if refreshing:
         # The list comes first, so a refresh that lists a remembered
         # file makes it covered again.
         if target in kept[1]:
@@ -170,10 +171,10 @@ def covered_by_php_cs_fixer(argv, config_dir, config_file, file_name,
         excluded = set()
 
     files = _list_files(argv, config_dir, config_file, platform)
-    # Only a miss for a file on disk is remembered: on_pre_save runs before
-    # Sublime Text writes a new file, and remembering that miss would keep
-    # the file excluded for the session.
-    if target not in files and os.path.isfile(file_name):
+    # Only the refresh's miss for a file on disk is remembered: on_pre_save
+    # runs before Sublime Text writes a new file, and remembering that miss
+    # would keep the file excluded for the session.
+    if refreshing and target not in files and os.path.isfile(file_name):
         excluded.add(target)
     _coverage_cache[key] = (mtime, files, excluded)
     return target in files
