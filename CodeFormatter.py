@@ -3,7 +3,6 @@
 # @link             http://longman.me
 # @license         The MIT License (MIT)
 
-import os
 import sys
 import sublime
 import sublime_plugin
@@ -48,15 +47,6 @@ def plugin_loaded():
     #     debug_write('Sublime Version ' + sublime.version())
     #     debug_write('Settings ' + pprint(settings))
 
-    if (sublime.platform() != 'windows'):
-        import stat
-        path = (
-            sublime.packages_path() +
-            '/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar'
-        )
-        st = os.stat(path)
-        os.chmod(path, st.st_mode | stat.S_IEXEC)
-
 
 if st_version == 2:
     plugin_loaded()
@@ -80,80 +70,6 @@ class CodeFormatterEventListener(sublime_plugin.EventListener):
 
     def on_pre_save(self, view):
         view.run_command('code_formatter', {'saving': True})
-
-
-class CodeFormatterShowPhpTransformationsCommand(sublime_plugin.TextCommand):
-
-    def run(self, edit, syntax=False):
-
-        import subprocess
-        import re
-
-        platform = sublime.platform()
-        settings = sublime.load_settings('CodeFormatter.sublime-settings')
-
-        opts = settings.get('codeformatter_php_options')
-
-        php_path = 'php'
-        if ('php_path' in opts and opts['php_path']):
-            php_path = opts['php_path']
-
-        php55_compat = False
-        if ('php55_compat' in opts and opts['php55_compat']):
-            php55_compat = opts['php55_compat']
-
-
-        cmd = []
-        cmd.append(str(php_path))
-
-        if php55_compat:
-            cmd.append(
-                '{}/CodeFormatter/codeformatter/lib/phpbeautifier/fmt.phar'.format(
-                    sublime.packages_path()))
-        else:
-            cmd.append(
-                '{}/CodeFormatter/codeformatter/lib/phpbeautifier/phpf.phar'.format(
-                    sublime.packages_path()))
-
-
-        cmd.append('--list')
-
-        #print(cmd)
-
-        stderr = ''
-        stdout = ''
-        try:
-            if (platform == 'windows'):
-                startupinfo = subprocess.STARTUPINFO()
-                startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
-                startupinfo.wShowWindow = subprocess.SW_HIDE
-                p = subprocess.Popen(
-                    cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE, startupinfo=startupinfo,
-                    shell=False, creationflags=subprocess.SW_HIDE)
-            else:
-                p = subprocess.Popen(
-                    cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                    stderr=subprocess.PIPE)
-            stdout, stderr = p.communicate()
-        except Exception as e:
-            stderr = str(e)
-
-        if (not stderr and not stdout):
-            stderr = 'Error while gethering list of php transformations'
-
-        if len(stderr) == 0 and len(stdout) > 0:
-            text = stdout.decode('utf-8')
-            text = re.sub(
-                'Usage:.*?PASSNAME', 'Available PHP Tranformations:', text)
-            window = self.view.window()
-            pt = window.get_output_panel('paneltranformations')
-            pt.set_read_only(False)
-            pt.insert(edit, pt.size(), text)
-            window.run_command(
-                'show_panel', {'panel': 'output.paneltranformations'})
-        else:
-            show_error('Formatter error:\n' + stderr)
 
 
 def run_formatter(view, edit, *args, **kwargs):
