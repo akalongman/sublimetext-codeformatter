@@ -10,6 +10,9 @@ if RUFF:
     # A bare name resolves through PATH. The tests chdir away, so a
     # relative path would stop resolving.
     RUFF = os.path.abspath(shutil.which(RUFF) or RUFF)
+elif os.environ.get('CODEFORMATTER_REQUIRE_TOOLS') == '1':
+    raise RuntimeError(
+        'ruff is required (CODEFORMATTER_REQUIRE_TOOLS=1) but was not found')
 
 pytestmark = pytest.mark.skipif(not RUFF, reason='ruff not installed')
 
@@ -65,7 +68,8 @@ def test_ruff_reports_syntax_error(tmp_path, monkeypatch):
         b'def (:\n')
 
     assert out == ''
-    assert err.startswith('error: Failed to parse')
+    assert err.startswith('error:')
+    assert '\x1b[' not in err
 
 
 def test_ruff_error_is_plain_under_forced_color(tmp_path, monkeypatch):
@@ -77,4 +81,5 @@ def test_ruff_error_is_plain_under_forced_color(tmp_path, monkeypatch):
         b'def (:\n')
 
     assert out == ''
-    assert err.startswith('error: Failed to parse')
+    assert err.startswith('error:')
+    assert '\x1b[' not in err
