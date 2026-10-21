@@ -4,7 +4,7 @@ CodeFormatter
 =============
 
 
-CodeFormatter is a Sublime Text 2/3 plugin that supports format (beautify) source code.
+CodeFormatter is a Sublime Text 3/4 plugin that supports format (beautify) source code.
 
 
 CodeFormatter has support for the following languages:
@@ -45,17 +45,17 @@ The "Packages" directory is located at:
 
 * OS X:
 
-        ST2: ~/Library/Application Support/Sublime Text 2/Packages/
+        ST4: ~/Library/Application Support/Sublime Text/Packages/
         ST3: ~/Library/Application Support/Sublime Text 3/Packages/
 
 * Linux:
 
-        ST2: ~/.config/sublime-text-2/Packages/
+        ST4: ~/.config/sublime-text/Packages/
         ST3: ~/.config/sublime-text-3/Packages/
 
 * Windows:
 
-        ST2: %APPDATA%/Sublime Text 2/Packages/
+        ST4: %APPDATA%/Sublime Text/Packages/
         ST3: %APPDATA%/Sublime Text 3/Packages/
 
 ## Configuration
