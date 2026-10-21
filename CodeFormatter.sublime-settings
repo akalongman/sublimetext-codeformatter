@@ -108,7 +108,8 @@
     "codeformatter_python_options":
     {
         "syntaxes": "python", // Syntax names which must process Python formatter
-        "format_on_save": false // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
+        "format_on_save": false, // Format on save. Either a boolean (true/false) or a string regexp tested on filename. Example : "^((?!.min.|vendor).)*$"
+        "ruff_path": "" // Path to the ruff executable. If empty, uses "ruff" from PATH
     },
 
     "codeformatter_vbscript_options":
