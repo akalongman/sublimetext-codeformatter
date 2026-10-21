@@ -7,8 +7,9 @@ from unittest.mock import Mock
 
 RUFF = os.environ.get('CODEFORMATTER_TEST_RUFF') or shutil.which('ruff')
 if RUFF:
-    # The tests chdir away, so a relative path would stop resolving.
-    RUFF = os.path.abspath(RUFF)
+    # A bare name resolves through PATH. The tests chdir away, so a
+    # relative path would stop resolving.
+    RUFF = os.path.abspath(shutil.which(RUFF) or RUFF)
 
 pytestmark = pytest.mark.skipif(not RUFF, reason='ruff not installed')
 
