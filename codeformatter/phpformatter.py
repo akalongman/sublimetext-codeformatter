@@ -23,6 +23,10 @@ PINT_TOO_OLD = ('Pint 1.26.0 or newer is needed to format from the editor. '
                 'Run "composer update laravel/pint" in the project.')
 BAD_DIFF = 'php-cs-fixer returned a diff that does not match the buffer'
 UNREADABLE = 'php-cs-fixer printed output that is not its JSON report'
+BATCH_FILE = ('{0} runs through the batch file {1}, and cmd.exe would '
+              'misread a & | < > ^ % or ! in a path on its command line. '
+              'Run "composer require --dev {2}" in the project and leave '
+              'fixer_path empty, so {0} runs from vendor/bin.')
 
 
 class PhpFormatter:
@@ -44,12 +48,20 @@ class PhpFormatter:
             return '', REFUSAL
         fixer, config_dir, config_file = found
 
-        not_found = NOT_FOUND.format(fixer, phpfixer.PACKAGES[fixer])
+        package = phpfixer.PACKAGES[fixer]
+        not_found = NOT_FOUND.format(fixer, package)
+        platform = self.formatter.platform
         argv = phpfixer.find_executable(
             fixer, config_dir, self.opts.get('fixer_path', ''),
-            self.opts.get('php_path', ''))
+            self.opts.get('php_path', ''), platform)
         if not argv:
             return '', not_found
+        # Every process below starts argv, and the only paths added to its
+        # command line are config_file and file_name, so one check before
+        # the first one covers them all.
+        if phpfixer.cmd_exe_would_misread(
+                argv, [config_file, file_name], platform):
+            return '', BATCH_FILE.format(fixer, argv[0], package)
 
         run = {
             'pint': self._pint,
@@ -93,7 +105,7 @@ class PhpFormatter:
 
         returncode, stdout, stderr = self._run(cmd, text, config_dir)
         if returncode != 0:
-            return '', _failed('pint', returncode, stderr)
+            return '', _failed('pint', returncode, stdout, stderr)
         return _formatted(stdout, text, stderr)
 
     def _phpcbf(self, argv, config_dir, config_file, file_name, text):
@@ -122,7 +134,7 @@ class PhpFormatter:
                 # stdout is a report, not code: nothing to fix, or the
                 # ruleset excludes the file.
                 return _formatted(b'', text, stderr)
-        return '', _failed('phpcbf', returncode, stderr)
+        return '', _failed('phpcbf', returncode, stdout, stderr)
 
     def _php_cs_fixer(self, argv, config_dir, config_file, file_name, text):
         # PHP-CS-Fixer does not apply the Finder to stdin, so ask it which
@@ -143,15 +155,13 @@ class PhpFormatter:
         if returncode == 0:
             return _formatted(b'', text, stderr)
         if returncode != 8:
-            return '', _failed('php-cs-fixer', returncode, stderr)
+            return '', _failed('php-cs-fixer', returncode, stdout, stderr)
 
         # Exit 8: the fix is a diff against the buffer, as it cannot print
         # the fixed code for stdin.
         diff = _report_diff(stdout)
         if diff is None:
-            first = (stdout.decode('utf-8', 'replace').strip().splitlines() or
-                     [''])[0][:200]
-            return '', UNREADABLE + (': ' + first if first else '')
+            return '', _with_first_line(UNREADABLE, stdout)
         # The buffer reaches the formatter encoded as UTF-8.
         buffer = text.decode('utf-8')
         try:
@@ -179,5 +189,18 @@ def _formatted(stdout, text, stderr):
     return stdout or text, ''
 
 
-def _failed(tool, returncode, stderr):
-    return stderr or '{} exited with code {}'.format(tool, returncode)
+def _failed(tool, returncode, stdout, stderr):
+    if stderr:
+        return stderr
+    # Some tools print the reason on stdout instead: phpcbf 3.x its fatal
+    # errors, PHP a fatal error while display_errors writes to stdout.
+    return _with_first_line(
+        '{} exited with code {}'.format(tool, returncode), stdout)
+
+
+def _with_first_line(message, stdout):
+    """Add the first non-empty line of stdout, at most 200 characters, to
+    message."""
+    lines = stdout.decode('utf-8', 'replace').strip().splitlines()
+    first = lines[0][:200].strip() if lines else ''
+    return message + (': ' + first if first else '')

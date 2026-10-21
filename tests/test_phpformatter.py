@@ -21,6 +21,10 @@ PINT_MINIMUM = ('Pint 1.26.0 or newer is needed to format from the editor. '
                 'Run "composer update laravel/pint" in the project.')
 BAD_DIFF = 'php-cs-fixer returned a diff that does not match the buffer'
 UNREADABLE = 'php-cs-fixer printed output that is not its JSON report'
+PINT_BATCH = ('pint runs through the batch file {}, and cmd.exe would '
+              'misread a & | < > ^ % or ! in a path on its command line. '
+              'Run "composer require --dev laravel/pint" in the project and '
+              'leave fixer_path empty, so pint runs from vendor/bin.')
 
 TEXT = b'<?php\n$a = [ 1,2 ];\n'
 FIXED = b'<?php\nfixed\n'
@@ -77,17 +81,18 @@ def project(tmp_path, *files, php='src/a.php'):
 
 
 def vendor(proj, tool, php='php'):
-    return [php, str(proj / 'vendor' / 'bin' / tool)]
+    return [php, '-d', 'display_errors=stderr',
+            str(proj / 'vendor' / 'bin' / tool)]
 
 
-def php_format(file_name, text=TEXT, **opts):
+def php_format(file_name, text=TEXT, platform='linux', **opts):
     from codeformatter.phpformatter import PhpFormatter
     options = {'syntaxes': 'php'}
     options.update(opts)
     formatter = Mock()
     formatter.settings = {'codeformatter_php_options': options}
     formatter.file_name = None if file_name is None else str(file_name)
-    formatter.platform = 'linux'
+    formatter.platform = platform
     return PhpFormatter(formatter).format(text)
 
 
@@ -228,7 +233,14 @@ def test_pint_fallback_has_no_config_option(tmp_path):
 @pytest.mark.parametrize('result,message', [
     ((1, b'', ''), 'pint exited with code 1'),
     ((1, b'', 'Unexpected token'), 'Unexpected token'),
-], ids=['no-stderr', 'stderr'])
+    ((1, b'stdout is not the reason', 'Unexpected token'),
+     'Unexpected token'),
+    # Without stderr, the first non-empty line of stdout is the reason.
+    ((255, b'\n  \nPHP Fatal error:  Uncaught Error \nStack trace:\n', ''),
+     'pint exited with code 255: PHP Fatal error:  Uncaught Error'),
+    ((255, b'x' * 300 + b'\n', ''), 'pint exited with code 255: ' + 'x' * 200),
+], ids=['no-output', 'stderr', 'stderr-and-stdout', 'stdout-only',
+        'stdout-capped'])
 def test_pint_error(tmp_path, capsys, result, message):
     proj, php = project(tmp_path, 'pint.json', 'vendor/bin/pint')
 
@@ -293,11 +305,20 @@ def test_phpcbf3_results(tmp_path):
     with fake_run(PHPCBF3_VERSION,
                   (1, FIXED, ''),
                   (0, b'No fixable errors were found\n\nTime: 8ms', ''),
-                  (3, b'', 'boom')) as run:
-        results = [php_format(php) for _ in range(3)]
+                  (3, b'', 'boom'),
+                  # 3.x prints its fatal errors on stdout.
+                  (3, b'ERROR: the "X" coding standard is not installed.\n',
+                   '')) as run:
+        results = [php_format(php) for _ in range(4)]
 
-    assert results == [(FIXED, ''), (TEXT, ''), ('', 'boom')]
-    assert run.call_count == 4
+    assert results == [
+        (FIXED, ''),
+        (TEXT, ''),
+        ('', 'boom'),
+        ('', 'phpcbf exited with code 3: ERROR: the "X" coding standard is '
+             'not installed.'),
+    ]
+    assert run.call_count == 5
     assert run.call_args_list[1] == call(
         vendor(proj, 'phpcbf') + ['-q', '--no-colors',
                                   '--stdin-path=' + str(php), '-'],
@@ -362,8 +383,11 @@ def test_php_cs_fixer_excluded(tmp_path):
         assert php_format(php) == (TEXT, '')
 
     # Only list-files ran.
-    assert run.call_count == 1
-    assert run.call_args[0][0][2] == 'list-files'
+    run.assert_called_once_with(
+        vendor(proj, 'php-cs-fixer') + [
+            'list-files', '--no-ansi',
+            '--config=' + str(proj / '.php-cs-fixer.dist.php')],
+        b'', str(proj), 'linux')
 
 
 def test_php_cs_fixer_bad_diff(tmp_path):
@@ -478,6 +502,90 @@ def test_unsaved_forced_php_cs_fixer():
     run.assert_called_once_with(
         ['/usr/local/bin/php-cs-fixer'] + CS_FIXER_FIX + ['-'], TEXT, None,
         'linux')
+
+
+def global_pint(tmp_path, sibling=None):
+    """Pint installed with "composer global require": a batch proxy in a
+    global bin directory, and the PHP proxy next to it when sibling is
+    given."""
+    bin_dir = tmp_path / 'Composer' / 'vendor' / 'bin'
+    batch = touch(bin_dir / 'pint.bat')
+    if sibling is not None:
+        (bin_dir / 'pint').write_text(sibling)
+    return str(batch), str(bin_dir / 'pint')
+
+
+@pytest.mark.parametrize('where', ['R&D/proj', 'proj/x&calc&'],
+                         ids=['project-dir', 'file-name'])
+def test_batch_file_refused_for_cmd_exe_characters(tmp_path, where):
+    proj = tmp_path / where
+    touch(proj / 'pint.json')
+    php = touch(proj / 'a.php')
+    batch, _ = global_pint(tmp_path)
+
+    with fake_run() as run, no_fixer_on_path(batch):
+        assert php_format(php, platform='windows') == (
+            '', PINT_BATCH.format(batch))
+
+    # Refused before any process started, the version read included.
+    run.assert_not_called()
+
+
+def test_batch_file_refused_for_fixer_path(tmp_path):
+    proj, php = project(tmp_path, 'pint.json', php='50%off/a.php')
+    batch, _ = global_pint(tmp_path, '#!/usr/bin/env sh\n')
+
+    with fake_run() as run:
+        assert php_format(php, platform='windows', fixer_path=batch) == (
+            '', PINT_BATCH.format(batch))
+
+    run.assert_not_called()
+
+
+def test_batch_file_runs_for_clean_paths(tmp_path):
+    proj, php = project(tmp_path, 'pint.json', php='my dir/módulo.php')
+    batch, _ = global_pint(tmp_path)
+
+    with fake_run(PINT_VERSION, (0, FIXED, '')) as run, \
+            no_fixer_on_path(batch):
+        assert php_format(php, platform='windows') == (FIXED, '')
+
+    assert run.call_args_list == [
+        call([batch, '--version'], b'', str(proj), 'windows'),
+        call([batch, '--no-ansi', '--config=' + str(proj / 'pint.json'),
+              '--stdin-filename=' + str(php), '-'], TEXT, str(proj),
+             'windows'),
+    ]
+
+
+def test_batch_file_redirected_through_php_is_not_refused(tmp_path):
+    proj = tmp_path / 'R&D' / 'proj'
+    touch(proj / 'pint.json')
+    php = touch(proj / 'a.php')
+    batch, script = global_pint(tmp_path, '#!/usr/bin/env php\n<?php\n')
+    pint = ['php', '-d', 'display_errors=stderr', script]
+
+    with fake_run(PINT_VERSION, (0, FIXED, '')) as run, \
+            no_fixer_on_path(batch):
+        assert php_format(php, platform='windows') == (FIXED, '')
+
+    assert run.call_args_list[0] == call(
+        pint + ['--version'], b'', str(proj), 'windows')
+
+
+@pytest.mark.parametrize('platform', ['linux', 'osx'])
+def test_batch_file_off_windows_runs_as_given(tmp_path, platform):
+    proj = tmp_path / 'R&D' / 'proj'
+    touch(proj / 'pint.json')
+    php = touch(proj / 'a.php')
+    batch, _ = global_pint(tmp_path, '<?php\n')
+
+    with fake_run(PINT_VERSION, (0, FIXED, '')) as run, \
+            no_fixer_on_path(batch):
+        assert php_format(php, platform=platform) == (FIXED, '')
+
+    assert run.call_args_list[0] == call(
+        [batch, '--version'], b'', str(proj), platform)
 
 
 @pytest.mark.parametrize('options,filename,expected', format_on_save_scenarios)

@@ -33,11 +33,17 @@ def find_config(file_name, forced=None):
         None if file_name is None else str(file_name), forced)
 
 
-def find_executable(fixer, config_dir, fixer_path='', php_path=''):
+def find_executable(fixer, config_dir, fixer_path='', php_path='',
+                    platform='linux'):
     from codeformatter import phpfixer
     return phpfixer.find_executable(
         fixer, None if config_dir is None else str(config_dir),
-        fixer_path, php_path)
+        fixer_path, php_path, platform)
+
+
+def through_php(script, php='php'):
+    """The command line that runs a PHP script with notices on stderr."""
+    return [php, '-d', 'display_errors=stderr', str(script)]
 
 
 @pytest.mark.parametrize('fixer,name', [
@@ -148,9 +154,9 @@ def test_executable_vendor_bin(tmp_path):
     proj = tmp_path / 'proj'
     script = str(touch(proj / 'vendor' / 'bin' / 'phpcbf'))
 
-    assert find_executable('phpcbf', proj, php_path='') == ['php', script]
-    assert find_executable('phpcbf', proj, php_path='/opt/php') == [
-        '/opt/php', script]
+    assert find_executable('phpcbf', proj, php_path='') == through_php(script)
+    assert find_executable('phpcbf', proj, php_path='/opt/php') == (
+        through_php(script, '/opt/php'))
 
 
 def test_executable_vendor_bin_above_config(tmp_path):
@@ -159,8 +165,8 @@ def test_executable_vendor_bin_above_config(tmp_path):
     config_dir = root / 'packages' / 'a'
     config_dir.mkdir(parents=True)
 
-    assert find_executable('phpcbf', config_dir) == [
-        'php', str(root / 'vendor' / 'bin' / 'phpcbf')]
+    assert find_executable('phpcbf', config_dir) == through_php(
+        root / 'vendor' / 'bin' / 'phpcbf')
 
 
 def test_executable_path_lookup(tmp_path):
@@ -183,6 +189,118 @@ def test_executable_missing(tmp_path):
     with patch('codeformatter.phpfixer.shutil.which', return_value=None):
         assert find_executable('php-cs-fixer', proj) is None
         assert find_executable('php-cs-fixer', None) is None
+
+
+PHP_PROXY = '<?php\n\ninclude __DIR__ . "/../laravel/pint/builds/pint";\n'
+SHEBANG_PROXY = '#!/usr/bin/env php\n<?php\n\ninclude __DIR__ . "/x";\n'
+SHELL_PROXY = ('#!/usr/bin/env sh\n\ndir=$(cd "${0%[/\\\\]*}" > /dev/null; '
+               'cd "../laravel/pint/builds" && pwd)\n"${dir}/pint" "$@"\n')
+
+
+def batch_proxy(tmp_path, name='pint.bat', sibling=None):
+    """A global bin directory with a batch proxy and, when sibling is
+    given, the extension-less file next to it."""
+    bin_dir = tmp_path / 'Composer' / 'vendor' / 'bin'
+    batch = touch(bin_dir / name)
+    if sibling is not None:
+        (bin_dir / name[:-4]).write_text(sibling)
+    return str(batch), str(bin_dir / name[:-4])
+
+
+@pytest.mark.parametrize('name', ['pint.bat', 'pint.BAT', 'pint.cmd'])
+@pytest.mark.parametrize('sibling', [PHP_PROXY, SHEBANG_PROXY,
+                                     '#!/usr/bin/php\n<?php\n'],
+                         ids=['php-tag', 'env-php', 'php-shebang'])
+def test_executable_batch_on_path_runs_through_php(tmp_path, name, sibling):
+    batch, script = batch_proxy(tmp_path, name, sibling)
+
+    with patch('codeformatter.phpfixer.shutil.which', return_value=batch):
+        assert find_executable('pint', None, php_path='/opt/php',
+                               platform='windows') == (
+            through_php(script, '/opt/php'))
+
+
+@pytest.mark.parametrize('sibling', [PHP_PROXY, SHEBANG_PROXY],
+                         ids=['php-tag', 'env-php'])
+def test_executable_batch_fixer_path_runs_through_php(tmp_path, sibling):
+    batch, script = batch_proxy(tmp_path, 'pint.bat', sibling)
+
+    assert find_executable('pint', None, fixer_path=batch,
+                           platform='windows') == through_php(script)
+
+
+@pytest.mark.parametrize('sibling', [
+    SHELL_PROXY,
+    '#!/bin/bash\nexec php "$0.phar" "$@"\n',
+    '@ECHO OFF\r\n',
+    '',
+], ids=['sh-proxy', 'bash', 'not-a-script', 'empty'])
+def test_executable_batch_sibling_not_php(tmp_path, sibling):
+    batch, script = batch_proxy(tmp_path, 'pint.bat', sibling)
+
+    with patch('codeformatter.phpfixer.shutil.which', return_value=batch):
+        assert find_executable('pint', None, platform='windows') == [batch]
+    assert find_executable('pint', None, fixer_path=batch,
+                           platform='windows') == [batch]
+
+
+def test_executable_batch_sibling_unreadable(tmp_path):
+    batch, script = batch_proxy(tmp_path, 'pint.bat', PHP_PROXY)
+
+    with patch('codeformatter.phpfixer.open', create=True,
+               side_effect=OSError(13, 'Permission denied')):
+        assert find_executable('pint', None, fixer_path=batch,
+                               platform='windows') == [batch]
+
+
+def test_executable_batch_without_sibling(tmp_path):
+    batch, script = batch_proxy(tmp_path, 'pint.bat')
+
+    with patch('codeformatter.phpfixer.shutil.which', return_value=batch):
+        assert find_executable('pint', None, platform='windows') == [batch]
+
+
+@pytest.mark.parametrize('platform', ['linux', 'osx'])
+def test_executable_batch_off_windows_runs_as_given(tmp_path, platform):
+    batch, script = batch_proxy(tmp_path, 'pint.bat', PHP_PROXY)
+
+    with patch('codeformatter.phpfixer.shutil.which', return_value=batch):
+        assert find_executable('pint', None, platform=platform) == [batch]
+    assert find_executable('pint', None, fixer_path=batch,
+                           platform=platform) == [batch]
+
+
+def misread(argv, paths, platform='windows'):
+    from codeformatter import phpfixer
+    return phpfixer.cmd_exe_would_misread(argv, paths, platform)
+
+
+@pytest.mark.parametrize('char', list('&|<>^%!'))
+def test_cmd_exe_misreads_special_characters(char):
+    path = 'C:\\proj\\a' + char + 'b.php'
+
+    assert misread(['C:\\g\\pint.bat'], [None, path]) is True
+    assert misread(['C:\\g\\pint.CMD'], [path, None]) is True
+    # The batch file's own path counts too.
+    assert misread(['C:\\R' + char + 'D\\pint.bat'], [None, None]) is True
+
+
+def test_cmd_exe_clean_paths():
+    assert misread(['C:\\g\\pint.bat'],
+                   ['C:\\my proj\\pint.json',
+                    'C:\\my proj\\src\\módulo.php']) is False
+
+
+@pytest.mark.parametrize('argv,platform', [
+    # No batch file, so cmd.exe never reads the command line.
+    (['C:\\php\\php.exe', '-d', 'display_errors=stderr',
+      'C:\\g\\pint'], 'windows'),
+    (['C:\\g\\pint.exe'], 'windows'),
+    (['/usr/local/bin/pint.bat'], 'linux'),
+    (['/usr/local/bin/pint.bat'], 'osx'),
+], ids=['php', 'exe', 'linux', 'osx'])
+def test_cmd_exe_not_involved(argv, platform):
+    assert misread(argv, ['C:\\R&D\\a.php'], platform) is False
 
 
 def tool_version(tool, argv, cwd='/proj'):

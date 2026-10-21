@@ -22,6 +22,10 @@ PACKAGES = {
 }
 
 VERSION = re.compile(r'([0-9]+)\.([0-9]+)\.([0-9]+)')
+# php, php8.3, php.exe: the interpreter a shebang names.
+PHP_NAME = re.compile(br'php[0-9.]*(\.exe)?$', re.IGNORECASE)
+# What cmd.exe reads in a batch file's command line.
+CMD_EXE_SPECIAL = '&|<>^%!'
 HUNK_HEADER = re.compile(
     r'@@ -([0-9]+)(?:,([0-9]+))? \+([0-9]+)(?:,([0-9]+))? @@')
 
@@ -96,10 +100,11 @@ def find_config(file_name, forced):
     return None
 
 
-def find_executable(fixer, config_dir, fixer_path, php_path):
+def find_executable(fixer, config_dir, fixer_path, php_path, platform):
     """Return the command line that runs fixer, or None when not found."""
+    php = php_path or 'php'
     if fixer_path:
-        return [os.path.expanduser(fixer_path)]
+        return _unless_batch(os.path.expanduser(fixer_path), php, platform)
 
     # Composer's bin proxies are PHP scripts, so run them through PHP; this
     # works on Windows too.
@@ -107,12 +112,72 @@ def find_executable(fixer, config_dir, fixer_path, php_path):
         for d in _upward(config_dir):
             script = os.path.join(d, 'vendor', 'bin', fixer)
             if os.path.isfile(script):
-                return [php_path or 'php', script]
+                return _through_php(php, script)
 
     path = shutil.which(fixer)
     if path:
-        return [path]
+        return _unless_batch(path, php, platform)
     return None
+
+
+def _through_php(php, script):
+    # PHP writes notices to stdout by default without a php.ini, and the
+    # fixer's stdout is the formatted code.
+    return [php, '-d', 'display_errors=stderr', script]
+
+
+def _unless_batch(path, php, platform):
+    """Return the command line for path.
+
+    On Windows a batch file runs through cmd.exe, which reads its command
+    line again. Composer's batch proxy runs the PHP script next to it
+    ("pint.bat" runs "pint"), so that script runs through PHP instead.
+    """
+    if platform == 'windows' and _is_batch(path):
+        script = path[:-len('.bat')]
+        if _is_php_script(script):
+            return _through_php(php, script)
+    return [path]
+
+
+def _is_batch(path):
+    return path.lower().endswith(('.bat', '.cmd'))
+
+
+def _is_php_script(path):
+    """Tell whether path is a PHP script: it starts with <?php or with a
+    shebang naming php. A shell proxy from Composer before 2.2 is not one,
+    and PHP would print it to stdout."""
+    if not os.path.isfile(path):
+        return False
+    try:
+        with open(path, 'rb') as f:
+            first = f.readline(256).strip()
+    except OSError:
+        return False
+    if first[:5].lower() == b'<?php':
+        return True
+    if first[:2] != b'#!':
+        return False
+    words = first[2:].split()
+    if words and os.path.basename(words[0]) == b'env':
+        words = [w for w in words[1:] if not w.startswith(b'-')]
+    return bool(words) and PHP_NAME.match(
+        os.path.basename(words[0])) is not None
+
+
+def cmd_exe_would_misread(argv, paths, platform):
+    """Tell whether cmd.exe would read argv, extended by the paths that are
+    not None, differently from what was passed.
+
+    That happens on Windows when argv starts a batch file: Python does not
+    escape a command line for cmd.exe (gh-114539), so a & in a path splits
+    the command, ^ is dropped and %NAME% is expanded even inside quotes.
+    """
+    if platform != 'windows' or not _is_batch(argv[0]):
+        return False
+    args = list(argv) + [p for p in paths if p is not None]
+    return any(c in arg for arg in args for c in CMD_EXE_SPECIAL)
 
 
 def tool_version(tool, argv, cwd, platform):
