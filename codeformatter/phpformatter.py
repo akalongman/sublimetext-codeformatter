@@ -37,7 +37,7 @@ class PhpFormatter:
 
     def format(self, text):
         # A user override may lack keys, and may still hold the retired
-        # phpF keys, which are not read.
+        # keys of the old PHP formatter, which are not read.
         forced = self.opts.get('fixer', '')
         if forced and forced not in phpfixer.FIXERS:
             return '', UNKNOWN_FIXER.format(forced)
