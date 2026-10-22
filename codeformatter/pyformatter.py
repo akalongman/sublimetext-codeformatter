@@ -45,7 +45,7 @@ class PyFormatter:
             p = subprocess.Popen(
                 cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE, **popen_args)
-        except FileNotFoundError:
+        except OSError:
             return '', ('ruff not found. Install ruff, or set ruff_path in '
                         'codeformatter_python_options to its full path.')
 
@@ -58,8 +58,8 @@ class PyFormatter:
 
         stderr = stderr.decode('utf-8', 'replace').strip()
         if p.returncode == 0:
-            if stderr:
-                print('CodeFormatter: ' + stderr)
+            for line in stderr.splitlines():
+                print('CodeFormatter: ' + line)
             # ruff prints nothing for a buffer of only spaces or tabs, and
             # the caller reports empty output as an error, so keep the text.
             return stdout or text, ''

@@ -1,0 +1,19 @@
+Sublime CodeFormatter 4.5.0 Changelog:
+
+Please report bugs and proposals on GitHub (https://github.com/akalongman/sublimetext-codeformatter/issues)
+
+PHP
+---
+The bundled PHP formatter, phpF, is gone, because it cannot run on PHP 8. The "CodeFormatter: Show PHP Transformations" command went with it.
+
+PHP files are now formatted by the project's own fixer: Pint, PHP-CS-Fixer or phpcbf from PHP_CodeSniffer. CodeFormatter looks in the file's directory and each directory above it for pint.json (Pint), .php-cs-fixer.php or .php-cs-fixer.dist.php (PHP-CS-Fixer), or phpcs.xml, .phpcs.xml, phpcs.xml.dist or .phpcs.xml.dist (phpcbf), and runs that fixer from the project's vendor/bin, else from PATH. A Composer project with vendor/bin/pint and no configuration file is formatted with Pint's default preset. The new "fixer" option forces one fixer, "fixer_path" names the fixer executable, and "php_path" is now the PHP that runs a fixer from vendor/bin.
+
+The phpF options passes, excludes, indent_with_space, enable_auto_align, visibility_order, smart_linebreak_after_curly, php55_compat, psr1, psr1_naming and psr2 no longer apply. They are ignored if your user settings still hold them, and you can delete them. Style now comes from the fixer's configuration in the project.
+
+When CodeFormatter finds no fixer configuration for a file, formatting stops with "No PHP fixer is configured for this file. Add pint.json, .php-cs-fixer.dist.php or phpcs.xml to the project, or set "fixer" in codeformatter_php_options." Add one of those files to the project, or set "fixer" to "pint", "php-cs-fixer" or "phpcbf". If you keep PHP format on save on for every file, a project without a fixer shows this error in the status bar on each save; a format_on_save regexp can limit it to your projects.
+
+Errors
+------
+When format on save fails, in any language, the error now appears in the status bar, with the full text in the console, instead of in a dialog, and the file is saved as it is. Format Code still shows errors in a dialog.
+
+The PHP section of the README has the details and install steps for macOS, Linux, Windows and WSL: https://github.com/akalongman/sublimetext-codeformatter#php

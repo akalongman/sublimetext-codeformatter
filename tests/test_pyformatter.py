@@ -105,6 +105,14 @@ def test_py_formatter_warning_goes_to_console(popen, capsys):
 
 
 @patch('codeformatter.pyformatter.subprocess.Popen')
+def test_py_formatter_multiline_warning_prefixes_every_line(popen, capsys):
+    run(popen, out=b'x = 1\n', err=b'warning: conflict\n  detail\n')
+
+    assert capsys.readouterr().out.splitlines() == [
+        'CodeFormatter: warning: conflict', 'CodeFormatter:   detail']
+
+
+@patch('codeformatter.pyformatter.subprocess.Popen')
 def test_py_formatter_empty_output_keeps_buffer(popen):
     result = run(popen, out=b'', returncode=0)
 
@@ -141,6 +149,15 @@ def test_py_formatter_ruff_not_found(popen):
     popen.side_effect = FileNotFoundError(2, 'No such file or directory')
 
     result = run(popen)
+
+    assert result == ('', NOT_FOUND)
+
+
+@patch('codeformatter.pyformatter.subprocess.Popen')
+def test_py_formatter_ruff_path_not_executable(popen):
+    popen.side_effect = PermissionError(13, 'Permission denied')
+
+    result = run(popen, opts={'ruff_path': '/opt/ruff-dir'})
 
     assert result == ('', NOT_FOUND)
 

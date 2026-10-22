@@ -25,6 +25,8 @@ if st_version == 3:
 mods_load_order = [
     '',
 
+    '.process',
+    '.phpfixer',
     '.phpformatter',
     '.jsformatter',
     '.htmlformatter',

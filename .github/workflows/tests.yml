@@ -1,0 +1,93 @@
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -r dev-requirements.pip ruff==0.17.1
+      - run: python -m pytest -q -p no:cacheprovider tests --ignore=tests/test_phpformatter_tools.py
+        env:
+          CODEFORMATTER_TEST_RUFF: ruff
+          CODEFORMATTER_REQUIRE_TOOLS: '1'
+
+  ruff-oldest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+      - run: python -m pip install -r dev-requirements.pip ruff==0.1.2
+      - run: python -m pytest -q -p no:cacheprovider tests/test_pyformatter_ruff.py
+        env:
+          CODEFORMATTER_TEST_RUFF: ruff
+          CODEFORMATTER_REQUIRE_TOOLS: '1'
+
+  python33:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+      - run: python -m pip install vermin==1.9.2
+      - run: vermin --target=3.3- --violations --exclude str.decode --no-tips CodeFormatter.py codeformatter
+
+  php:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer
+      # composer --working-dir needs an existing directory.
+      - run: mkdir "${{ runner.temp }}/php-tools"
+      - run: composer require -q --no-plugins --no-scripts --no-interaction --dev "--working-dir=${{ runner.temp }}/php-tools" laravel/pint:1.32.1 friendsofphp/php-cs-fixer:3.95.27 squizlabs/php_codesniffer:4.0.4
+      - run: python -m pip install -r dev-requirements.pip
+      - run: python -m pytest -q -p no:cacheprovider tests/test_phpformatter_tools.py
+        env:
+          CODEFORMATTER_TEST_PHP_TOOLS: ${{ runner.temp }}/php-tools
+          CODEFORMATTER_REQUIRE_TOOLS: '1'
+
+  php-oldest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.14'
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.5'
+          tools: composer
+      - run: mkdir "${{ runner.temp }}/php-tools"
+      - run: composer require -q --no-plugins --no-scripts --no-interaction --dev "--working-dir=${{ runner.temp }}/php-tools" laravel/pint:1.26.0 squizlabs/php_codesniffer:3.13.6
+      - run: python -m pip install -r dev-requirements.pip
+      - run: python -m pytest -q -p no:cacheprovider tests/test_phpformatter_tools.py -k "pint or phpcbf"
+        env:
+          CODEFORMATTER_TEST_PHP_TOOLS: ${{ runner.temp }}/php-tools
+          CODEFORMATTER_REQUIRE_TOOLS: '1'

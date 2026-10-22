@@ -57,10 +57,6 @@
 		}
 	},
 	{
-		"caption": "CodeFormatter: Show PHP Transformations",
-		"command": "code_formatter_show_php_transformations"
-	},
-	{
 		"caption": "CodeFormatter: Format as Coldfusion Syntax",
 		"command": "code_formatter",
 		"args": {
