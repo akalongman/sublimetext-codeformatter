@@ -1,6 +1,9 @@
 # Design: PHP fixers and CI
 
-Status: approved by the maintainer, 2026-10-21.
+Status: approved by the maintainer, 2026-10-21. Revised 2026-10-22 to
+match the implementation: decisions the maintainer took during the build
+are marked **(maintainer)**, and facts the build measured on the real tools
+are added to the probes.
 
 Markers: **(maintainer)** is a decision the maintainer made. **(default)**
 is a design default proposed here and open to review. Everything unmarked
@@ -100,16 +103,40 @@ fixer runs from Sublime Text's working directory with its defaults
 
 1. `fixer_path`, when non-empty (with `~` expanded), runs as given.
 2. Otherwise the nearest `vendor/bin/<tool>` at or above the configuration
-   directory runs as `[php, <script>]`, where `php` is `php_path` or
-   `"php"`. Composer's bin proxies are PHP scripts, so this works on
-   Windows too.
+   directory runs as `[php, -d, display_errors=stderr, <script>]`, where
+   `php` is `php_path` or `"php"`. Composer's bin proxies are PHP scripts,
+   so this works on Windows too. The `-d` option keeps PHP notices off
+   stdout, which carries the formatted code: PHP without a `php.ini`, and
+   Homebrew's development `php.ini`, print them to stdout
+   **(maintainer)**.
 3. Otherwise `<tool>` from `PATH` runs as given.
 
-`<tool>` is `pint`, `php-cs-fixer` or `phpcbf`. When none is found, the
-error is `<tool> not found. Run "composer require --dev <package>" in the
-project, or set fixer_path in codeformatter_php_options.`, with
-`laravel/pint`, `friendsofphp/php-cs-fixer` or `squizlabs/php_codesniffer`
-as `<package>`.
+On Windows a `.bat` or `.cmd` file from step 1 or 3 runs through cmd.exe,
+which parses its command line again. Python does not escape a command
+line for cmd.exe (gh-114539), so a `&` in a path splits the command and
+`%NAME%` is expanded even inside quotes. When the file without that
+extension sits beside it and is a PHP script (its first line starts with
+`<?php` or is a shebang naming php), that script runs as in step 2, which
+is what Composer's batch proxy runs itself. Otherwise, when the batch
+file's path, the configuration file or the file name holds `&`, `|`, `<`,
+`>`, `^`, `%` or `!`, formatting stops with an error that names the batch
+file and suggests installing the fixer in the project **(maintainer)**.
+The PHP-script check matters because a Composer proxy from before 2.2 is
+a shell script, which PHP would copy to stdout as if it were the result.
+`php_path` therefore applies to step 2 and to this redirect only; a
+`fixer_path` or `PATH` executable starts PHP through its own first line.
+
+`<tool>` is `pint`, `php-cs-fixer` or `phpcbf`. When none is found, or the
+executable cannot be started, the error is `<tool> not found. Run
+"composer require --dev <package>" in the project, or set fixer_path in
+codeformatter_php_options.`, with `laravel/pint`,
+`friendsofphp/php-cs-fixer` or `squizlabs/php_codesniffer` as
+`<package>`. When a command that runs a script through PHP fails because
+PHP itself is missing, the error is `<php> not found. Set php_path in
+codeformatter_php_options to your PHP executable.` instead **(default)**.
+That needs the error to name PHP as the missing program: Python 3.6 and
+newer set its file name, and Python 3.3 to 3.5 append the program to its
+message. On Windows neither names it, so the first message stays.
 
 ### Running the fixers
 
@@ -124,23 +151,37 @@ every line, never to the dialog.
 
 | Fixer | Command | Result |
 |---|---|---|
-| Pint | `pint --no-ansi [--config <file>] --stdin-filename <file_name> -` | Exit 0: stdout is the result. Other exits: error. |
-| phpcbf | `phpcbf -q --no-colors --stdin-path=<file_name> -` (the `=` form; a space-separated value fails on both majors) | depends on the major version, below |
+| Pint | `pint --no-ansi [--config=<file>] --stdin-filename=<file_name> -` | Exit 0: stdout is the result. Other exits: error. |
+| phpcbf | `phpcbf -q --no-colors --stdin-path=<file_name> -` | depends on the major version, below |
 | PHP-CS-Fixer | see below | |
+
+Every option that takes a value is passed in its `--name=value` form, as
+one argument; phpcbf's `--stdin-path` fails in the space-separated form on
+both majors. A never-saved buffer gets no path options.
+
+A failed run shows its stderr. When stderr is empty, the error is `<tool>
+exited with code <N>`, followed by `: ` and the first non-empty line of
+stdout (at most 200 characters) when there is one, because phpcbf 3.x
+prints its fatal errors on stdout **(default)**.
 
 **Minimum versions and version handling (maintainer).** PHP_CodeSniffer
 3.x and 4.x are both supported, because 3.x is still in wide use and its
 exit codes differ. The formatter reads the major version once per
-executable path with `phpcbf --version` and keeps it for the session.
+executable path with `phpcbf --version` and keeps it for the session. A
+major of 4 or above reads the 4.x rows, any lower major the 3.x rows
+**(default)**. A version is kept only from a run that exits 0, because a
+failed run can print the PHP version it requires (`>= 8.2.0`); a failed
+read stops formatting with `could not read the <tool> version`, followed
+by `: ` and the first line of its stderr when there is one **(default)**.
 
 | phpcbf | Exit | Meaning |
 |---|---|---|
 | 4.x | 0 or 2 | stdout is the result (2: issues remain that phpcbf cannot fix) |
 | 4.x | 16 and stderr contains `No files were checked` | file excluded: the input, unchanged |
-| 4.x | 16 otherwise, any other | error (16 also covers an unknown option or a broken ruleset) |
+| 4.x | 16 otherwise, any other | error (16 also covers an unknown option or a broken ruleset; 4 to 7 follow a fixer conflict and carry code on stdout, probes below) |
 | 3.x | 1 | stdout is the result, whether anything changed or not |
-| 3.x | 0 | stdout is a report (`No fixable errors were found ...`), not code: the input, unchanged |
-| 3.x | any other | error; the builder confirms what 3.x's exit 2 carries |
+| 3.x | 0 | stdout is a report (`No fixable errors were found ...` on 3.11, `No violations were found ...` on 3.13), not code: the input, unchanged |
+| 3.x | any other | error. 3.x never exits 2 for stdin: its stdin report ends with exit 1 for every file (`Cbf.php`) |
 
 Pint gained stdin support in 1.26.0 (it was added in 1.25.0 and reverted
 in 1.25.1). For an older Pint, read with `pint --version` once per
@@ -151,29 +192,47 @@ project.` **(maintainer)**
 PHP-CS-Fixer cannot print fixed code for stdin input; it only reports or
 prints a diff. So the fix is preceded by an exclusion check **(maintainer)**:
 
-1. For a saved file: `php-cs-fixer list-files --no-ansi [--config <file>]`
-   prints every file the project's configuration covers, one quoted path
-   per line relative to the configuration directory (`'./src/a.php'`). The
-   list is kept per configuration file and its modification time. A file
-   that is not in the list triggers one refresh of the list (it may be
-   new); still absent, it is excluded: return the input unchanged. The
-   list walks the whole project once, so only the first format in a
-   project pays for it. A run that hits the timeout stops formatting with
-   an error rather than guessing.
-2. The fix: `php-cs-fixer fix --no-ansi --using-cache=no --diff --format=json [--config <file>] -`
-   with the buffer on stdin. Exit 0: the input is already clean. Exit 8:
-   apply the unified diff in `files[0].diff` to the input; the diff is
-   computed against exactly that input, so applying it needs no fuzz.
-   Other exits: error.
+1. For a saved file with a configuration file:
+   `php-cs-fixer list-files --no-ansi --config=<file>` prints every file
+   the configuration covers, one quoted path per line relative to the
+   configuration directory (`'./src/a.php'`; PHP's `escapeshellarg` uses
+   double quotes on Windows). Without a configuration file (a forced
+   `fixer` in a project that has none) no Finder exists that could
+   exclude the file, and `list-files` would fail with `You must call one
+   of in() or append() methods before iterating over a Finder`, so the
+   file counts as covered and this step is skipped **(maintainer)**.
+   The list is kept per configuration file until the file's modification
+   time changes. A file missing from a kept list triggers one refresh (it
+   may be new); still absent, it is excluded: return the input unchanged.
+   A file that the refresh misses while it exists on disk is remembered as
+   excluded until the configuration changes, so saving an excluded file
+   does not walk the project on every save. A file that is not on disk
+   yet is never remembered, because format on save runs before Sublime
+   Text writes a new file **(maintainer)**. A first read is not refreshed,
+   so a new file's first save leaves it unformatted and the next save
+   formats it. A run that hits the timeout stops formatting with an error
+   rather than guessing.
+2. The fix: `php-cs-fixer fix --no-ansi --using-cache=no --diff --format=json [--config=<file>] -`
+   with the buffer on stdin. Exit 0: the input is already clean. Exit 4:
+   the input has a syntax error (the only cause of 4 in
+   `FixCommandExitStatusCalculator`), and it stays unchanged, as with Pint
+   and phpcbf. Exit 8: apply the unified diff in `files[0].diff` to the
+   input; the diff is computed against exactly that input, so applying it
+   needs no fuzz, and a hunk range without a count (`@@ -5 +5 @@`) means
+   one line. Other exits: error. Output that is not the JSON report, or a
+   diff that does not match the input, stops formatting with an error and
+   leaves the buffer unchanged, never partly patched.
 
 A dry run with `--path-mode=intersection` cannot replace step 1: its JSON
 lists only files that would change, so an excluded file and a clean one
 both report zero files.
 
-`--config <file>` names the configuration file found, when there is one.
-A syntax error must leave the buffer unchanged; Pint and phpcbf already
-return their input untouched in that case, and for PHP-CS-Fixer the
-builder determines the exit code and maps it to an unchanged buffer.
+`--config=<file>` names the configuration file found, for Pint and
+PHP-CS-Fixer, when there is one. phpcbf gets no `--standard=`: it reads
+its ruleset from the working directory, in its own order of names, which
+differs from the detection order above. A syntax error leaves the buffer
+unchanged: Pint and phpcbf return their input untouched, and PHP-CS-Fixer
+exits 4.
 
 These probes on PHP 8.5.4, against Pint 1.32.1, PHP-CS-Fixer 3.95.27 and
 PHP_CodeSniffer 4.0.4 unless a row names another version, back the tables:
@@ -193,11 +252,18 @@ PHP_CodeSniffer 4.0.4 unless a row names another version, back the tables:
 | phpcbf 4.0.4, syntax error | input unchanged, exit 0 |
 | phpcbf 3.11.3, issues fixed / clean | exit 1 / 1, stdout the result |
 | phpcbf 3.11.3, path matching an `exclude-pattern` | exit 0, stdout `No fixable errors were found` and a timing line |
+| phpcbf 3.13.6, path matching an `exclude-pattern` | exit 0, stdout `No violations were found` and a timing line |
+| phpcbf 3.13.6, syntax error | input unchanged, exit 1 |
+| phpcbf 4.0.4, fixer conflict | exit 5 or 7 (4 or 6 with `ignore_errors_on_exit` or `ignore_warnings_on_exit`), stdout the partly fixed code |
 | Pint 1.20.0 | no `--stdin-filename` option |
+| Pint 1.32.1 and 1.26.0, path in `exclude` / syntax error | input unchanged, exit 0 |
 | PHP-CS-Fixer, `list-files` with a Finder that excludes `legacy` | `'./src/a.php'` only, exit 0 |
+| PHP-CS-Fixer 3.7.0, `list-files` without a configuration file (the same code path in current releases) | `You must call one of in() or append() methods before iterating over a Finder`, exit 1 |
 | PHP-CS-Fixer, `fix -` | no fixed code on stdout, `1 of 1 files that can be fixed`, exit 8 |
 | PHP-CS-Fixer, `fix --diff --format=json -` | JSON with a unified diff for `php://stdin`, exit 8 |
+| PHP-CS-Fixer, `fix --format=json -` on a syntax error | empty `files`, exit 4 |
 | PHP-CS-Fixer, dry-run `--path-mode=intersection` on an excluded path | zero files, exit 0 |
+| PHP-CS-Fixer, any `fix` run | a header on stderr (version, runtime, loaded configuration, core count); with the warnings below, about seven console lines on every successful format |
 | PHP-CS-Fixer, any run without a `composer.json` | warnings on stderr |
 
 ### Errors while saving
@@ -371,7 +437,8 @@ machine **(maintainer)**.
 - Workflow and job names, caching, and the environment variable names the
   PHP integration tests use to find the tools.
 - PHP-CS-Fixer's exit code for a syntax error, and its mapping to an
-  unchanged buffer.
+  unchanged buffer. Settled: exit 4, the input unchanged (Running the
+  fixers).
 
 ## Out of scope
 
